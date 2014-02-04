@@ -17,25 +17,25 @@
 #  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #############################################################################
-#' This is a function that implements a fundamental part of RST: the indiscernibility relation.
+#' This is a function implementing a fundamental part of RST: the indiscernibility relation.
 #' The indiscernibility relation is a binary relation showing whether two objects can be discerned. The detailed description based on theoritical point of view
 #' can be seen in \code{\link{A.Introduction-RoughSets}}.
 #'  
 #' This function is used as a basic function and is needed by other functions such as \code{\link{BC.LU.approximation.RST}}, \code{\link{BC.positive.reg.RST}} for calculating
-#' lower and upper approximation and determining the positive region. The formula of the indiscernibility relation has been explained in \code{\link{A.Introduction-RoughSets}}.
+#' lower and upper approximations and determining the positive region. The formula of the indiscernibility relation has been explained in \code{\link{A.Introduction-RoughSets}}.
 #'
 #' @title Indiscernibility relation based on rough set theory
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param attribute a numerical vector expressing indexes of subsets of attributes to be considered. The default value is \code{NULL} which means that 
 #'                 all condition attributes will be considered. It should be noted that in this case, all attributes considered should be nominal attributes,  
-#'                 otherwise the discretization task must be performed first. 
+#'                 otherwise discretization must be performed first. 
 #' @seealso \code{\link{BC.LU.approximation.RST}}, \code{\link{BC.LU.approximation.RST}}
 #' @return A class \code{"IndiscernibilityRelation"} which contains
 #'          \itemize{
 #'          \item \code{IND.relation}: a list representing indiscernibility relation over all objects. 
 #'          \item \code{type.relation}: it is \code{"equivalence"}. 
-#'          \item \code{type.model}: a string showing the type of model which is used. In this case, it is \code{"RST"} which means fuzzy rough set theory.
+#'          \item \code{type.model}: a string showing the type of model which is used. In this case, it is \code{"RST"} which means rough set theory.
 #'          }
 #' @references
 #' Z. Pawlak, "Rough Sets", International Journal of Computer and Information Sciences, 
@@ -66,15 +66,17 @@ BC.IND.relation.RST <- function(decision.table, attribute = NULL){
 	objects <- decision.table
 	desc.attrs <- attr(decision.table, "desc.attrs")
 	nominal.att <- attr(decision.table, "nominal.attrs")
+	decision.attr <- attr(decision.table, "decision.attr")
 	
 	## initialize
 	if (is.null(attribute)){
-		attribute <- 1:(ncol(objects) - 1)
+		if(length(decision.attr) > 0) attribute <- (1:ncol(objects))[-decision.attr]
+    else attribute <- 1:ncol(objects)
 	}
 
 	## check for non nominal attribute
 	if (!all(nominal.att[c(attribute)])){
-		stop("please discretization those attributes before computing an equivalence indiscernibility relation")
+		stop("please discretize attributes before computing an equivalence-based indiscernibility relation")
 	}
 	
 	#compute the indiscernibility classes
@@ -91,7 +93,7 @@ BC.IND.relation.RST <- function(decision.table, attribute = NULL){
 	return(class.mod)
 }
 
-#' This is a function that implements a fundamental part of rough set theory: 
+#' This is a function implementing a fundamental part of rough set theory: 
 #' lower and upper approximations. The lower and upper approximations determine whether the objects can be certainty or possibly classified in a particular class based on the basis of available knowledge.
 #' The detailed theoretical description 
 #' can be seen in \code{\link{A.Introduction-RoughSets}}.
@@ -100,17 +102,18 @@ BC.IND.relation.RST <- function(decision.table, attribute = NULL){
 #' before performing this function, users must execute \code{\link{BC.IND.relation.RST}} first. Furthermore, we provide parameter \code{decision.attr} representing
 #' a column index of the decision attribute, so actually, users may choose any index to be considered as the decision attribute. 
 #'
-#' @title The lower and upper approximation based on rough set
+#' @title The lower and upper approximations based on rough set
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#'                 It should be noted that in this case, attributes considered must be nominal,  
+#'                 otherwise the discretization task must be performed first. 
 #' @param IND an \code{"IndiscernibilityRelation"} class representing the partitions of the indiscernibility relation. 
-#' @param decision.attr a numeric expressing a column index which refers to the decision attribute. It should be noted that in this case, the decision attributes considered must be nominal,  
-#'                 otherwise the discretization task must be performed first. The default value is \code{NULL} which means the last column is the decision attribute.
+#' @param ... other parameters
 #' @seealso \code{\link{BC.IND.relation.RST}}, \code{\link{BC.LU.approximation.FRST}}
-#' @return A class \code{"LowerUpperApproximation"} representing rough set (lower and upper approximation). It contains the following components:
+#' @return A class \code{"LowerUpperApproximation"} representing rough set (the lower and upper approximations). It contains the following components:
 #'         \itemize{
-#'          \item \code{lower.approximation}: a list containing object indexes included in lower approximations based on decision concepts. 
-#'          \item \code{upper.approximation}: a list containing object indexes included in upper approximations based on decision concepts.
+#'          \item \code{lower.approximation}: a list containing object indexes included in the lower approximation based on decision concepts. 
+#'          \item \code{upper.approximation}: a list containing object indexes included in the upper approximation based on decision concepts.
 #'          \item \code{type.model}: a string showing type of the used model. In this case, it is \code{"RST"} means rough set theory.
 #'          } 
 #' @references
@@ -127,6 +130,7 @@ BC.IND.relation.RST <- function(decision.table, attribute = NULL){
 #' decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 5, 
 #'                                      indx.nominal = c(1:5))
 #'
+#' ## Define considered attributes
 #' P <- c(2,3)
 #' 
 #' ####### Compute indiscernibility relation #######
@@ -134,9 +138,9 @@ BC.IND.relation.RST <- function(decision.table, attribute = NULL){
 #'
 #' ####### Compute lower and upper approximation #####
 #' decision.attr <- c(5)
-#' roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+#' roughset <- BC.LU.approximation.RST(decision.table, IND)
 #' @export
-BC.LU.approximation.RST <- function(decision.table, IND, decision.attr = NULL){
+BC.LU.approximation.RST <- function(decision.table, IND, ...){
 	
 	## get the data
 	objects <- decision.table
@@ -153,13 +157,14 @@ BC.LU.approximation.RST <- function(decision.table, IND, decision.attr = NULL){
 		if (decision.attr != ncol(objects)){
 			objects <- cbind(objects[, -decision.attr, drop = FALSE], objects[, decision.attr, drop = FALSE])
 			nominal.att <- c(nominal.att[-decision.attr], nominal.att[decision.attr])
+			decision.attr = ncol(objects)
 		}
 	}	
 	num.att <- ncol(objects)
 
 	## get indiscernibility of decision attribute
-	if (any(nominal.att[c(decision.attr)] == FALSE)){
-		stop("please discretization those attributes first before performing indiscernibility relation using equivalence relation")
+	if (!all(nominal.att[-decision.attr])){
+		stop("please, discretize attributes before computing an equivalence-based indiscernibility relation")
 	} else {
 		## get unique decisions
 		uniqueDecisions <- as.character(unique(objects[[decision.attr]]))
@@ -232,8 +237,7 @@ BC.LU.approximation.RST <- function(decision.table, IND, decision.attr = NULL){
 #' IND <- BC.IND.relation.RST(decision.table, attribute = P)
 #'
 #' ####### Perform lower and upper approximations #####
-#' decision.attr <- c(5)
-#' roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+#' roughset <- BC.LU.approximation.RST(decision.table, IND)
 #' 
 #' ####### Determine the positive region ######
 #' region <- BC.positive.reg.RST(decision.table, roughset) 
@@ -259,20 +263,14 @@ BC.positive.reg.RST <- function(decision.table, roughset){
 
 #' This is a function that builds the decision-relative discernibility matrix based on rough set theory.
 #' 
-#' It was proposed by (A. Skowron and C. Rauszer, 1992) and is used to find all reducts. A discernibility matrix of the decision table
-#' \eqn{DT = (U, C \cup D)} is a symmetric \eqn{|U| \times |U|} matrix with entries defined as
-#'
-#' \eqn{c_{ij} = \{a \in C|a(x_{i}) \neq a(x_{j})\}, i,j = 1,...,|U|}
-#' 
-#' each \eqn{c_{ij}} contains those attributes that differ between objects \eqn{i} and \eqn{j}. 
-#' The detailed explanation can be seen in \code{\link{A.Introduction-RoughSets}}.
+#' It was proposed by (Skowron and Rauszer, 1992), and is used to find all reducts. The detailed explanation can be seen in \code{\link{A.Introduction-RoughSets}}.
 #'
 #' @title The decision-relative discernibility matrix based on rough set theory
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
-#' @param range.object a vector representing considered objects to construct the $k$-relative discernibility matrix. 
+#' @param range.object a vector representing considered objects to construct the \eqn{k}-relative discernibility matrix. 
 #'                The default value is \code{NULL} which means that we are using all objects in the decision table.
-#' @param show.discernibilityMatrix a boolean value determining whether the discernibility matrix will be shown or not. 
+#' @param show.discernibilityMatrix a boolean value determining whether the discernibility matrix will be shown or not. The default value is \code{FALSE}. 
 #' @return A class \code{"DiscernibilityMatrix"} containing the following components: 
 #' \itemize{
 #' \item \code{disc.mat}: a matrix showing the decision-relative discernibility matrix \eqn{M(\mathcal{A})} 

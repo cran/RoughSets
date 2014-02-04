@@ -2,9 +2,9 @@
 \alias{FS.greedy.heuristic.superreduct.RST}
 \title{The greedy heuristic method for determining superreduct based on RST}
 \usage{
-  FS.greedy.heuristic.superreduct.RST(decision.table,
-    decisionIdx = ncol(decision.table), qualityF = X.gini,
-    nAttrs = NULL, ...)
+FS.greedy.heuristic.superreduct.RST(decision.table,
+  decisionIdx = ncol(decision.table), qualityF = X.gini, nAttrs = NULL,
+  ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -25,22 +25,23 @@
   \item{...}{other parameters.}
 }
 \value{
-  A class \code{"FeatureSubset"} that contains the
-  following components: \itemize{ \item \code{reduct}: a
-  list representing a single reduct. In this case, it could
-  be a superreduct or just a subset of features. \item
-  \code{type.method}: a string representing the type of
-  method which is \code{"greedy.heuristic.superreduct"}.
-  \item \code{type.task}: a string showing the type of task
-  which is \code{"feature selection"}. \item \code{model}:
-  a string representing the type of model. In this case, it
-  is \code{"RST"} which means rough set theory. }
+A class \code{"FeatureSubset"} that contains the following
+components: \itemize{ \item \code{reduct}: a list
+representing a single reduct. In this case, it could be a
+superreduct or just a subset of features. \item
+\code{type.method}: a string representing the type of
+method which is \code{"greedy.heuristic.superreduct"}.
+\item \code{type.task}: a string showing the type of task
+which is \code{"feature selection"}. \item \code{model}: a
+string representing the type of model. In this case, it is
+\code{"RST"} which means rough set theory. }
 }
 \description{
-  It is used to get the feature subset (superreduct) based
-  on the greedy heuristic algorithm employing some quality
-  measurements. The detailed description can be seen in
-  \code{\link{FS.greedy.heuristic.reduct.RST}}.
+It is used to get the feature subset (superreduct) based on
+the greedy heuristic algorithm employing some quality
+measurements. Regarding the quality measurements, the
+detailed description can be seen in
+\code{\link{FS.greedy.heuristic.reduct.RST}}.
 }
 \examples{
 ###################################################
@@ -57,20 +58,20 @@ res.1 <- FS.greedy.heuristic.superreduct.RST(decision.table, qualityF = X.nOfCon
 new.decTable <- SF.applyDecTable(decision.table, res.1)
 }
 \references{
-  A. Janusz and S. Stawicki, "Applications of Approximate
-  Reducts to the Feature Selection Problem", Proceedings of
-  International Conference on Rough Sets and Knowledge
-  Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
+A. Janusz and S. Stawicki, "Applications of Approximate
+Reducts to the Feature Selection Problem", Proceedings of
+International Conference on Rough Sets and Knowledge
+Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
 
-  D. Slezak, "Approximate Entropy Reducts", Fundamenta
-  Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
+D. Slezak, "Approximate Entropy Reducts", Fundamenta
+Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
 
-  J. Wroblewski, "Ensembles of Classifiers Based on
-  Approximate Reducts", Fundamenta Informaticae, vol. 47,
-  no. 3 - 4, p. 351 - 360 (2001).
+J. Wroblewski, "Ensembles of Classifiers Based on
+Approximate Reducts", Fundamenta Informaticae, vol. 47, no.
+3 - 4, p. 351 - 360 (2001).
 }
 \seealso{
-  \code{\link{FS.quickreduct.RST}} and
-  \code{\link{FS.feature.subset.computation}}.
+\code{\link{FS.quickreduct.RST}} and
+\code{\link{FS.feature.subset.computation}}.
 }
 

@@ -2,7 +2,7 @@
 \alias{IS.FRPS.FRST}
 \title{The fuzzy rough prototype selection method}
 \usage{
-  IS.FRPS.FRST(decision.table, type.alpha = "FRPS.1")
+IS.FRPS.FRST(decision.table, type.alpha = "FRPS.1")
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -14,62 +14,59 @@
   See Section \code{Details}.}
 }
 \value{
-  A class \code{"InstanceSelection"} that contains the
-  following components: \itemize{ \item
-  \code{indx.objects}: it contains all indexes of objects
-  that are selected. \item \code{type.method}: a string
-  representing a type of method. In this case, it is
-  \code{"IS.FRPS"}. \item \code{type.task}: a string
-  showing the type of task which is \code{"instance
-  selection"}. \item \code{type.model}: a string
-  representing the type of model which is \code{"FRST"}. It
-  means fuzzy rough set theory. }
+A class \code{"InstanceSelection"} that contains the
+following components: \itemize{ \item \code{indx.objects}:
+it contains all indexes of objects that are selected. \item
+\code{type.method}: a string representing a type of method.
+In this case, it is \code{"IS.FRPS"}. \item
+\code{type.task}: a string showing the type of task which
+is \code{"instance selection"}. \item \code{type.model}: a
+string representing the type of model which is
+\code{"FRST"}. It means fuzzy rough set theory. }
 }
 \description{
-  This is a function for implementing instance selection
-  using prototype selection method (FRPS) proposed by (N.
-  Verbiest et al, 2013).
+This is a function for implementing instance selection
+using prototype selection method (FRPS) proposed by
+(Verbiest et al, 2013).
 }
 \details{
-  This algorithm uses prototype selection (PS) to improve
-  the accuracy of the k-nearest neighbour (kNN) method. It
-  selects a subset of instances \eqn{S \subseteq X} and
-  then classifies a new instance \eqn{t} using the kNN rule
-  acting over \eqn{S} instead of over \eqn{X}. Based on
-  fuzzy rough set theory, \eqn{S} is built. Basically, two
-  steps are performed in the algorithm. First, the
-  instances are ordered according to a measure called
-  \eqn{\alpha} which is based on fuzzy rough set theory
-  that evaluates the lack of predictive ability of the
-  instances, and the instances for which the values exceeds
-  a certain threshold are removed from training set. To
-  determine this threshold, we consider several equations
-  which are applied on all instances. These equations are
-  constructed by considering fuzzy positive region
-  membership degree on several implication and t-norm
-  operators. The following is the equations of
-  \eqn{\alpha}: \itemize{ \item \code{"FRPS.1"}:
-  \eqn{max_{y \notin [x]_{d}} \frac{1}{max_{i=1}^{m}
-  \delta_{a_i}(x,y)}} \item \code{"FRPS.2"}: \eqn{OW A_w
-  \left(\frac{1}{OW A_w \delta_{a_i}(x,y)}\right)} \item
-  \code{"FRPS.3"}: \eqn{max_{y \notin [x]_{d}}
-  \frac{1}{\displaystyle\sum\limits_{i=1}^m
-  {\delta_{a_i}(x,y)}}} \item \code{"FRPS.4"}: \eqn{OW A_w
-  \left(\frac{1}{\displaystyle\sum\limits_{i=1}^m
-  {\delta_{a_i}(x,y)}}\right)} } where \eqn{[x]_d} and
-  \eqn{OW A_w} are equivalence class on the decision
-  attribute and ordered weighted average operator,
-  respectively. And \eqn{\delta_{a_i}(x,y)} is a distance
-  measure of the attribute \eqn{a_i} between \eqn{x} and
-  \eqn{y}. After that, \code{1knn} will be performed in
-  order to select and get prototype \eqn{S} which produces
-  the highest training accuracy.
+This algorithm uses prototype selection (PS) to improve the
+accuracy of the k-nearest neighbour (kNN) method. It
+selects a subset of instances \eqn{S \subseteq X} and then
+classifies a new instance \eqn{t} using the kNN rule acting
+over \eqn{S} instead of over \eqn{X}. Based on fuzzy rough
+set theory, \eqn{S} is built. Basically, two steps are
+performed in the algorithm. First, the instances are
+ordered according to a measure called \eqn{\alpha} which is
+based on fuzzy rough set theory that evaluates the lack of
+predictive ability of the instances, and the instances for
+which the values exceeds a certain threshold are removed
+from training set. To determine this threshold, we consider
+several equations which are applied on all instances. These
+equations are constructed by considering fuzzy positive
+region membership degree on several implication and t-norm
+operators. The following is the equations of \eqn{\alpha}:
+\itemize{ \item \code{"FRPS.1"}: \eqn{max_{y \notin
+[x]_{d}} \frac{1}{max_{i=1}^{m} \delta_{a_i}(x,y)}} \item
+\code{"FRPS.2"}: \eqn{OW A_w \left(\frac{1}{OW A_w
+\delta_{a_i}(x,y)}\right)} \item \code{"FRPS.3"}:
+\eqn{max_{y \notin [x]_{d}}
+\frac{1}{\displaystyle\sum\limits_{i=1}^m
+{\delta_{a_i}(x,y)}}} \item \code{"FRPS.4"}: \eqn{OW A_w
+\left(\frac{1}{\displaystyle\sum\limits_{i=1}^m
+{\delta_{a_i}(x,y)}}\right)} } where \eqn{[x]_d} and
+\eqn{OW A_w} are equivalence class on the decision
+attribute and ordered weighted average operator,
+respectively. And \eqn{\delta_{a_i}(x,y)} is a distance
+measure of the attribute \eqn{a_i} between \eqn{x} and
+\eqn{y}. After that, \code{1knn} will be performed in order
+to select and get prototype \eqn{S} which produces the
+highest training accuracy.
 
-  It should be noted that this function does not give the
-  new decision table directly. The other additional
-  function called \code{\link{SF.applyDecTable}} is used to
-  produce new decision table based on the output of this
-  function.
+It should be noted that this function does not give the new
+decision table directly. The other additional function
+called \code{\link{SF.applyDecTable}} is used to produce
+new decision table based on the output of this function.
 }
 \examples{
 #############################################
@@ -88,11 +85,11 @@ res.1 <- IS.FRPS.FRST(decision.table, type.alpha = "FRPS.3")
 new.decTable <- SF.applyDecTable(decision.table, res.1)
 }
 \references{
-  N. Verbiest, C. Cornelis, and F. Herrera, "A Fuzzy Rough
-  Prototype Selection Method", Pattern Recognition, Vol.
-  46, no. 10, p. 2770 - 2782 (2013).
+N. Verbiest, C. Cornelis, and F. Herrera, "A Fuzzy Rough
+Prototype Selection Method", Pattern Recognition, Vol. 46,
+no. 10, p. 2770 - 2782 (2013).
 }
 \seealso{
-  \code{\link{IS.FRIS.FRST}}
+\code{\link{IS.FRIS.FRST}}
 }
 

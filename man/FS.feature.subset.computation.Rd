@@ -2,8 +2,8 @@
 \alias{FS.feature.subset.computation}
 \title{The superreduct computation based on RST and FRST}
 \usage{
-  FS.feature.subset.computation(decision.table,
-    method = "greedy.heuristic.superreduct", ...)
+FS.feature.subset.computation(decision.table,
+  method = "greedy.heuristic.superreduct", ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -17,32 +17,31 @@
   \code{method}.}
 }
 \value{
-  A class \code{"FeatureSubset"}.
+A class \code{"FeatureSubset"}.
 
-  See \code{\link{FS.quickreduct.RST}} or
-  \code{\link{FS.quickreduct.FRST}}.
+See \code{\link{FS.quickreduct.RST}} or
+\code{\link{FS.quickreduct.FRST}}.
 }
 \description{
-  It is a function aimed as a wrapper of approaches
-  calculating a superreduct. In other words, this function
-  might produce only a feature subset which is not minimal.
+It is a wrapper function aimed to calculate a superreduct
+(i.e., a subset of features).
 }
 \details{
-  There exist three methods considered in this function as
-  follows: \itemize{ \item
-  \code{"greedy.heuristic.superreduct"}: it is a greedy
-  heuristic method which employs several quality
-  measurements based on RST.  See
-  \code{\link{FS.greedy.heuristic.superreduct.RST}}. \item
-  \code{"quickreduct.frst"}: it is a feature selection
-  function based on the fuzzy QuickReduct algorithm on
-  FRST.  See \code{\link{FS.quickreduct.FRST}}. \item
-  \code{"quickreduct.rst"}: it is a feature selection
-  function based on the RST QuickReduct algorithm.  See
-  \code{\link{FS.quickreduct.RST}}. } These methods can be
-  selected by assigning the parameter \code{method}.
-  Additionally, \code{\link{SF.applyDecTable}} has been
-  provided to generate the new decision table.
+There exist three methods considered in this function as
+follows: \itemize{ \item
+\code{"greedy.heuristic.superreduct"}: it is a greedy
+heuristic method which employs several quality measurements
+based on RST.  See
+\code{\link{FS.greedy.heuristic.superreduct.RST}}. \item
+\code{"quickreduct.frst"}: it is a feature selection
+function based on the fuzzy QuickReduct algorithm on FRST.
+See \code{\link{FS.quickreduct.FRST}}. \item
+\code{"quickreduct.rst"}: it is a feature selection
+function based on the RST QuickReduct algorithm.  See
+\code{\link{FS.quickreduct.RST}}. } These methods can be
+selected by assigning the parameter \code{method}.
+Additionally, \code{\link{SF.applyDecTable}} has been
+provided to generate the new decision table.
 }
 \examples{
 ###############################################################
@@ -72,6 +71,6 @@ res.2 <- FS.feature.subset.computation(decision.table,
 new.decTable <- SF.applyDecTable(decision.table, res.2)
 }
 \seealso{
-  \code{\link{FS.quickreduct.RST}}.
+\code{\link{FS.quickreduct.RST}}.
 }
 

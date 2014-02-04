@@ -2,7 +2,7 @@
 \alias{summary.RuleSetFRST}
 \title{The summary function of rules based on FRST}
 \usage{
-  \method{summary}{RuleSetFRST} (object, ...)
+\method{summary}{RuleSetFRST}(object, ...)
 }
 \arguments{
   \item{object}{a \code{"RuleSetFRST"} object. See
@@ -12,22 +12,21 @@
   \item{...}{the other parameters.}
 }
 \value{
-  a description that contains the following information.
-  For FRST model: \itemize{ \item The type of the
-  considered model. \item The type of the considered
-  method. \item The type of the considered task. \item The
-  type of similarity. \item The type of triangular norm.
-  \item The names of attributes and their type (whether
-  nominal or not). \item The interval of the data. \item
-  the variance values of the data. \item The rules. Every
-  rule constitutes two parts which are IF and THEN parts.
-  For example, \code{"IF pres is around 90 and preg is
-  around 8 THEN class is 2"}.  See
-  \code{\link{RI.GFRS.FRST}}. }
+a description that contains the following information:
+\itemize{ \item The type of the considered model. \item The
+type of the considered method. \item The type of the
+considered task. \item The type of similarity. \item The
+type of triangular norm. \item The names of attributes and
+their type (whether nominal or not). \item The interval of
+the data. \item the variance values of the data. \item The
+rules. Every rule constitutes two parts which are IF and
+THEN parts.  For example, \code{"IF pres is around 90 and
+preg is around 8 THEN class is 2"}.  See
+\code{\link{RI.GFRS.FRST}}. }
 }
 \description{
-  This function enables the output of a summary of the rule
-  induction methods.
+This function enables the output of a summary of the rule
+induction methods.
 }
 \examples{
 ###########################################################

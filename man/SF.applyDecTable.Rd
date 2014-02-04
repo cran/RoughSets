@@ -2,8 +2,7 @@
 \alias{SF.applyDecTable}
 \title{Apply for obtaining a new decision table}
 \usage{
-  SF.applyDecTable(decision.table, object,
-    control = list())
+SF.applyDecTable(decision.table, object, control = list())
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -11,11 +10,14 @@
   \code{\link{SF.asDecisionTable}}.}
 
   \item{object}{a class resulting from feature selection
-  (e.g. \code{\link{FS.reduct.computation}}),
-  discretization (e.g. \code{\link{D.discretization.RST}}),
-  and instance selection functions
+  (e.g., \code{\link{FS.reduct.computation}}),
+  discretization (e.g.,
+  \code{\link{D.discretization.RST}}), instance selection
+  functions
 
-  (e.g. \code{\link{IS.FRIS.FRST}}).}
+  (e.g., \code{\link{IS.FRIS.FRST}}), and missing value
+  completion (e.g.,
+  \code{\link{MV.missingValueCompletion}}).}
 
   \item{control}{a list of other parameters which are
   \code{indx.reduct} representing an index of the chosen
@@ -25,18 +27,18 @@
   value is that the first reduct will be chosen.}
 }
 \value{
-  A new decision table. Especially for the new decision
-  table resulting from discretization, we obtain a
-  different representation. Values are expressed in
-  intervals instead of labels. For example, \eqn{a_1 =
-  [-Inf, 1.35]} refers to the value \eqn{a_1} has a value
-  in that range.
+A new decision table. Especially for the new decision table
+resulting from discretization, we obtain a different
+representation. Values are expressed in intervals instead
+of labels. For example, \eqn{a_1 = [-Inf, 1.35]} refers to
+the value \eqn{a_1} has a value in that range.
 }
 \description{
-  It is used to apply a particular object/model for
-  obtaining a new decision table. The models have been
-  calculated previously by feature selection, instance
-  selection, and discretization.
+It is used to apply a particular object/model for obtaining
+a new decision table. In other words, in order to use the
+function, the models, which are objects of missing value
+completion, feature selection, instance selection, or
+discretization, have been calculated previously .
 }
 \examples{
 #############################################################
@@ -46,9 +48,10 @@
 data(RoughSetData)
 decision.table <- RoughSetData$hiring.dt
 
-object.1 <- FS.quickreduct.RST(decision.table)
+## generate reducts
+red.1 <- FS.quickreduct.RST(decision.table)
 
-new.decTable <- SF.applyDecTable(decision.table, object.1)
+new.decTable <- SF.applyDecTable(decision.table, red.1)
 
 #############################################################
 ## Example 2: The feature selection in FRST
@@ -61,11 +64,11 @@ decision.table <- RoughSetData$hiring.dt
 control <- list(decision.attr = c(5), t.implicator = "lukasiewicz",
                 type.relation = c("tolerance", "eq.1"), type.aggregation =
                 c("t.tnorm", "lukasiewicz"))
-object.2 <- FS.quickreduct.FRST(decision.table, type.method = "fuzzy.dependency",
+red.2 <- FS.quickreduct.FRST(decision.table, type.method = "fuzzy.dependency",
                             type.QR = "fuzzy.QR", control = control)
 
 ## generate new decision table
-new.decTable <- SF.applyDecTable(decision.table, object.2)
+new.decTable <- SF.applyDecTable(decision.table, red.2)
 
 ###################################################
 ## Example 3: The Instance selection by IS.FRPS and
@@ -76,7 +79,7 @@ dt.ex1 <- data.frame(c(0.5, 0.2, 0.3, 0.7, 0.2, 0.2),
 colnames(dt.ex1) <- c("a1", "a2", "d")
 decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 3)
 
-## evaluate instances
+## evaluate and select instances
 res.1 <- IS.FRPS.FRST(decision.table, type.alpha = "FRPS.3")
 
 ## generate new decision table
@@ -97,5 +100,23 @@ cut.values <- D.discretization.RST(decision.table, type.method = "local.disc.mat
 
 ## generate new decision table
 new.decTable <- SF.applyDecTable(decision.table, cut.values)
+
+#################################################################
+## Example 5: Missing value completion
+#################################################################
+dt.ex1 <- data.frame(
+     c(100.2, 102.6, NA, 99.6, 99.8, 96.4, 96.6, NA),
+     c(NA, "yes", "no", "yes", NA, "yes", "no", "yes"),
+     c("no", "yes", "no", "yes", "yes", "no", "yes", NA),
+     c("yes", "yes", "no", "yes", "no", "no", "no", "yes"))
+colnames(dt.ex1) <- c("Temp", "Headache", "Nausea", "Flu")
+decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 4,
+                                    indx.nominal = c(2:4))
+
+## missing value completion
+val.NA = MV.missingValueCompletion(decision.table, type.method = "globalClosetFit")
+
+## generate new decision table
+new.decTable <- SF.applyDecTable(decision.table, val.NA)
 }
 

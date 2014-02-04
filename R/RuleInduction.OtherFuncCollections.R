@@ -24,6 +24,7 @@
 # @param t.similarity a type of similarity equation
 # @param t.tnorm a type of t-tnorm
 std.rules <- function(rules, type.method = "RI.hybridFS.FRST", decision.table, t.similarity = NULL, t.tnorm = NULL){
+	## get data
 	objects <- decision.table
 	desc.attrs <- attr(decision.table, "desc.attrs")
 	nominal.att <- attr(decision.table, "nominal.attrs")
@@ -39,9 +40,13 @@ std.rules <- function(rules, type.method = "RI.hybridFS.FRST", decision.table, t
 		else {
 			type.task <- c("regression")
 		}
+		
+		## check duplication attributes in rules for collecting their objects
 		duplicated.pt <- duplicated(rules$attributes)
 		new.obj <- c()
 		ii <- 1
+		
+		## collect the objects that have the same attributes in the rules
 		for (i in 1 : length(duplicated.pt)){
 			if (duplicated.pt[i] == FALSE){
 				new.obj <- append(new.obj, list(rules$objects[[i]]))
@@ -54,20 +59,21 @@ std.rules <- function(rules, type.method = "RI.hybridFS.FRST", decision.table, t
 		
 		if (type.method == "RI.hybridFS.FRST"){
 			rules <- list(attributes = rules$attributes[which(duplicated.pt == FALSE)], objects = new.obj)	
-			attrs.rules <- unique(unlist(rules$attributes))				
+			attrs.rules <- unique(unlist(rules$attributes))	
 			rules <- ch.rules(rules, type.method = type.method, decision.table)
 			
 			## calculate variance and range of data
-			res.varRange <- cal.var.range(objects, c(which(colnames(objects) %in% attrs.rules)), nominal.att)
+			attrs.p <- c(which(colnames(objects) %in% attrs.rules))
+			res.varRange <- cal.var.range(objects, attrs.p, nominal.att)
 			variance.data <- res.varRange$variance.data
 			rownames(variance.data) <- NULL
-			colnames(variance.data) <- attrs.rules
+			colnames(variance.data) <- colnames(objects)[attrs.p]
 			range.data <- res.varRange$range.data	
-			colnames(range.data) <- attrs.rules
+			colnames(range.data) <- colnames(objects)[attrs.p]
 			
 			mod <- list(rules = rules, type.model = "FRST", type.method = type.method, type.task = type.task, 
 						t.similarity = t.similarity, t.tnorm = t.tnorm, variance.data = variance.data, range.data = range.data, 
-						antecedent.attr = attrs.rules, consequent.attr = consequent.attr, nominal.att = nominal.att[c(which(colnames(objects) %in% attrs.rules))])			
+						antecedent.attr = colnames(objects)[attrs.p], consequent.attr = consequent.attr, nominal.att = nominal.att[attrs.p])			
 			class.mod <- ObjectFactory(mod, classname = "RuleSetFRST")
 			return(class.mod)
 		}
@@ -78,16 +84,17 @@ std.rules <- function(rules, type.method = "RI.hybridFS.FRST", decision.table, t
 			rules <- ch.rules(rules, type.method = type.method, decision.table)
 
 			## calculate variance and range of data
-			res.varRange <- cal.var.range(objects, c(which(colnames(objects) %in% attrs.rules)), nominal.att)
+			attrs.p <- c(which(colnames(objects) %in% attrs.rules))
+			res.varRange <- cal.var.range(objects, attrs.p, nominal.att)
 			variance.data <- res.varRange$variance.data
 			rownames(variance.data) <- NULL
-			colnames(variance.data) <- attrs.rules
+			colnames(variance.data) <- colnames(objects)[attrs.p]
 			range.data <- res.varRange$range.data	
-			colnames(range.data) <- attrs.rules
+			colnames(range.data) <- colnames(objects)[attrs.p]
 			
 			mod <- list(rules = rules, type.model = "FRST", type.method = type.method,
 			            type.task = type.task, t.similarity = t.similarity, t.tnorm = t.tnorm, variance.data = variance.data, range.data = range.data, 
-						antecedent.attr = attrs.rules, consequent.attr = consequent.attr, nominal.att = nominal.att[c(which(colnames(objects) %in% attrs.rules))])
+						antecedent.attr = colnames(objects)[attrs.p], consequent.attr = consequent.attr, nominal.att = nominal.att[attrs.p])
 			class.mod <- ObjectFactory(mod, classname = "RuleSetFRST")
 			return(class.mod)
 		}

@@ -1,59 +1,54 @@
 \name{BC.LU.approximation.RST}
 \alias{BC.LU.approximation.RST}
-\title{The lower and upper approximation based on rough set}
+\title{The lower and upper approximations based on rough set}
 \usage{
-  BC.LU.approximation.RST(decision.table, IND,
-    decision.attr = NULL)
+BC.LU.approximation.RST(decision.table, IND, ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
   representing the decision table. See
-  \code{\link{SF.asDecisionTable}}.}
+  \code{\link{SF.asDecisionTable}}.  It should be noted
+  that in this case, attributes considered must be nominal,
+  otherwise the discretization task must be performed
+  first.}
 
   \item{IND}{an \code{"IndiscernibilityRelation"} class
   representing the partitions of the indiscernibility
   relation.}
 
-  \item{decision.attr}{a numeric expressing a column index
-  which refers to the decision attribute. It should be
-  noted that in this case, the decision attributes
-  considered must be nominal, otherwise the discretization
-  task must be performed first. The default value is
-  \code{NULL} which means the last column is the decision
-  attribute.}
+  \item{...}{other parameters}
 }
 \value{
-  A class \code{"LowerUpperApproximation"} representing
-  rough set (lower and upper approximation). It contains
-  the following components: \itemize{ \item
-  \code{lower.approximation}: a list containing object
-  indexes included in lower approximations based on
-  decision concepts.  \item \code{upper.approximation}: a
-  list containing object indexes included in upper
-  approximations based on decision concepts.  \item
-  \code{type.model}: a string showing type of the used
-  model. In this case, it is \code{"RST"} means rough set
-  theory.  }
+A class \code{"LowerUpperApproximation"} representing rough
+set (the lower and upper approximations). It contains the
+following components: \itemize{ \item
+\code{lower.approximation}: a list containing object
+indexes included in the lower approximation based on
+decision concepts.  \item \code{upper.approximation}: a
+list containing object indexes included in the upper
+approximation based on decision concepts.  \item
+\code{type.model}: a string showing type of the used model.
+In this case, it is \code{"RST"} means rough set theory.  }
 }
 \description{
-  This is a function that implements a fundamental part of
-  rough set theory: lower and upper approximations. The
-  lower and upper approximations determine whether the
-  objects can be certainty or possibly classified in a
-  particular class based on the basis of available
-  knowledge. The detailed theoretical description can be
-  seen in \code{\link{A.Introduction-RoughSets}}.
+This is a function implementing a fundamental part of rough
+set theory: lower and upper approximations. The lower and
+upper approximations determine whether the objects can be
+certainty or possibly classified in a particular class
+based on the basis of available knowledge. The detailed
+theoretical description can be seen in
+\code{\link{A.Introduction-RoughSets}}.
 }
 \details{
-  This function depends on
-  \code{\link{BC.IND.relation.RST}} which calculates the
-  equivalence classes of the indiscernibility relation. So,
-  it is obvious that before performing this function, users
-  must execute \code{\link{BC.IND.relation.RST}} first.
-  Furthermore, we provide parameter \code{decision.attr}
-  representing a column index of the decision attribute, so
-  actually, users may choose any index to be considered as
-  the decision attribute.
+This function depends on \code{\link{BC.IND.relation.RST}}
+which calculates the equivalence classes of the
+indiscernibility relation. So, it is obvious that before
+performing this function, users must execute
+\code{\link{BC.IND.relation.RST}} first. Furthermore, we
+provide parameter \code{decision.attr} representing a
+column index of the decision attribute, so actually, users
+may choose any index to be considered as the decision
+attribute.
 }
 \examples{
 #######################################
@@ -65,6 +60,7 @@ colnames(dt.ex1) <- c("aa", "bb", "cc", "dd", "ee")
 decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 5,
                                      indx.nominal = c(1:5))
 
+## Define considered attributes
 P <- c(2,3)
 
 ####### Compute indiscernibility relation #######
@@ -72,15 +68,15 @@ IND <- BC.IND.relation.RST(decision.table, attribute = P)
 
 ####### Compute lower and upper approximation #####
 decision.attr <- c(5)
-roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+roughset <- BC.LU.approximation.RST(decision.table, IND)
 }
 \references{
-  Z. Pawlak, "Rough Sets", International Journal of
-  Computer and Information Sciences, vol. 11, no. 5, p. 341
-  - 356 (1982).
+Z. Pawlak, "Rough Sets", International Journal of Computer
+and Information Sciences, vol. 11, no. 5, p. 341 - 356
+(1982).
 }
 \seealso{
-  \code{\link{BC.IND.relation.RST}},
-  \code{\link{BC.LU.approximation.FRST}}
+\code{\link{BC.IND.relation.RST}},
+\code{\link{BC.LU.approximation.FRST}}
 }
 

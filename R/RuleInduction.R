@@ -20,14 +20,14 @@
 #' It is a function for generating rules based on hybrid fuzzy-rough rule induction and feature selection.
 #' It allows for classification and regression tasks.
 #' 
-#' It was proposed by (R. Jensen et al, 2009) attempting to combine rule induction and feature selection
+#' It was proposed by (Jensen et al, 2009) attempting to combine rule induction and feature selection
 #' at the same time. Basically this algorithm inserts some steps to generate rules
 #' into the fuzzy QuickReduct algorithm (see \code{\link{FS.quickreduct.FRST}}. 
 #' Furthermore, by introducing the degree of coverage, this algorithm selects proper rules. 
 #'
 #' This function allows not only for classification but also for regression problems. After obtaining the rules,
 #' predicting can be done by calling \code{predict} or \code{\link{predict.RuleSetFRST}}.
-#' Additionally, to get better representation we can execute \code{link{summary}}.
+#' Additionally, to get better representation we can execute \code{\link{summary}}.
 #'
 #' @title Hybrid fuzzy-rough rule and induction and feature selection
 #' 
@@ -78,7 +78,7 @@ RI.hybridFS.FRST <- function(decision.table, control = list()){
 
 #' It is a function generating rules in classification tasks using the fuzzy variable precision rough sets (FVPRS) approach (see \code{\link{BC.LU.approximation.FRST}}). 
 #' 
-#' The method proposed by (S. Y. Zhao, 2010) consists of three steps as follows.
+#' The method proposed by (Zhao, 2010) consists of three steps as follows.
 #' First, it builds a general lower approximation that is able to deal with misclassification and perturbation.
 #' In this case, the fuzzy variable precision rough sets (FVPRS)
 #' is used to calculate the lower approximation (see \code{\link{BC.LU.approximation.FRST}}). 
@@ -428,7 +428,8 @@ RI.indiscernibilityBasedRules.RST <- function(decision.table, feature.set) {
 	attr(ruleSet, "clsProbs") <- clsFreqs/sum(clsFreqs)
 	attr(ruleSet, "majorityCls") <- as.character(uniqueCls[which.max(table(decision.table[[decisionIdx]]))])
 	attr(ruleSet, "method") <- "indiscernibilityBasedRules"
-  
+	attr(ruleSet, "dec.attr") <- colnames(decision.table[decisionIdx])
+	
 	ruleSet = ObjectFactory(ruleSet, classname = "RuleSetRST")	
 	return(ruleSet)  
 }
@@ -495,7 +496,12 @@ predict.RuleSetFRST <- function(object, newdata, ...) {
 		t.tnorm <- object$t.tnorm
 		variance.data <- object$variance.data
 		range.data <- object$range.data
+		antecedent.attr <- object$antecedent.attr
 		
+		## filter newdata according to the antecedent part of rules
+		testData <- newdata[, c(colnames(newdata) %in% antecedent.attr), drop = FALSE]
+		
+		## make results not to convert into numeric
 		res <- data.frame(stringsAsFactors = FALSE)
 		
 		for (i in 1 : nrow(newdata)){	
@@ -505,9 +511,8 @@ predict.RuleSetFRST <- function(object, newdata, ...) {
 				
 				## newdata considering attributes on rules
 				namesAtt <- colnames(rules$rules[[j]])
-				test.dt <- newdata[i, match(c(namesAtt[-length(namesAtt)]), names(newdata)), drop = FALSE]
-				valRules <- rules$rules[[j]]
-				
+				test.dt <- testData[i, match(c(namesAtt[-length(namesAtt)]), names(testData)), drop = FALSE]
+				valRules <- rules$rules[[j]]				
 				tra.dt <- valRules[-ncol(valRules)]
 				
 				## build 2 rows matrix for comparison among them
@@ -515,16 +520,15 @@ predict.RuleSetFRST <- function(object, newdata, ...) {
 				
 				## get attributes based on attributes in the rules
 				P <- which(object$antecedent.attr %in% c(namesAtt[-length(namesAtt)]))
-				range(range.data[1, P])
-				
 				temp.relation <- NA
 				for (ii in 1 : length(P)){
 					 if (object$nominal.att[P[ii]] == TRUE){
 						 ## overwrite type of similarity when crisp
 						 t.similarity <- "boolean"
-					 }						
+					 }	
+
 					 temp <- unlist(similarity.equation(test.dt[1, ii], tra.dt[1, ii], t.similarity, delta = 0.2, range.data = range.data[1, P[ii]], 
-													variance.data = variance.data[1, P[ii]]))
+					 								variance.data = variance.data[1, P[ii]]))
 					 if (is.na(temp.relation)){
 						 temp.relation <- temp
 					 }
@@ -619,7 +623,7 @@ predict.RuleSetRST <- function(object, newdata, votingScheme = X.bestFirst, ...)
 	INDclasses = sapply(ruleSet, function(x) paste(unlist(x$values), collapse = " "))
 	consequents = sapply(ruleSet, function(x) x$consequent)
 	if(method == "indiscernibilityBasedRules") {
-		newdata = do.call(paste, newdata[,ruleSet[[1]]$idx])
+		newdata = do.call(paste, newdata[,ruleSet[[1]]$idx, drop = FALSE])
 		predVec = sapply(newdata, votingScheme, INDclasses, consequents, 
                      majorityCls, uniqueCls, clsProbs)
 	} 

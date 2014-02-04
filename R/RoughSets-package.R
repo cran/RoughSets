@@ -21,30 +21,31 @@
 #' The package \code{RoughSets} attempts to provide a complete tool to model and analyze 
 #' information systems based on rough set theory (RST) and fuzzy rough set theory (FRST). 
 #' From fundamental point of view, this package allows to construct rough sets by defining lower and upper approximations. 
-#' Furthermore, recent methods for tackling common tasks in data mining such as preprocessing processes (e.g. discretization, feature selection, 
-#' and instance selection), rule induction, and predicting classes or decision values of new datasets 
-#' are available in this package as well. 
+#' Furthermore, recent methods for tackling common tasks in data mining, such as data preprocessing (e.g., discretization, feature selection, missing value completion, 
+#' and instance selection), rule induction, and prediction classes or decision values of new datasets 
+#' are available as well. 
 #'
 #' There are two main parts considered in this package which are RST and FRST. 
-#' RST was introduced by (Z. Pawlak, 1982; Z. Pawlak, 1991) which provides sophisticated mathematical tools to model 
+#' RST was introduced by (Pawlak, 1982; Pawlak, 1991) which provides sophisticated mathematical tools to model 
 #' and analyze information systems that involve uncertainty and imprecision. By employing indiscernibility relation among objects, RST does not require 
 #' additional parameters to extract information. 
-#' The detailed explanation about the fundamental concepts of RST can be read in Section \code{\link{A.Introduction-RoughSets}}. Secondly, FRST, an extension of
-#' RST, was introduced by (D. Dubois and H. Prade, 1990) as a combination between 
-#' fuzzy sets proposed by (L. A. Zadeh, 1965) and RST. This concept allows to analyze continuous attributes without 
-#' performing discretization on data first. The basic concepts of FRST
+#' The detailed explanation about fundamental concepts of RST can be read in Section \code{\link{A.Introduction-RoughSets}}. Secondly, FRST, an extension of
+#' RST, was introduced by (Dubois and Prade, 1990) as a combination between 
+#' fuzzy sets proposed by (Zadeh, 1965) and RST. This concept allows to analyze continuous attributes without 
+#' performing discretization on data first. Basic concepts of FRST
 #' can be seen in \code{\link{B.Introduction-FuzzyRoughSets}}. 
 #'
 #' Based on the above concepts, many methods have been proposed and applied for dealing with several different domains. 
-#' In order to solve the problems, the methods employ the indiscernibility relation and lower and upper approximation concepts. 
+#' In order to solve the problems, methods employ the indiscernibility relation and lower and upper approximation concepts. 
 #' All methods that have been implemented in this package will be explained by grouping based on their domains. The following is
 #' a list of domains considered in this package:
 #' \itemize{
-#' \item Basic concepts of RST and FRST: This part, we can divide into four different tasks which are
-#'       indiscernibility relation, lower and upper approximation, positive region and discernibility matrix.
+#' \item Basic concepts: This part, we can divide into four different tasks which are
+#'       indiscernibility relation, lower and upper approximations, positive region and discernibility matrix.
 #'       All of those tasks have been explained briefly in Section \code{\link{A.Introduction-RoughSets}} and
+#'
 #'      \code{\link{B.Introduction-FuzzyRoughSets}}.
-#' \item Discretization: It is used to convert real valued attributes into nominal/symbolic ones in an information system. 
+#' \item Discretization: It is used to convert real-valued attributes into nominal/symbolic ones in an information system. 
 #'       In RST point of view, this task attempts to maintain the discernibility between objects. 
 #' \item Feature selection: It is a process for finding a subset of features which have the same quality as the complete feature set. 
 #'      In other words, its purpose is to select the significant features and eliminate the dispensible ones.
@@ -52,11 +53,11 @@
 #'      feature selection refers to searching superreducts and reducts. The detailed information about reducts can be read in 
 #'      \code{\link{A.Introduction-RoughSets}} and \code{\link{B.Introduction-FuzzyRoughSets}}.
 #' \item Instance selection: This process is aimed to remove noisy, superfluous, or inconsistent instances from training datasets but retain consistent ones. 
-#'      Therefore, good accuracy of classification is achieved by removing instances which do not give positive contributions.  
+#'      In other words, good accuracy of classification is achieved by removing instances which do not give positive contributions.  
 #' \item Prediction/classification: This task is used to predict decision values of a new dataset (test data). 
-#'      We consider implementing some methods to perform this task such as fuzzy-rough nearest neighbours approaches, etc.
+#'      We consider implementing some methods to perform this task, such as fuzzy-rough nearest neighbor approaches, etc.
 #' \item Rule induction: This task refers to generate IF - THEN rules. The rule represents knowledge which is contained in a dataset. 
-#'      One advantage of building rules is that naturally the model is easy to interpret. Then, predicted values can be determined by
+#'      One advantage of building rules is that naturally the model is easy to interpret. Then, predicted values over new datasets can be determined by
 #'      considering the rules.
 #' }
 #'
@@ -64,216 +65,192 @@
 #' since experimentally it has been proven that they were able to tackle complex tasks. They are implemented as functions that were organized 
 #' to work with the same data structures. So, users can perform various approaches for a particular task easily and then compare their results. 
 #' In order to be recognized quickly, generally we have chosen the names of the functions with some conventions. The names contain three parts 
-#' which are \code{prefix}, \code{suffix}, and \code{middle} names that are separated by a point. The following is a description of each
+#' which are \code{prefix}, \code{suffix}, and \code{middle} that are separated by a point. The following is a description of each
 #' part.  
 #' \itemize{
 #' \item \code{prefix}: There are some different prefixes for names of functions expressing a kind of task to be performed. 
 #'                      The function names with prefix \code{BC} refer to \emph{basic concepts} which means that the functions are created for 
-#'                      implementing the basic concepts of RST and FRST. For instance, the function \code{\link{BC.IND.relation.RST}} 
-#'                      is used to calculate the indiscernibility relation which is one of the basic concepts of RST. 
-#'                      Generally, functions having the prefix \code{BC} are called by many other functions. 
-#'                      While prefix \code{D} refers to \emph{discretization}, \code{FS}, \code{IS}, \code{RI}, and \code{C} refer to \emph{feature selection}, 
-#'                      \emph{instance selection}, \emph{rule induction} and \emph{classifier} domains. Furthermore, \code{SF} and \code{X} mean that
+#'                      implementing the basic concepts of RST and FRST. 
+#'                      While prefix \code{D} refers to \emph{discretization}, \code{FS}, \code{IS}, \code{RI}, \code{MV}, and \code{C} refer to \emph{feature selection}, 
+#'                      \emph{instance selection}, \emph{rule induction}, \emph{missing value completion}, and \emph{classifier based on nearest neighbor} domains. Furthermore, \code{SF} and \code{X} mean that
 #'                      functions are used as \emph{supporting functions} which are not related directly with RST and FRST and \emph{auxiliary} functions which are called as a parameter.
-#' \item \code{suffix}: It is located at the end of names. There are two types available which are \code{RST} and \code{FRST}. \code{RST} represents \emph{rough set theory} 
+#' \item \code{suffix}: It is located at the end of names. There are two types available: \code{RST} and \code{FRST}. \code{RST} represents \emph{rough set theory} 
 #'                      while \code{FRST} shows that the function is applied to \emph{fuzzy rough set theory}. Additionally, some functions that do not have 
 #'                      \code{RST} or \code{FRST} suffix are used for both theories.
-#' \item \code{middle}: All other words in the middle of the names are used to express the name of a particular method/algorithm or functionality. 
+#' \item \code{middle}: All other words in the middle of the names are used to express the actual name of a particular method/algorithm or functionality. 
 #'                      In this case, it could consist of more than one word separated by points.
 #' }
-#' Other functions that have names not based on the above rules are S3 functions e.g. \code{summary} and \code{predict} which are 
+#' For instance, the function \code{\link{BC.IND.relation.RST}} is used to calculate the indiscernibility relation which is one of the basic concepts of RST. 
+#' Other functions that have names not based on the above rules are S3 functions e.g., \code{summary} and \code{predict} which are 
 #' used to summarize objects and predict new data, respectively. 
 #' 
-#' The \code{RoughSets} package contains two main groups which are implementations of algorithms based on rough set and fuzzy rough set theories. 
-#' For each part, we have considered many algorithms/methods to be implemented. The complete description about the algorithms and their associated functions is 
-#' illustrated briefly as follows.   
+#' The following description explains domains and their algorithms implemented in the package:   
 #' \enumerate{
 #' \item \bold{The implementations of RST}: This part outlines some considered algorihtms/methods based on RST. 
 #'              The approaches can be classified based on their tasks as follows:
 #'             \enumerate{
-#'             \item The basic concepts of RST: The following is a list showing tasks and their implementation as functions.
+#'             \item The basic concepts: The following is a list showing tasks and their implementations as functions.
 #'                       \itemize{
 #'                       \item Indiscernibility relation: It is a relation determining whether two objects are indiscernible by some attributes. 
-#'                             It has been implemented in \code{\link{BC.IND.relation.RST}}. 
-#'                       \item Lower and upper approximations: These approximations show whether objects can classified with certainty or not. 
-#'                             It has been implemented in \code{\link{BC.LU.approximation.RST}}. 
-#'                       \item Positive region: It is used to determine objects that are included in positive region and the corresponding degree of dependency.
-#'                             It has been implemented in \code{\link{BC.positive.reg.RST}}.   
-#'                       \item Discernibility matrix: It is used to create discernibility matrix showing attributes that discern each pair of objects. 
-#'                             It has been implemented in \code{\link{BC.discernibility.mat.RST}}.  
+#'                             It is implemented in \code{\link{BC.IND.relation.RST}}. 
+#'                       \item Lower and upper approximations: These approximations show whether objects can be classified with certainty or not. 
+#'                             It is implemented in \code{\link{BC.LU.approximation.RST}}. 
+#'                       \item Positive region: It is used to determine objects that are included in positive region and the degree of dependency.
+#'                             It is implemented in \code{\link{BC.positive.reg.RST}}.   
+#'                       \item Discernibility matrix: It is used to create a discernibility matrix showing attributes that discern each pair of objects. 
+#'                             It is implemented in \code{\link{BC.discernibility.mat.RST}}.  
 #'                       }
-#'             \item Discretization: There are several methods that have been considered in the package. The methods are implemented in the following functions.  
+#'             \item Discretization: There are several methods considered in the package as follows:  
 #'                      \itemize{
 #'                       \item \code{\link{D.max.discernibility.matrix.RST}}: It implements the maximal discernibility algorithm to choose the cut values
 #'                              which discern the largest number of pairs of objects in the decision-relative discernibility matrix. 
 #'                       \item \code{\link{D.local.discernibility.matrix.RST}}: It implements the local strategy 
-#'                              which implements decision tree to calculate the quality of a cut (i.e. number of objects discerned by cut).
+#'                              which implements decision tree to calculate the quality of a cut (i.e., number of objects discerned by cut).
 #'                       \item \code{\link{D.global.discernibility.heuristic.RST}}: It implements the global discernibility algorithm 
 #'                              which is computing globally semi-optimal cuts using the maximum discernibility heuristic.
 #'						 \item \code{\link{D.discretize.quantiles.RST}}: It is a function used for computing cuts of the "quantile-based" discretization into \eqn{n} intervals. 	
 #'                       \item \code{\link{D.discretize.equal.intervals.RST}}: It is a function used for computing cuts of the "equal interval size" discretization into \eqn{n} intervals.					
 #'                       }
-#'      		The output of these methods is a list of cut values which are the values for converting real to nominal values. 
-#'              So, we provide the function \code{\link{SF.applyDecTable}} that is used to generate a new decision table according to the cut values we got by discretization methods. 
+#'      		The output of these functions is a list of cut values which are the values for converting real to nominal values. 
+#'              So, in order to generate a new decision table according to the cut values, we need to call \code{\link{SF.applyDecTable}}. 
 #'              Additionally, we have implemented \code{\link{D.discretization.RST}} as a wrapper function collecting all methods considered to perform discretization tasks.
-#'             \item Feature selection: The output of this task can be classified into the following three groups as follows.
+#'             \item Feature selection: According to its output, it can be classified into the following groups:
 #'                      \itemize{
 #'                       \item Feature subset: It refers to a superreduct which is not necessarily minimal. In other words, the methods in this group 
 #'                              might generate just a subset of attributes.
 #'                             \itemize{
 #'                                  \item QuickReduct algorithm: It has been implemented in \code{\link{FS.quickreduct.RST}}. 
-#'                                  \item Superreduct generation based on some criteria: It is based on different criteria which are 
+#'                                  \item Superreduct generation: It is based on some criteria: 
 #'                                                    entropy, gini index, discernibility measure, size of positive region. 
-#'                                                    It has been implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.                                                
+#'     
+#'                                                    It is implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.                                                
 #'                             }
-#'                             Furthermore, we provide a wrapper function \code{\link{FS.feature.subset.computation}} in order to give a user interface for many methods of RST and FRST. 
-#'                       \item Reduct: The following are methods that produce a single decision reduct. 
+#'                             Furthermore, we provide a wrapper function \code{\link{FS.feature.subset.computation}} in order to give a user interface for many methods of RST and FRST that are included in this group. 
+#'                       \item Reduct: The following are methods that produce a single decision reduct: 
 #'                             \itemize{
-#'                                  \item Reduct generation based on some criteria: It is based on different criteria which are 
+#'                                  \item Reduct generation based on criteria: It is based on different criteria which are 
 #'                                                    entropy, gini index, discernibility measure, size of positive region. 
 #'                                                    It has been implemented in \code{\link{FS.greedy.heuristic.reduct.RST}}.
 #'                                  \item Permutation reduct: It is based on a permutation schema over all attributes. 
 #'                                                     It has been implemented in \code{\link{FS.permutation.heuristic.reduct.RST}}.
 #'                              }
-#'                             Furthermore, we provide a wrapper function \code{\link{FS.reduct.computation}} in order to give a user interface toward many methods of RST and FRST. 
-#'                       \item All reducts: In order to get all decision reducts, first we execute the \code{\link{BC.discernibility.mat.RST}} function for
-#'                             constructing a decision-relative discernibility matrix. After obtaining the matrix, \code{\link{FS.all.reducts.computation}}
-#'                             is called to get all reducts.   
+#'                             Furthermore, we provide a wrapper function \code{\link{FS.reduct.computation}} in order to give a user interface toward many methods of RST and FRST that are included in this group. 
+#'                       \item All reducts: In order to generate all reducts, we execute \code{\link{FS.all.reducts.computation}}. However, 
+#'                             before doing that, we need to call \code{\link{BC.discernibility.mat.RST}} for
+#'                             constructing a decision-relative discernibility matrix   
 #'                       }
-#'                       The output of the above methods is a class containing a decision reduct/feature subset and other descriptions. 
-#'                       For generating a new decision table according to the decision reduct, we provide the function \code{\link{SF.applyDecTable}}. 
-#'            \item Rule induction: We have provided the function \code{\link{RI.indiscernibilityBasedRules.RST}} to generate rules. This function requires the output of 
-#'                       feature selection functions for getting a superreduct/reduct. After obtaining the rules, 
-#'                       in the predicting process, we execute \code{\link{predict.RuleSetRST}} considering our rules and given newdata/testing data.
+#'                       It should be noted that the outputs of the functions are decision reducts. So, for generating a new decision table according to the decision reduct, 
+#'                       we need to call \code{\link{SF.applyDecTable}}. 
+#'            \item Rule induction: We provide the function \code{\link{RI.indiscernibilityBasedRules.RST}} to generate rules. This function requires the output of 
+#'                       the feature selection functions. After obtaining the rules, 
+#'                       we execute \code{\link{predict.RuleSetRST}} considering our rules and given newdata/testing data to obtain predicted values/classes.
 #'              }
-#' \item \bold{The implementations of FRST}: As in the \code{RST} part, this group contains several algorithms that can be classified into several groups based on their purpose.
-#'           The following is a description of all methods that have been implemented in functions.
+#' \item \bold{The implementations of FRST}: As in the \code{RST} part, this part contains several algorithms that can be classified into several groups based on their purpose.
+#'           The following is a description of all methods that have been implemented in functions:
 #'  \enumerate{
-#'	  \item Basic concepts of FRST: The following is a list showing tasks and their implementation as functions.
+#'	  \item Basic concepts: The following is a list showing tasks and their implementations:
 #'    \itemize{
-#'       \item Indiscernibility relations: the are fuzzy relations determining to which degree two objects are similar. 
+#'       \item Indiscernibility relations: they are fuzzy relations determining to which degree two objects are similar. 
 #'             This package provides several types of relations which are implemented in a single function 
-#'             called \code{\link{BC.IND.relation.FRST}}. In this package, we consider several types of relations e.g. 
+#'             called \code{\link{BC.IND.relation.FRST}}. We consider several types of relations e.g., 
 #'             fuzzy equivalence, tolerance, and \eqn{T}-similarity relations. These relations can be chosen by
-#'             assigning \code{type.relation}. Additionally, In this function, we provide several options to 
-#'             calculate aggregation e.g. triangular norm operator (e.g. \code{"lukasiewicz"}, \code{"min"}, etc)
-#'             and user-defined operator. 
+#'             assigning \code{type.relation}. Additionally, in this function, we provide several options to 
+#'             calculate aggregation e.g., triangular norm operators (e.g., \code{"lukasiewicz"}, \code{"min"}, etc)
+#'             and user-defined operators. 
 #' 	   	 \item Lower and upper approximations: These approximations show to what extent objects can be classified with certainty or not. 
 #'           This task has been implemented in 
 #'
 #'           \code{\link{BC.LU.approximation.FRST}}. There are many approaches available in this package that can be selected by assigning the parameter \code{type.LU}. 
 #'           The considered methods are
-#'           implication/t-norm, \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS), vaquely quantified rough sets (VQRS), fuzzy variable precision rough sets (FVPRS), ordered weighted average (OWA),
-#'           soft fuzzy rough sets (SFRS), and robust fuzzy rough sets (RFRS). Furthermore, we provide a facility which is \code{"custom"} where users can create their own approximations by 
+#'           implication/t-norm, \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS), vaguely quantified rough sets (VQRS), fuzzy variable precision rough sets (FVPRS), ordered weighted average (OWA),
+#'           soft fuzzy rough sets (SFRS), and robust fuzzy rough sets (RFRS). Furthermore, we provide a facility, which is \code{"custom"}, where users can create their own approximations by 
 #'           defining functions to calculate lower and upper approximations. Many options to calculate implicator and triangular norm are also available.
-#'      \item Positive region: It is used to determine the membership degree of each object to the positive region and the corresponding degree of dependency. 
-#'                   It has been implemented in \code{\link{BC.positive.reg.FRST}}. 
+#'      \item Positive region: It is used to determine the membership degree of each object to the positive region and the degree of dependency. 
+#'                   It is implemented in \code{\link{BC.positive.reg.FRST}}. 
 #'      \item Discernibility matrix: It is used to construct the decision-relative discernibility matrix. There are some approaches to construct the matrix,
-#'                   e.g. based on standard approach, gaussian reduction, alpha reduction, and minimal element in discernibility matrix. They have been implemented 
+#'                   e.g., based on standard approach, Gaussian reduction, alpha reduction, and minimal element in discernibility matrix. They have been implemented 
 #'                   in \code{\link{BC.discernibility.mat.FRST}}. 
 #'    }
-#'    \item Feature selection: Generally, for dealing with this problem we have considered two different kinds of approaches 
-#'       which are methods employing heuristics to produce a near-optimal reduction 
-#'       such as the fuzzy QuickReduct algorithm and approaches based on 
-#'       the decision-relative discernibility matrix
-#'       (see \code{\link{BC.discernibility.mat.FRST}}). In the context of their outputs, 
-#'       one of the differences between them is on the type of produced reduct which are a single superreduct or a subset of features, 
-#'       a reduct and all reducts. The following is a description of all above types.
+#'    \item Feature selection: According to the output of functions, 
+#'       we may divide them into three groups: those that produce a superreduct, a set of reducts, or a single reduct. The following is a description of functions based on their types:
 #'       \itemize{
 #'           \item Feature subset: It refers to methods which produce a superreduct which is not necessarily a reduct. In other words methods in this group 
 #'                               might generate just a subset of attributes.
-#'                 The following is a complete list of methods considered in this package. 
+#'                 The following is a complete list of methods considered in this package: 
 #'                 \itemize{
 #'                  \item positive region based algorithms: It refers to 
-#'                        positive regions, as a way to evaluate attributes to be selected. 
+#'                        positive regions, as a way to evaluate attributes to be selected. They are implemented in \code{\link{FS.quickreduct.FRST}}.
 #'                        Furthermore, we provide several different measures based on the positive region in this function.  
 #'                        All methods included in this part employ the QuickReduct algorithm to obtain selected features.
-#'                        In order to choose a particular algorithm, we assign parameter \code{type.method} in \code{\link{FS.quickreduct.FRST}}. 
-#'                        The following is a description of all values of the parameter \code{type.method}. 
-#'                        \itemize{
-#'                          \item \code{"beta.pfrs"}: It is \eqn{\beta}-PFRS-based feature selection which employs the degree of 
-#'                                  the dependency as a criterion to select features and it uses fuzzy lower approximations based on  
-#'                                  \eqn{\beta}-precision fuzzy rough sets. 
-#'                          \item \code{"vqrs"}: It employs the degree of the dependency which is obtained by using
-#'                                  VQRS. 
-#'                          \item \code{"fuzzy.dependency"}: It refers to feature selection based on degree of dependency (\eqn{\gamma}) as
-#'                                 a value to select features. 
-#'                          \item fuzzy discernibility function approach: It applies the decision-relative discernibility matrix to the QuickReduct algorithm. 
-#'                          \item \code{"fvprs"}: It employs the degree of 
-#'                                  the dependency based on FVPRS. 
-#'                          \item \code{"min.positive.reg"}: it refers to feature selection with fuzzy decision reducts (\eqn{\delta}) which considers the fuzzy positive region
-#'                                 to select features. 
-#'                          \item \code{"owa"}: It uses the dependency degree of approximations based on OWA to select features.
-#'                          \item \code{"rfrs"}: It uses the dependency degree of
-#'                           		approximations based on RFRS.
-#'                            }
-#'                \item boundary region based algorithm: This algorithm is based on the membership degree to the fuzzy boundary region which is determined by subtracting 
-#'                      the values of fuzzy upper and lower approximations.
-#'                      This algorithm has been implemented in \code{\link{FS.quickreduct.FRST}} 
-#'                      by setting the parameter as \code{type.method = "fuzzy.boundary.reg"}.
+#'                        In order to choose a particular algorithm, we need to assign parameter \code{type.method} in \code{\link{FS.quickreduct.FRST}}.
+#'                \item boundary region based algorithm: This algorithm is based on the membership degree to the fuzzy boundary region.
+#'                      This algorithm has been implemented in \code{\link{FS.quickreduct.FRST}}.
 #'               } 
 #'               Furthermore, we provide a wrapper function \code{\link{FS.feature.subset.computation}} in order to give a user interface for many methods of RST and FRST. 
-#'           \item Reduct: The following methods produce a single decision reduct.
-#'                \itemize{
-#'                 \item The near-optimal reduction based algorithm: 
-#'                       It is an algorihtm proposed by Zhao et al, which results 
-#'                       a near-optimal reduction by modifying the discernibility matrix. 
-#'                       Additionally, this algorithm uses fuzzy variable precision rough sets (FVPRS) for
-#'                       calculating the lower approximation.
-#'                       It has been implemented in \code{\link{FS.nearOpt.fvprs.FRST}}. 
-#'                }
+#'           \item Reduct: It refers to a method that produces a single decision reduct. We provide one algorithm which is the near-optimal reduction proposed by Zhao et al. 
+#'                       It is implemented in \code{\link{FS.nearOpt.fvprs.FRST}}. 
 #'                Furthermore, we provide a wrapper function \code{\link{FS.reduct.computation}} in order to provide a user interface toward many methods of RST and FRST. 
-#'           \item All reducts:  In order to get all decision reducts, first we execute the \code{\link{BC.discernibility.mat.FRST}} function for
-#'                             constructing a decision-relative discernibility matrix. After obtaining the matrix, \code{\link{FS.all.reducts.computation}}
-#'                             is called to get all reducts.    
+#'           \item All reducts:  In order to get all decision reducts, we execute \code{\link{FS.all.reducts.computation}}. However, before doing that, we firstly execute the \code{\link{BC.discernibility.mat.FRST}} function for
+#'                             constructing a decision-relative discernibility matrix. 
 #'     }
 #'     The output of the above methods is a class containing a decision reduct/feature subset and other descriptions. 
 #'     For generating a new decision table according to the decision reduct, we provide the function \code{\link{SF.applyDecTable}}. 
 #'
-#'     \item Rule induction: As we mentioned before, rule induction is a task used to generate 
+#'     \item Rule induction: It is a task used to generate 
 #'           rules representing knowledge of a decision table. Commonly, this process is called learning phase in machine learning.
 #'           The following methods are considered to generate rules:
 #'           \itemize{
-#' 	    		 \item \code{RI.hybridFS.FRST}: It combines fuzzy-rough rule induction
-#'                      and feature selection. See \code{\link{RI.hybridFS.FRST}}.
-#'               \item \code{RI.GFRS.FRST}: It refers to rule induction based on generalized fuzzy rough sets (GFRS). See \code{\link{RI.GFRS.FRST}}.
+#' 	    		 \item \code{\link{RI.hybridFS.FRST}}: It combines fuzzy-rough rule induction
+#'                      and feature selection. 
+#'               \item \code{\link{RI.GFRS.FRST}}: It refers to rule induction based on generalized fuzzy rough sets (GFRS). 
 #'           }
-#'           After generating rules, we can use them to predict decision values of new data 
-#'           by executing a predicting function which is \code{\link{predict.RuleSetFRST}}.
+#'           After generating rules, we can use them to predict decision values/classes of new data 
+#'           by executing the S3 function \code{\link{predict.RuleSetFRST}}.
 #'     \item Instance selection: The following functions select instances to improve accuracy by
-#'           removing noisy, superflous or inconsistent ones from training datasets.
+#'           removing noisy, superfluous or inconsistent ones from training datasets.
 #'           \itemize{
-#'             \item \code{IS.FRIS.FRST}: It was proposed by Jensen and Cornelis. It evaluates the degree of membership to the positive region of each instance.
+#'             \item \code{\link{IS.FRIS.FRST}}: It refers to the fuzzy rough instance selection (FRIS). It evaluates the degree of membership to the positive region of each instance.
 #'             		  If an instance's membership degree is less than the threshold, then the instance can be removed.      
-#'             		  See \code{\link{IS.FRIS.FRST}}.
-#'             \item \code{IS.FRPS.FRST}: The fuzzy-rough prototype selection (FRPS) based on Verbiest, et al's method. See \code{\link{IS.FRPS.FRST}}.
+#'             \item \code{\link{IS.FRPS.FRST}}: It refers to the fuzzy-rough prototype selection (FRPS). It employs prototype selection (PS) to improve the accuracy of the $k$-nearest neighbor (kNN) method.
 #'           }
 #'       We provide the function \code{\link{SF.applyDecTable}} that is used to generate a new decision table according to the output of instance selection functions. 
-#'    \item Fuzzy-rough nearest neighbour approaches: This part provides nearest neighbour based methods for 
+#'    \item Fuzzy-rough nearest neighbors: This part provides methods based on nearest neighbors for 
 #'          predicting decision values/classes of new datasets. In other words, by supplying a decision table as training data
 #'          we can predict decision values of new data at the same time.
 #'          We have considered the following methods:
 #'          \itemize{
-#'            \item \code{C.FRNN.FRST}: The fuzzy-rough nearest neighbors based on Jensen and Cornelis' technique. 
-#'                  See \code{\link{C.FRNN.FRST}}.
-#'            \item \code{C.FRNN.O.FRST}: The fuzzy-rough ownership nearest neighbour algorithm based on Sarkar's method. See \code{\link{C.FRNN.O.FRST}}.
-#'                  \item \code{C.POSNN.FRST}: The positive region based fuzzy-rough nearest neighbour algorithm based on Verbiest et al's technique. See \code{\link{C.POSNN.FRST}}.
+#'            \item \code{\link{C.FRNN.FRST}}: It refers to the fuzzy-rough nearest neighbors based on Jensen and Cornelis' technique. 
+#'            \item \code{\link{C.FRNN.O.FRST}}: It refers to the fuzzy-rough ownership nearest neighbor algorithm based on Sarkar's method. 
+#'            \item \code{\link{C.POSNN.FRST}}: The positive region based fuzzy-rough nearest neighbor algorithm based on Verbiest et al's technique. 
 #'          }
 #' }
 #' }
+#' 
+#' Furthermore, we provide an additional feature which is missing value completion. Even though algorithms, included in this feature, are not based on RST and FRST, they will be usefull to do data analysis.
+#' The following is a list of functions implemented for handling missing values in the data preprocessing step:
+#' \itemize{
+#' \item \code{\link{MV.deletionCases}}: it refers to the approach deleting instances. 
+#' \item \code{\link{MV.mostCommonValResConcept}}: it refers to the approach based on the most common value or mean of an attribute restricted to a concept.
+#' \item \code{\link{MV.mostCommonVal}}: it refers to the approach replacing missing attribute values by the attribute mean or common values.
+#' \item \code{\link{MV.globalClosestFit}}: it refers to the approach based on the global closest fit approach.
+#' \item \code{\link{MV.conceptClosestFit}}: it refers to the approach based on the concept closest fit approach.
+#' }
+#' Additionally, we provide a wrapper function which is \code{\link{MV.missingValueCompletion}} 
+#' in order to give a user interface for the methods. 
+#' 
 #' To get started with the package, the user can have a look at the examples included in
 #' the documentation on each function. Additionally, to show general usage of the package briefly, 
-#' we also provide some examples in this section. 
+#' we also provide some examples showing general usage in this section. 
 #' 
 #' If you have problems using the package, find a bug, or have suggestions, 
 #' please contact the package maintainer by email, instead of writing to the general R lists 
 #' or to other internet forums and mailing lists.
 #' 
-#' Furthermore, there are many demos that ship with the package. To get a list of them, type:
+#' There are many demos that ship with the package. To get a list of them, type:
 #' 
 #' \code{demo()}
 #' 
-#' Then, to start a demo, type \code{demo(<demo_name_here>)}. All the demos are present as 
+#' Then, to start a demo, type \code{demo(<demo_name_here>)}. All the demos are presented as 
 #' R scripts in the package sources in the "demo" subdirectory.
 #' 
 #' Currently, there are the following demos available:
@@ -293,17 +270,17 @@
 #' \code{demo(D.max.discernibility.matrix.RST)},
 #'
 #' \code{demo(D.global.discernibility.heuristic.RST)},
-#' \code{demo(D.discretize.equal.intervals.RST)}, 
+#' \code{demo(D.discretize.quantiles.RST)},
 #'
-#' \code{demo(D.discretize.quantiles.RST)}.
+#' \code{demo(D.discretize.equal.intervals.RST)}.
 #'
 #' \item Feature selection based on RST:
 #'
 #' \code{demo(FS.permutation.heuristic.reduct.RST)},
-#' \code{demo(FS.greedy.heuristic.reduct.RST)},
+#' \code{demo(FS.quickreduct.RST)},
 #'
 #' \code{demo(FS.greedy.heuristic.reduct.RST)},
-#' \code{demo(FS.quickreduct.RST)}.
+#' \code{demo(FS.greedy.heuristic.reduct.RST)}.
 #'
 #' \item Feature selection based on FRST:
 #'
@@ -335,6 +312,9 @@
 #'
 #' \code{demo(RI.classification.FRST)},
 #' \code{demo(RI.regression.FRST)}.
+#'
+#' \item Missing value completion:
+#' \code{demo(MV.simpleData)}.
 #' }
 #'
 #' Some decision tables have been embedded in this package which can be seen in 
@@ -386,39 +366,39 @@
 #' ##############################################################
 #' ## A.1 Example: Basic concepts of rough set theory
 #' ##############################################################
-#' ## Using hiring data set, see RoughSetData doc
+#' ## Using hiring data set, see RoughSetData 
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
 #'
-#' ## define considered attributes which are first, second and 
+#' ## define considered attributes which are first, second, and 
 #' ## third attributes
 #' attr.P <- c(1,2,3)
 #' 
-#' ####### compute indiscernibility relation #######
+#' ## compute indiscernibility relation 
 #' IND <- BC.IND.relation.RST(decision.table, attribute = attr.P)
 #'
-#' ####### compute lower and upper approximations #####
+#' ## compute lower and upper approximations 
 #' ## Let us define fourth index as the decision attribute
 #' decision.attr <- c(4)
 #' roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
 #' 
-#' ####### Determine regions ######
+#' ## Determine regions 
 #' region.RST <- BC.positive.reg.RST(decision.table, roughset)
 #'
-#' ####### The decision-relative discernibility matrix and reduct #####
+#' ## The decision-relative discernibility matrix and reduct 
 #' disc.mat <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
 #'
 #' ##############################################################
 #' ## A.2 Example: Basic concepts of fuzzy rough set theory
 #' ##############################################################
-#' ## Using pima7 data set, see RoughSetData doc
+#' ## Using pima7 data set, see RoughSetData 
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$pima7.dt 
 #' 
 #' ## In this case, let us consider the first and second attributes
 #' conditional.attr <- c(1, 2)
 #'
-#' ## We are using "lukasiewicz" t-norm and "tolerance" relation 
+#' ## We are using the "lukasiewicz" t-norm and the "tolerance" relation 
 #' ## with "eq.1" as fuzzy similarity equation
 #' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
 #'                     type.relation = c("tolerance", "eq.1"))
@@ -452,75 +432,109 @@
 #' ## B Example : Data analysis based on RST and FRST 
 #' ## In this example, we are using wine dataset for both RST and FRST
 #' ###############################################################
-#' ## Using wine data set, see RoughSetData doc
+#' ## Load the data
 #' \dontrun{data(RoughSetData)
-#' wine.decTable <- SF.asDecisionTable(dataset = RoughSetData$wine.dt[6 : 178, ], 
-#'                                     decision.attr = 14, indx.nominal = 14)
+#' dataset <- RoughSetData$wine.dt
+#'
+#' ## Shuffle the data with set.seed
+#' set.seed(5) 
+#' dt.Shuffled <- dataset[sample(nrow(dataset)),]
+#'
+#' ## Split the data into training and testing
+#' idx <- round(0.8 * nrow(dt.Shuffled))
+#'   wine.tra <-SF.asDecisionTable(dt.Shuffled[1:idx,],
+#' decision.attr = 14, indx.nominal = 14)
+#'   wine.tst <- SF.asDecisionTable(dt.Shuffled[
+#'  (idx+1):nrow(dt.Shuffled), -ncol(dt.Shuffled)])
 #' 
-#' ## define first five instances as newdata or testing data
-#' tst.wine <- SF.asDecisionTable(dataset = wine.decTable[1:5, -ncol(wine.decTable)])
-#' 
-#' ###############################################################
-#' ## B.1 Example : Rough Set Theory 
-#' ###############################################################
-#' #####  DISCRETIZATION STEP 
-#' ## In this example, we are using local strategy algorithm
-#' cut.values.tra <- D.discretization.RST(wine.decTable, 
-#'                   type.method = "global.discernibility") 
+#' ## DISCRETIZATION
+#' cut.values <- D.discretization.RST(wine.tra,
+#' type.method = "global.discernibility")
+#' d.tra <- SF.applyDecTable(wine.tra, cut.values)
+#' d.tst <- SF.applyDecTable(wine.tst, cut.values)
 #'
-#' ## generate new decision table
-#' d.new.tra.rst <- SF.applyDecTable(wine.decTable, cut.values.tra)
-#' d.new.tst.rst <- SF.applyDecTable(tst.wine, cut.values.tra)
+#' ## FEATURE SELECTION
+#' red.rst <- FS.feature.subset.computation(d.tra, 
+#'   method="quickreduct.rst")
+#' fs.tra <- SF.applyDecTable(d.tra, red.rst)
 #'
-#' ##### FEATURE SELECTION STEP 
-#' ## In this example, we are using permutation algorithm
-#' ## which generates a single superreduct
-#' red.rst <- FS.feature.subset.computation(d.new.tra.rst, 
-#'                   method = "quickreduct.rst")
-#' 
-#' ## generate new decision table according to the reduct (optional)
-#' fs.new.decTable.rst <- SF.applyDecTable(d.new.tra.rst, red.rst)
-#'
-#' ##### RULE INDUCTION 
-#' ## In this case, we are using the original decision table,
-#' ## we also can use the decision table resulting from feature selection						 
-#' rules.rst <- RI.indiscernibilityBasedRules.RST(d.new.tra.rst, red.rst)
-#'					
-#' ## predicting newdata
-#' res.1 <- predict(rules.rst, d.new.tst.rst)
-#'
-#' ###############################################################
-#' ## B.2 Example : Fuzzy Rough Set Theory
-#' ###############################################################
-#' ## FEATURE SELECTION STEP
-#' red.frst <- FS.feature.subset.computation(wine.decTable, 
-#'                   method = "quickreduct.frst")
-#'
-#' fs.new.decTable.frst <- SF.applyDecTable(decision.table = wine.decTable, red.frst)
-#'
-#' ## INSTANCE SELECTION STEP 
-#' ## It should be noted in this case we are using the decision table
-#' ## that results from feature selection
-#' is.object <- IS.FRIS.FRST(decision.table = fs.new.decTable.frst, control = 
-#'                        list(threshold.tau = 0.4, alpha = 1))
-#' is.new.decTable.frst <- SF.applyDecTable(decision.table = fs.new.decTable.frst, is.object)
-#'
-#' ## CLASSIFIER
-#' ## Predict the testing data by using the FRNN.O method
-#' control <- list(m = 2, type.membership = "gradual")
-#' new.tst.wine <- SF.applyDecTable(decision.table = tst.wine, red.frst)
-#'
-#' ## Compute predictions
-#' pred.class <- C.FRNN.O.FRST(decision.table = is.new.decTable.frst, newdata = new.tst.wine, 
-#'                           control = control)
-#'
-#' ## RULE INDUCTION 
-#' control <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
-#'            type.relation = c("tolerance", "eq.3"), t.implicator = "lukasiewicz")
-#' rules.hybrid <- RI.hybridFS.FRST(decision.table = is.new.decTable.frst, control)
+#' ## RULE INDUCTION
+#' rules <- RI.indiscernibilityBasedRules.RST(d.tra, 
+#'   red.rst)
 #'
 #' ## predicting newdata
-#' res.1 <- predict(rules.hybrid, tst.wine)}
+#' pred.vals <- predict(rules, d.tst)
+#'
+#' #################################################
+#' ## Examples: Data analysis using the wine dataset
+#' ## 2. Learning and prediction using FRST
+#' #################################################
+#'
+#' ## FEATURE SELECTION
+#' reduct <- FS.feature.subset.computation(wine.tra,
+#'  method = "quickreduct.frst")
+#'
+#' ## generate new decision tables
+#' wine.tra.fs <- SF.applyDecTable(wine.tra, reduct)
+#' wine.tst.fs <- SF.applyDecTable(wine.tst, reduct)
+#'
+#' ## INSTANCE SELECTION
+#' indx <- IS.FRIS.FRST(wine.tra.fs, 
+#'  control = list(threshold.tau = 0.2, alpha = 1))
+#'
+#' ## generate a new decision table
+#' wine.tra.is <- SF.applyDecTable(wine.tra.fs, indx)
+#'
+#' ## RULE INDUCTION (Rule-based classifiers)
+#' control.ri <- list(
+#'  type.aggregation = c("t.tnorm", "lukasiewicz"), 
+#'  type.relation = c("tolerance", "eq.3"), 
+#'  t.implicator = "kleene_dienes")
+#'
+#' decRules.hybrid <- RI.hybridFS.FRST(wine.tra.is, 
+#'   control.ri)
+#'
+#' ## predicting newdata
+#' predValues.hybrid <- predict(decRules.hybrid, 
+#'   wine.tst.fs)
+#' 
+#' #################################################
+#' ## Examples: Data analysis using the wine dataset
+#' ## 3. Prediction using fuzzy nearest neighbor classifiers
+#' #################################################
+#'
+#' ## using FRNN.O
+#' control.frnn.o <- list(m = 2, 
+#'   type.membership = "gradual")
+#'
+#' predValues.frnn.o <- C.FRNN.O.FRST(wine.tra.is, 
+#'   newdata = wine.tst.fs, control = control.frnn.o)
+#'
+#' ## Using FRNN
+#' control.frnn <- list(type.LU = "implicator.tnorm",k=20, 
+#'   type.aggregation = c("t.tnorm", "lukasiewicz"), 
+#'   type.relation = c("tolerance", "eq.1"), 
+#'   t.implicator = "lukasiewicz") 
+#'  									   
+#' predValues.frnn <- C.FRNN.FRST(wine.tra.is, 
+#'   newdata = wine.tst.fs, control = control.frnn)
+#'
+#' ## calculating error
+#' real.val <- dt.Shuffled[(idx+1):nrow(dt.Shuffled),
+#'   ncol(dt.Shuffled), drop = FALSE]
+#' 
+#' err.1 <- 100*sum(pred.vals!=real.val)/nrow(pred.vals)
+#' err.2 <- 100*sum(predValues.hybrid!=real.val)/
+#'   nrow(predValues.hybrid)
+#' err.3 <- 100*sum(predValues.frnn.o!=real.val)/
+#'   nrow(predValues.frnn.o)
+#' err.4 <- 100*sum(predValues.frnn!=real.val)/
+#'   nrow(predValues.frnn)
+#'
+#' cat("The percentage error = ", err.1, "\n")
+#' cat("The percentage error = ", err.2, "\n")
+#' cat("The percentage error = ", err.3, "\n")
+#' cat("The percentage error = ", err.4, "\n")}
 NULL
 
 

@@ -2,7 +2,7 @@
 \alias{BC.positive.reg.RST}
 \title{Regions based on rough set theory}
 \usage{
-  BC.positive.reg.RST(decision.table, roughset)
+BC.positive.reg.RST(decision.table, roughset)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -14,26 +14,26 @@
   \code{\link{BC.LU.approximation.RST}}.}
 }
 \value{
-  A class \code{"PositiveRegion"} containing the following
-  components: \itemize{ \item \code{positive.reg}: a vector
-  containing indexes of objects belonging to the positive
-  region.  \item \code{degree.dependency}: a value of
-  degree of dependency.  \item \code{type.model}: a string
-  showing type of the used model. In this case, it is
-  \code{"RST"} means rough set theory.  }
+A class \code{"PositiveRegion"} containing the following
+components: \itemize{ \item \code{positive.reg}: a vector
+containing indexes of objects belonging to the positive
+region.  \item \code{degree.dependency}: a value of degree
+of dependency.  \item \code{type.model}: a string showing
+type of the used model. In this case, it is \code{"RST"}
+means rough set theory.  }
 }
 \description{
-  It is a function used to implement a fundamental concept
-  of rough set theory: positive region and degree of
-  dependency. The explanation about this concept can be
-  seen in \code{\link{A.Introduction-RoughSets}}.
+It is a function used to implement a fundamental concept of
+rough set theory: positive region and degree of dependency.
+The explanation about this concept can be seen in
+\code{\link{A.Introduction-RoughSets}}.
 }
 \details{
-  In order to compute the function, we need to calculate
-  the indiscernibility relation by executing
-  \code{\link{BC.IND.relation.RST}} and the lower and upper
-  approximations by calling
-  \code{\link{BC.LU.approximation.RST}}.
+In order to compute the function, we need to calculate the
+indiscernibility relation by executing
+\code{\link{BC.IND.relation.RST}} and the lower and upper
+approximations by calling
+\code{\link{BC.LU.approximation.RST}}.
 }
 \examples{
 dt.ex1 <- data.frame(c(1,0,2,1,1,2,2,0), c(0, 1,0, 1,0,2,1,1),
@@ -49,22 +49,21 @@ P <- c(2,3)
 IND <- BC.IND.relation.RST(decision.table, attribute = P)
 
 ####### Perform lower and upper approximations #####
-decision.attr <- c(5)
-roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+roughset <- BC.LU.approximation.RST(decision.table, IND)
 
 ####### Determine the positive region ######
 region <- BC.positive.reg.RST(decision.table, roughset)
 }
 \references{
-  Z. Pawlak, "Rough Sets", International Journal of
-  Computer and Information Sciences, vol. 11, no. 5, p. 341
-  - 356 (1982).
+Z. Pawlak, "Rough Sets", International Journal of Computer
+and Information Sciences, vol. 11, no. 5, p. 341 - 356
+(1982).
 }
 \seealso{
-  \code{\link{BC.IND.relation.RST}},
-  \code{\link{BC.LU.approximation.RST}},
-  \code{\link{BC.LU.approximation.FRST}},
+\code{\link{BC.IND.relation.RST}},
+\code{\link{BC.LU.approximation.RST}},
+\code{\link{BC.LU.approximation.FRST}},
 
-  and \code{\link{BC.positive.reg.FRST}}
+and \code{\link{BC.positive.reg.FRST}}
 }
 

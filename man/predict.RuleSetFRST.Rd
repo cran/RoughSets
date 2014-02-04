@@ -3,7 +3,7 @@
 \alias{predict.RuleSetFRST}
 \title{The predicting function for rule induction methods based on FRST}
 \usage{
-  \method{predict}{RuleSetFRST} (object, newdata, ...)
+\method{predict}{RuleSetFRST}(object, newdata, ...)
 }
 \arguments{
   \item{object}{a \code{"RuleSetFRST"} class resulted by
@@ -19,14 +19,14 @@
   \item{...}{the other parameters.}
 }
 \value{
-  The predicted values.
+The predicted values.
 }
 \description{
-  It is a function used to obtain predicted values after
-  obtaining rules by using rule induction methods. We have
-  provided the functions \code{\link{RI.GFRS.FRST}} and
-  \code{\link{RI.hybridFS.FRST}} to generate rules based on
-  FRST.
+It is a function used to obtain predicted values after
+obtaining rules by using rule induction methods. We have
+provided the functions \code{\link{RI.GFRS.FRST}} and
+\code{\link{RI.hybridFS.FRST}} to generate rules based on
+FRST.
 }
 \examples{
 ##############################################
@@ -66,8 +66,8 @@ rules <- RI.hybridFS.FRST(decision.table, control)
 res.1 <- predict(rules, decision.table[, -ncol(decision.table)])
 }
 \seealso{
-  \code{\link{RI.indiscernibilityBasedRules.RST}},
-  \code{\link{RI.GFRS.FRST}} and
-  \code{\link{RI.hybridFS.FRST}}
+\code{\link{RI.indiscernibilityBasedRules.RST}},
+\code{\link{RI.GFRS.FRST}} and
+\code{\link{RI.hybridFS.FRST}}
 }
 

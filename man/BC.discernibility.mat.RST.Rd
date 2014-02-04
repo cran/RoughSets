@@ -2,8 +2,8 @@
 \alias{BC.discernibility.mat.RST}
 \title{The decision-relative discernibility matrix based on rough set theory}
 \usage{
-  BC.discernibility.mat.RST(decision.table,
-    range.object = NULL, show.discernibilityMatrix = FALSE)
+BC.discernibility.mat.RST(decision.table, range.object = NULL,
+  show.discernibilityMatrix = FALSE)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -11,43 +11,33 @@
   \code{\link{SF.asDecisionTable}}.}
 
   \item{range.object}{a vector representing considered
-  objects to construct the $k$-relative discernibility
+  objects to construct the \eqn{k}-relative discernibility
   matrix.  The default value is \code{NULL} which means
   that we are using all objects in the decision table.}
 
   \item{show.discernibilityMatrix}{a boolean value
   determining whether the discernibility matrix will be
-  shown or not.}
+  shown or not. The default value is \code{FALSE}.}
 }
 \value{
-  A class \code{"DiscernibilityMatrix"} containing the
-  following components: \itemize{ \item \code{disc.mat}: a
-  matrix showing the decision-relative discernibility
-  matrix \eqn{M(\mathcal{A})} which contains \eqn{n \times
-  n} where \eqn{n} is the number of objects. \item
-  \code{disc.list}: it refers to the decision-relation
-  discernibility matrix in a list format. \item
-  \code{discernibility.type}: it is \code{"RST"}. \item
-  \code{type.model}: in this case, it is \code{"RST"}. }
+A class \code{"DiscernibilityMatrix"} containing the
+following components: \itemize{ \item \code{disc.mat}: a
+matrix showing the decision-relative discernibility matrix
+\eqn{M(\mathcal{A})} which contains \eqn{n \times n} where
+\eqn{n} is the number of objects. \item \code{disc.list}:
+it refers to the decision-relation discernibility matrix in
+a list format. \item \code{discernibility.type}: it is
+\code{"RST"}. \item \code{type.model}: in this case, it is
+\code{"RST"}. }
 }
 \description{
-  This is a function that builds the decision-relative
-  discernibility matrix based on rough set theory.
+This is a function that builds the decision-relative
+discernibility matrix based on rough set theory.
 }
 \details{
-  It was proposed by (A. Skowron and C. Rauszer, 1992) and
-  is used to find all reducts. A discernibility matrix of
-  the decision table \eqn{DT = (U, C \cup D)} is a
-  symmetric \eqn{|U| \times |U|} matrix with entries
-  defined as
-
-  \eqn{c_{ij} = \{a \in C|a(x_{i}) \neq a(x_{j})\}, i,j =
-  1,...,|U|}
-
-  each \eqn{c_{ij}} contains those attributes that differ
-  between objects \eqn{i} and \eqn{j}. The detailed
-  explanation can be seen in
-  \code{\link{A.Introduction-RoughSets}}.
+It was proposed by (Skowron and Rauszer, 1992), and is used
+to find all reducts. The detailed explanation can be seen
+in \code{\link{A.Introduction-RoughSets}}.
 }
 \examples{
 #######################################################################
@@ -63,16 +53,15 @@ decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 5,
 res.1 <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
 }
 \references{
-  A. Skowron and C. Rauszer, "The Discernibility Matrices
-  and Functions in Information Systems", in: R. Slowinski
-  (Ed.), Intelligent Decision Support: Handbook of
-  Applications and Advances of Rough Sets Theory, Kluwer
-  Academic Publishers, Dordrecht, Netherland, p. 331 - 362
-  (1992).
+A. Skowron and C. Rauszer, "The Discernibility Matrices and
+Functions in Information Systems", in: R. Slowinski (Ed.),
+Intelligent Decision Support: Handbook of Applications and
+Advances of Rough Sets Theory, Kluwer Academic Publishers,
+Dordrecht, Netherland, p. 331 - 362 (1992).
 }
 \seealso{
-  \code{\link{BC.IND.relation.RST}},
-  \code{\link{BC.LU.approximation.RST}}, and
-  \code{\link{BC.LU.approximation.FRST}}
+\code{\link{BC.IND.relation.RST}},
+\code{\link{BC.LU.approximation.RST}}, and
+\code{\link{BC.LU.approximation.FRST}}
 }
 

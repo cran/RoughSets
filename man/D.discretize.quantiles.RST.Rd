@@ -2,13 +2,13 @@
 \alias{D.discretize.quantiles.RST}
 \title{The "quantile-based" discretization algorithm}
 \usage{
-  D.discretize.quantiles.RST(decision.table,
-    nOfIntervals = 4, ...)
+D.discretize.quantiles.RST(decision.table, nOfIntervals = 4, ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
   representing the decision table. See
-  \code{\link{SF.asDecisionTable}}.}
+  \code{\link{SF.asDecisionTable}}.  It should be noted
+  that the function need the nominal decision attribute.}
 
   \item{nOfIntervals}{a numeric value representing the
   number of interval separating the data.}
@@ -16,35 +16,33 @@
   \item{...}{other parameters.}
 }
 \value{
-  A class \code{"Discretization"} that contains the
-  following components: \itemize{ \item \code{cut.values}:
-  a list representing cut values of each considered
-  attributes. \item \code{type.method}: the type of method
-  which is used to define cut values.
+A class \code{"Discretization"} that contains the following
+components: \itemize{ \item \code{cut.values}: a list
+representing cut values of each considered attributes.
+\item \code{type.method}: the type of method which is used
+to define cut values.
 
-  In this case, it is \code{"unsupervised.quantiles"}.
-  \item \code{type.task}: the type of task which is
-  \code{"discretization"}. \item \code{model}: the type of
-  model which is \code{"RST"}. }
+In this case, it is \code{"unsupervised.quantiles"}. \item
+\code{type.task}: the type of task which is
+\code{"discretization"}. \item \code{model}: the type of
+model which is \code{"RST"}. }
 }
 \description{
-  It is a function used for computing cuts of the
-  "quantile-based" discretization into \eqn{k} intervals
+It is a function used for computing cuts of the
+"quantile-based" discretization into \eqn{k} intervals
 }
 \details{
-  This method can be considered an unsupervised
-  discretization method for continuous features since it
-  does not consider the class label. The basic idea of this
-  algorithm is that we divide the data using the
-  \code{\link{quantile}} function which produces
-  distribution quantiles corresponding to the given vector.
-  The detailed information can be seen in (J. Dougherty et
-  al, 1995).
+This method can be considered an unsupervised
+discretization method for continuous features since it does
+not consider the class label. The basic idea of this
+algorithm is that we divide the data using the
+\code{\link{quantile}} function which produces distribution
+quantiles corresponding to the given vector. The detailed
+information can be seen in (Dougherty et al, 1995).
 
-  It should be noted that the output of this function is a
-  class containing cut values. In order to generate the new
-  decision table, \code{\link{SF.applyDecTable}} is
-  executed.
+It should be noted that the output of this function is a
+class containing cut values. In order to generate the new
+decision table, \code{\link{SF.applyDecTable}} is executed.
 }
 \examples{
 #################################################################
@@ -62,16 +60,16 @@ cut.values <- D.discretize.quantiles.RST(decision.table, nOfIntervals = 4)
 new.decTable <- SF.applyDecTable(decision.table, cut.values)
 }
 \references{
-  J. Dougherty, R. Kohavi, and M. Sahami, "Supervised and
-  Unsupervised Discretization of Continuous Features", In
-  A. Prieditis & S. J. Russell, eds. Work. Morgan Kaufmann,
-  p. 194-202 (1995).
+J. Dougherty, R. Kohavi, and M. Sahami, "Supervised and
+Unsupervised Discretization of Continuous Features", In A.
+Prieditis & S. J. Russell, eds. Work. Morgan Kaufmann, p.
+194-202 (1995).
 }
 \seealso{
-  \code{\link{D.local.discernibility.matrix.RST}},
-  \code{\link{D.max.discernibility.matrix.RST}},
+\code{\link{D.local.discernibility.matrix.RST}},
+\code{\link{D.max.discernibility.matrix.RST}},
 
-  \code{\link{D.discretize.equal.intervals.RST}}, and
-  \code{\link{D.global.discernibility.heuristic.RST}}
+\code{\link{D.discretize.equal.intervals.RST}}, and
+\code{\link{D.global.discernibility.heuristic.RST}}
 }
 

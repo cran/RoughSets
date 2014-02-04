@@ -2,9 +2,8 @@
 \alias{FS.permutation.heuristic.reduct.RST}
 \title{The permutation heuristic algorithm for determining a reduct}
 \usage{
-  FS.permutation.heuristic.reduct.RST(decision.table,
-    permutation = NULL, decisionIdx = ncol(decision.table),
-    ...)
+FS.permutation.heuristic.reduct.RST(decision.table, permutation = NULL,
+  decisionIdx = ncol(decision.table), ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -22,35 +21,35 @@
   \item{...}{other parameters.}
 }
 \value{
-  A class \code{"FeatureSubset"} that contains the
-  following components: \itemize{ \item \code{reduct}: a
-  list representing a single reduct. In this case, it could
-  be a superreduct or just a subset of features. \item
-  \code{type.method}: a string representing the type of
-  method which is \code{"permutation.heuristic"}. \item
-  \code{type.task}: a string showing the type of task which
-  is \code{"feature selection"}. \item \code{model}: a
-  string representing the type of model. In this case, it
-  is \code{"RST"} which means rough set theory. }
+A class \code{"FeatureSubset"} that contains the following
+components: \itemize{ \item \code{reduct}: a list
+representing a single reduct. In this case, it could be a
+superreduct or just a subset of features. \item
+\code{type.method}: a string representing the type of
+method which is \code{"permutation.heuristic"}. \item
+\code{type.task}: a string showing the type of task which
+is \code{"feature selection"}. \item \code{model}: a string
+representing the type of model. In this case, it is
+\code{"RST"} which means rough set theory. }
 }
 \description{
-  It is a function implementing the permutation heuristic
-  approach based on RST.
+It is a function implementing the permutation heuristic
+approach based on RST.
 }
 \details{
-  Basically there are two processes in this algorithm which
-  are \itemize{ \item generating feature subset as
-  superreduct: In this step, we choose a subset of
-  attributes by evaluating the discernibility relation of
-  pairs of objects. \item eliminating feature subset to
-  obtain a reduct: we iterate over the superreduct
-  resulting from the previous process.  Then, an attribute
-  that is \emph{dispensable} in the subset is eliminated
-  along iteration. } The detail of the algorithm can be
-  seen in (A. Janusz and D. Slezak, 2012).
+Basically there are two processes in this algorithm which
+are \itemize{ \item generating feature subset as
+superreduct: In this step, we choose a subset of attributes
+by evaluating the discernibility relation of pairs of
+objects. \item eliminating feature subset to obtain a
+reduct: we iterate over the superreduct resulting from the
+previous process.  Then, an attribute that is
+\emph{dispensable} in the subset is eliminated along
+iteration. } The detail of the algorithm can be seen in
+(Janusz and Slezak, 2012).
 
-  Additionally, \code{\link{SF.applyDecTable}} has been
-  provided to generate new decision table.
+Additionally, \code{\link{SF.applyDecTable}} has been
+provided to generate new decision table.
 }
 \examples{
 ###################################################
@@ -67,14 +66,14 @@ res.1 <- FS.permutation.heuristic.reduct.RST(decision.table,  permutation = NULL
 new.decTable <- SF.applyDecTable(decision.table, res.1)
 }
 \references{
-  A. Janusz and D. Slezak, "Utilization of Attribute
-  Clustering Methods for Scalable Computation of Reducts
-  from High-Dimensional Data" Proceedings of Federated
-  Conference on Computer Science and Information Systems -
-  FedCSIS, p. 295 - 302 (2012).
+A. Janusz and D. Slezak, "Utilization of Attribute
+Clustering Methods for Scalable Computation of Reducts from
+High-Dimensional Data" Proceedings of Federated Conference
+on Computer Science and Information Systems - FedCSIS, p.
+295 - 302 (2012).
 }
 \seealso{
-  \code{\link{FS.quickreduct.RST}} and
-  \code{\link{FS.reduct.computation}}.
+\code{\link{FS.quickreduct.RST}} and
+\code{\link{FS.reduct.computation}}.
 }
 

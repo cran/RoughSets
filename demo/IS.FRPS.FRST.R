@@ -9,6 +9,8 @@
 
  ## evaluate instances
  res.1 <- IS.FRPS.FRST(decision.table, type.alpha = "FRPS.3")
-
+ print(res.1)
+ 
  ## generate new decision table
  new.decTable <- SF.applyDecTable(decision.table, res.1)
+ print(new.decTable)

@@ -2,8 +2,7 @@
 \alias{X.bestFirst}
 \title{the best-first voting strategy function}
 \usage{
-  X.bestFirst(object, ruleValues, consequents, majorityCls,
-    ...)
+X.bestFirst(object, ruleValues, consequents, majorityCls, ...)
 }
 \arguments{
   \item{object}{a class "RuleSetRST".}
@@ -18,10 +17,10 @@
   \item{...}{other parameters.}
 }
 \value{
-  predicted values.
+predicted values.
 }
 \description{
-  It is an auxiliary function of the best-first voting
-  strategy.
+It is an auxiliary function of the best-first voting
+strategy.
 }
 

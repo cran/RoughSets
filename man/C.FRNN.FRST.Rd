@@ -1,8 +1,8 @@
 \name{C.FRNN.FRST}
 \alias{C.FRNN.FRST}
-\title{The fuzzy-rough nearest neighbour algorithm}
+\title{The fuzzy-rough nearest neighbor algorithm}
 \usage{
-  C.FRNN.FRST(decision.table, newdata, control = list())
+C.FRNN.FRST(decision.table, newdata, control = list())
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -20,10 +20,10 @@
   \itemize{ \item \code{type.LU}: a type of lower and upper
   approximations. See Section \code{Details}. The default
   value is \code{type.LU = "implicator.tnorm"}.  \item
-  \code{k}: the number of neighbours. It should be taken
+  \code{k}: the number of neighbors. It should be taken
   into account that this value could affect the accuracy.
   The default value is 5.  \item \code{type.aggregation}:
-  the type of aggregation operator. See
+  the type of the aggregation operator. See
   \code{\link{BC.IND.relation.FRST}}.  The default value is
   \code{type.aggregation = c("t.tnorm", "lukasiewicz")}.
   \item \code{type.relation}: the type of relation. See
@@ -35,7 +35,7 @@
 
   See \code{\link{BC.LU.approximation.FRST}}. The default
   value is \code{"lukasiewicz"}.  \item \code{q.some}: a
-  vector of values of alpha and beta parameter of VQRS.
+  vector of values of alpha and beta parameters of VQRS.
 
   See \code{\link{BC.LU.approximation.FRST}}. The default
   value is \code{c(0.1, 0.6)}.  \item \code{q.most}: a
@@ -45,62 +45,61 @@
   value is \code{c(0.2, 1)}.  }}
 }
 \value{
-  A matrix of predicted classes of newdata.
+A matrix of predicted classes of newdata.
 }
 \description{
-  It is used to predict new datasets/patterns based on the
-  fuzzy-rough nearest neighbour algorithm (FRNN) proposed
-  by (R. Jensen and C. Cornelis, 2011).
+It is used to predict new datasets/patterns based on the
+fuzzy-rough nearest neighbor algorithm (FRNN) proposed by
+(Jensen and Cornelis, 2011).
 }
 \details{
-  This method uses the fuzzy lower and upper approximation
-  to improve the fuzzy nearest neighbour (FNN) algorithm.
-  This algorithm assigns a class to a target instance
-  \eqn{t} as follows. \itemize{ \item Determine \eqn{k}
-  nearest neighbors considering their similarity to new
-  patterns. \item Assign new patterns to the class based on
-  maximal value of fuzzy lower and upper approximation. If
-  a value of fuzzy lower approximation is high, it shows
-  that neighbours of newdata belong to a particular class,
-  e.g. \code{C}. On the other hand, a high value of fuzzy
-  upper approximation means that at least one neighbour
-  belongs to that class. }
+This method uses the fuzzy lower and upper approximations
+to improve the fuzzy nearest neighbor (FNN) algorithm. This
+algorithm assigns a class to a target instance \eqn{t} as
+follows. \itemize{ \item Determine \eqn{k} nearest
+neighbors considering their similarity to new patterns.
+\item Assign new patterns to the class based on maximal
+value of fuzzy lower and upper approximations. If a value
+of fuzzy lower approximation is high, it shows that
+neighbors of newdata belong to a particular class, e.g.
+\code{C}. On the other hand, a high value of fuzzy upper
+approximation means that at least one neighbor belongs to
+that class. }
 
-  In this function, we provide two approaches based on
-  types of fuzzy lower and upper approximations. The
-  following is a list of the considered approximations:
-  \itemize{ \item \code{"implicator.tnorm"}: It refers to
-  lower and upper approximations based on implicator/t-norm
-  approach.  For more detail, it can be seen in
-  \code{\link{BC.LU.approximation.FRST}}. When using this
-  approach, we need to assign the \code{control} parameter
-  as follows:
+In this function, we provide two approaches based on types
+of fuzzy lower and upper approximations. The following is a
+list of the considered approximations: \itemize{ \item
+\code{"implicator.tnorm"}: It refers to lower and upper
+approximations based on implicator/t-norm approach.  For
+more detail, it can be seen in
+\code{\link{BC.LU.approximation.FRST}}. When using this
+approach, we need to assign the \code{control} parameter as
+follows:
 
-  \code{control <- list(type.LU = "implicator.tnorm", k,}
+\code{control <- list(type.LU = "implicator.tnorm", k,}
 
-  \code{type.aggregation, type.relation, t.implicator)}
+\code{type.aggregation, type.relation, t.implicator)}
 
-  The detailed description of the components in the
-  \code{control} parameter can be seen in
+The detailed description of the components in the
+\code{control} parameter can be seen in
 
-  \code{\link{BC.LU.approximation.FRST}}.
+\code{\link{BC.LU.approximation.FRST}}.
 
-  \item \code{"vqrs"}: It refers to lower and upper
-  approximations based on vaquely quantified rough sets.
-  For more detail, it can be seen in
-  \code{\link{BC.LU.approximation.FRST}}. When using this
-  approach, we need to assign the \code{control} parameter
-  as follows:
+\item \code{"vqrs"}: It refers to lower and upper
+approximations based on vaguely quantified rough sets.  For
+more detail, it can be seen in
+\code{\link{BC.LU.approximation.FRST}}. When using this
+approach, we need to assign the \code{control} parameter as
+follows:
 
-  \code{control <- list(type.LU = "vqrs", k, q.some,
-  q.most,}
+\code{control <- list(type.LU = "vqrs", k, q.some, q.most,}
 
-  \code{type.relation, type.aggregation)}
+\code{type.relation, type.aggregation)}
 
-  The detailed description of the components in the
-  \code{control} parameter can be seen in
+The detailed description of the components in the
+\code{control} parameter can be seen in
 
-  \code{\link{BC.LU.approximation.FRST}}. }
+\code{\link{BC.LU.approximation.FRST}}. }
 }
 \examples{
 #############################################################
@@ -144,11 +143,11 @@ control <- list(type.LU = "vqrs", k = 20, q.some = c(0.1, 0.6), q.most = c(0.2, 
                              control = control)}
 }
 \references{
-  R. Jensen and C. Cornelis, "Fuzzy-rough Nearest Neighbour
-  Classification and Prediction", Theoretical Computer
-  Science, vol. 412, p. 5871 - 5884 (2011).
+R. Jensen and C. Cornelis, "Fuzzy-rough Nearest Neighbour
+Classification and Prediction", Theoretical Computer
+Science, vol. 412, p. 5871 - 5884 (2011).
 }
 \seealso{
-  \code{\link{C.FRNN.O.FRST}}, \code{\link{C.POSNN.FRST}}
+\code{\link{C.FRNN.O.FRST}}, \code{\link{C.POSNN.FRST}}
 }
 

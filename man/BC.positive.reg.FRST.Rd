@@ -2,7 +2,7 @@
 \alias{BC.positive.reg.FRST}
 \title{Positive region based on fuzzy rough set}
 \usage{
-  BC.positive.reg.FRST(decision.table, fuzzyroughset)
+BC.positive.reg.FRST(decision.table, fuzzyroughset)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -14,32 +14,32 @@
   \code{\link{BC.LU.approximation.FRST}}.}
 }
 \value{
-  A class \code{"PositiveRegion"} containing the following
-  components: \itemize{ \item \code{positive.freg}: a
-  vector representing membership degrees to the fuzzy
-  positive region for each index of objects.  \item
-  \code{degree.dependency}: a value expressing the degree
-  of dependency.  \item \code{type.model}: a string
-  representing type of models. In this case, it is
-  \code{"FRST"} which means fuzzy rough set theory.  }
+A class \code{"PositiveRegion"} containing the following
+components: \itemize{ \item \code{positive.freg}: a vector
+representing membership degrees to the fuzzy positive
+region for each index of objects.  \item
+\code{degree.dependency}: a value expressing the degree of
+dependency.  \item \code{type.model}: a string representing
+type of models. In this case, it is \code{"FRST"} which
+means fuzzy rough set theory.  }
 }
 \description{
-  This is a function that implements a fundamental concept
-  of fuzzy rough set theory which is the positive region
-  and the corresponding degree of dependency. The
-  explanation about this concept can be seen in
-  \code{\link{B.Introduction-FuzzyRoughSets}}.
+This is a function that implements a fundamental concept of
+fuzzy rough set theory which is the positive region and the
+corresponding degree of dependency. The explanation about
+this concept can be seen in
+\code{\link{B.Introduction-FuzzyRoughSets}}.
 }
 \details{
-  In order to compute the function, we need to calculate
-  the indiscernibility relation by executing
-  \code{\link{BC.IND.relation.FRST}} and the lower and
-  upper approximations by calling
-  \code{\link{BC.LU.approximation.FRST}}.
+In order to compute the function, we need to calculate the
+indiscernibility relation by executing
+\code{\link{BC.IND.relation.FRST}} and the lower and upper
+approximations by calling
+\code{\link{BC.LU.approximation.FRST}}.
 }
 \examples{
 ###########################################################
-##### 1. Example: Using simple decision table containing
+##### 1. Example: Using a simple decision table containing
 #####             nominal values for the decision attribute
 ###########################################################
 dt.ex1 <- data.frame(c(-0.4, -0.4, -0.3, 0.3, 0.2, 0.2),
@@ -75,11 +75,11 @@ FRST.LU <- BC.LU.approximation.FRST(decision.table, IND.condAttr, IND.decAttr,
 res.1 <- BC.positive.reg.FRST(decision.table, FRST.LU)
 
 ###########################################################
-##### 2. Example: Using housing decision table containing
+##### 2. Example: Using the housing decision table containing
 #####             continuous values for the decision attribute
 ###########################################################
 
-## In this case, we are using housing dataset containing 7 objects
+## In this case, we are using the housing dataset containing 7 objects
 data(RoughSetData)
 decision.table <- RoughSetData$housing7.dt
 
@@ -105,16 +105,16 @@ FRST.LU <- BC.LU.approximation.FRST(decision.table, IND.condAttr, IND.decAttr,
 res.2 <- BC.positive.reg.FRST(decision.table, FRST.LU)
 }
 \references{
-  R. Jensen and Q. Shen, "New Approaches to Fuzzy-Rough
-  Feature Selection", IEEE Trans. on Fuzzy Systems, vol.
-  19, no. 4, p. 824 - 838 (2009).
+R. Jensen and Q. Shen, "New Approaches to Fuzzy-Rough
+Feature Selection", IEEE Trans. on Fuzzy Systems, vol. 19,
+no. 4, p. 824 - 838 (2009).
 }
 \seealso{
-  \code{\link{BC.LU.approximation.FRST}},
-  \code{\link{BC.IND.relation.FRST}},
-  \code{\link{BC.IND.relation.RST}},
+\code{\link{BC.LU.approximation.FRST}},
+\code{\link{BC.IND.relation.FRST}},
+\code{\link{BC.IND.relation.RST}},
 
-  \code{\link{BC.LU.approximation.RST}}, and
-  \code{\link{BC.positive.reg.FRST}}.
+\code{\link{BC.LU.approximation.RST}}, and
+\code{\link{BC.positive.reg.FRST}}.
 }
 

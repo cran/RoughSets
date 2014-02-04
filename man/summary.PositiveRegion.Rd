@@ -2,7 +2,7 @@
 \alias{summary.PositiveRegion}
 \title{The summary function of positive region based on RST and FRST}
 \usage{
-  \method{summary}{PositiveRegion} (object, ...)
+\method{summary}{PositiveRegion}(object, ...)
 }
 \arguments{
   \item{object}{a \code{"PositiveRegion"} object. See
@@ -12,8 +12,8 @@
   \item{...}{the other parameters.}
 }
 \description{
-  This function enables the output of a summary of the
-  positive region and degree of dependency.
+This function enables the output of a summary of the
+positive region and degree of dependency.
 }
 \examples{
 dt.ex1 <- data.frame(c(1,0,2,1,1,2,2,0), c(0, 1,0, 1,0,2,1,1),

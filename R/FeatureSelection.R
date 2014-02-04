@@ -102,7 +102,7 @@ FS.reduct.computation <- function(decision.table, method = "greedy.heuristic", .
 #' \item eliminating feature subset to obtain a reduct: we iterate over the superreduct resulting from the previous process.
 #'       Then, an attribute that is \emph{dispensable} in the subset is eliminated along iteration.
 #' }
-#' The detail of the algorithm can be seen in (A. Janusz and D. Slezak, 2012).
+#' The detail of the algorithm can be seen in (Janusz and Slezak, 2012).
 #' 
 #' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate new decision table. 
 #' 
@@ -153,24 +153,27 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NU
 	}
   
 	## Initialization
-	endFlag = F
+	endFlag = FALSE
 	iteration = 1	
 	
 	## check consistency/certainty which is objects included in lower approximations
 	## iteration refers to the number of selected variables to be superreducts
 	while (!(sum(duplicated(decision.table[permutation[1:iteration]])) == sum(duplicated(decision.table[c(permutation[1:iteration],decisionIdx)])))) {
 		iteration = iteration + 1
+    if(iteration > length(permutation)) 
+      stop("Inconsistent decision table - this method is currently implemented only for consistent data.\n\t\tTry a different reduct computation algorithm.")
 	}
 	
 	## elimating process to get reducts
 	redIdxs = permutation[1:iteration]
+  if(iteration == 1) endFlag = TRUE
 	while (!endFlag) {
 		  if (sum(duplicated(decision.table[redIdxs[-iteration]])) == sum(duplicated(decision.table[c(redIdxs[-iteration],decisionIdx)]))) {
 				redIdxs = redIdxs[-iteration]
 		  }
 		  iteration = iteration - 1
-		  if (iteration == 0) {
-				endFlag = T
+		  if (iteration == 0 | length(redIdxs) == 1) {
+				endFlag = TRUE
     	  }
 	}
 	
@@ -201,7 +204,7 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NU
 #' where \eqn{Disc_{\mathcal{A}}(B)} is the discernibility measure of attributes \eqn{B} in decision table \eqn{\mathcal{A}}
 #' and \eqn{\epsilon} is numeric value between 0 and 1.
 #' A lot of monographs provide comprehensive explanations about this topics, for example 
-#' (A. Janusz and S. Stawicki, 2011; D. Slezak, 2002; J. Wroblewski, 2001) which are used as the references of this function.
+#' (Janusz and Stawicki, 2011; Slezak, 2002; Wroblewski, 2001) which are used as the references of this function.
 #' 
 #' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate new decision table. 
 #'
@@ -337,8 +340,7 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table, decisionIdx = ncol(de
 	return(class.mod)  	
 }
 
-#' It is a function aimed as a wrapper of approaches calculating a superreduct. 
-#' In other words, this function might produce only a feature subset which is not minimal.
+#' It is a wrapper function aimed to calculate a superreduct (i.e., a subset of features). 
 #' 
 #' There exist three methods considered in this function as follows: 
 #' \itemize{
@@ -414,7 +416,7 @@ FS.feature.subset.computation <- function(decision.table, method = "greedy.heuri
 }
 
 #' This is a function for implementing the QuickReduct algorithm for feature selection based
-#' on RST proposed by (Q. Shen and A. Chouchoulas, 2000). The algorithm produces only one feature subset that could be a superreduct. 
+#' on RST proposed by (Shen and Chouchoulas, 2000). The algorithm produces only one feature subset that could be a superreduct. 
 #' 
 #' This algorithm considers the dependency degree (see \code{\link{A.Introduction-RoughSets}}) 
 #' of the addition of each attribute to the current reduct candidate. Then the best candidate will be chosen. 
@@ -477,7 +479,7 @@ FS.quickreduct.RST <- function(decision.table, control = list(), ...){
 }
 
 #' It is used to get the feature subset (superreduct) based on the greedy heuristic algorithm 
-#' employing some quality measurements. The detailed description can be seen in \code{\link{FS.greedy.heuristic.reduct.RST}}.
+#' employing some quality measurements. Regarding the quality measurements, the detailed description can be seen in \code{\link{FS.greedy.heuristic.reduct.RST}}.
 #' 
 #' @title The greedy heuristic method for determining superreduct based on RST
 #' @param decision.table a \code{"DecisionTable"} class representing decision table. See \code{\link{SF.asDecisionTable}}. 
@@ -586,8 +588,8 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #' for feature selection based on FRST. 
 #' The fuzzy QuickReduct is a modification of QuickReduct based on RST (see \code{\link{FS.quickreduct.RST}}). 
 #' 
-#' To get a clear picture of the fuzzy QuickReduct algorithm, the following is the algorithm proposed by 
-#'(R. Jensen and Q. Shen, 2002). Then, the algorithm has been modified by (R. B. Bhatt and M. Gopal, 2005) to improve stopping criteria.  
+#' In this function, we provide an algorithm proposed by 
+#'(Jensen and Shen, 2002) which is fuzzy QuickReduct. Then, the algorithm has been modified by (Bhatt and Gopal, 2005) to improve stopping criteria.  
 #' This function is aimed to implement both algorithms. These algorithms can be executed by assigning the parameter \code{type.QR} 
 #' with \code{"fuzzy.QR"} and \code{"modified.QR"} for fuzzy quickreduct and modified fuzzy quickreduct 
 #' algorithms, respectively. Additionally, in the \code{control} parameter, we provide one component which is 
@@ -595,41 +597,40 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #' we evaluate some (or not all) attributes randomly along iteration. It will be useful if we have a large number of attributes 
 #' in a decision table.
 #'
-#' In this function, we have considered many approaches based on the lower and upper approximations.
-#' The following list shows not only what kinds of methods that have been considered but also 
-#' simple explanation about their concepts. Additionally, those approaches can be executed by
+#' In this function, we have considered many approaches of the lower and upper approximations.
+#' The following list shows considered methods and their descriptions. Additionally, those approaches can be executed by
 #' assigning the following value to the parameter \code{type.method}.
 #' \itemize{
-#'    \item \code{"fuzzy.dependency"}: It is based on the degree of dependency using the implication/t-norm model approximation (R. Jensen and Q. Shen, 2009).   
+#'    \item \code{"fuzzy.dependency"}: It is based on the degree of dependency using the implication/t-norm model approximation (Jensen and Shen, 2009).   
 #'                The detailed concepts about this approximation have been explained in \code{\link{B.Introduction-FuzzyRoughSets}} 
 #'                and 
 #'
 #'                \code{\link{BC.LU.approximation.FRST}}.
-#'    \item \code{"fuzzy.boundary.reg"}: It is based on the fuzzy boundary region proposed by (R. Jensen and Q. Shen, 2009).
+#'    \item \code{"fuzzy.boundary.reg"}: It is based on the fuzzy boundary region proposed by (Jensen and Shen, 2009).
 #'                This algorithm introduced the usage of the total uncertainty degree \eqn{\lambda_B(Q)} 
 #'                for all concepts of feature subset \eqn{B} and decision attribute \eqn{Q}. 
 #'                The total uncertainty degree is used as a parameter to select appropriate features. 
 #'   \item \code{"vqrs"}: It is based on vaquely quantified rough set (VQRS) 
-#'                proposed by (C. Cornelis and R. Jensen, 2008). See also \code{\link{BC.LU.approximation.FRST}}. 
-#'   \item \code{"owa"}: Based on ordered weighted average (OWA) based fuzzy rough set, (C. Cornelis et al, 2010) proposed 
+#'                proposed by (Cornelis and Jensen, 2008). See also \code{\link{BC.LU.approximation.FRST}}. 
+#'   \item \code{"owa"}: Based on ordered weighted average (OWA) based fuzzy rough set, (Cornelis et al, 2010) proposed 
 #'                the degree of dependency as a parameter employed in the algorithm to select appropriate features. The explanation 
 #'                about lower and upper approximations based on OWA can be found in \code{\link{BC.LU.approximation.FRST}}.
 #'   \item \code{"rfrs"}: It is based on degree of dependency that is obtained by performing 
-#'                the robust fuzzy rough sets proposed by (Q. Hu et al, 2012). 
+#'                the robust fuzzy rough sets proposed by (Hu et al, 2012). 
 #'                The detailed concepts about this approximation have been explained in \code{\link{BC.LU.approximation.FRST}}. 
 #   \item \code{"sfrs"}: It is based on degree of dependency that is obtained by performing 
-#                soft fuzzy rough sets (SFRS) proposed by (Q. Hu et al, 2010). 
+#                soft fuzzy rough sets (SFRS) proposed by (Hu et al, 2010). 
 #                The detailed concepts about this approximation have been explained in \code{\link{BC.LU.approximation.FRST}}. 
 #                Additionally, it should be noted that this method is good in selecting features on 
 #                dataset containing continuous conditional features only. 
-#'   \item \code{"min.positive.reg"}: Based on measure introduced in (C. Cornelis et al, 2010) which considers the most problematic element in 
+#'   \item \code{"min.positive.reg"}: Based on measure introduced in (Cornelis et al, 2010) which considers the most problematic element in 
 #'              the positive region, defined using the implicator/t-norm model.
-#'   \item \code{"fvprs"}: It is based on degree of dependency proposed by (S. Y. Zhao et al, 2009). 
+#'   \item \code{"fvprs"}: It is based on degree of dependency proposed by (Zhao et al, 2009). 
 #'                The degree is obtained by using fuzzy lower approximation based on 
 #'                fuzzy variable precision rough set model. 
 #'   \item \code{"fuzzy.discernibility"}: This approach attempts to combine the the decision-relative discernibility matrix 
-#'               and the fuzzy QuickReduct algorithm. (R. Jensen and Q. Shen, 2009) introduced a measurement which is the degree of satisfaction to select the attributes.
-#'   \item \code{"beta.pfrs"}: Based on \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS) proposed by (J. M. F. Salido and S. Murakami, 2003),
+#'               and the fuzzy QuickReduct algorithm. (Jensen and Shen, 2009) introduced a measurement which is the degree of satisfaction to select the attributes.
+#'   \item \code{"beta.pfrs"}: Based on \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS) proposed by (Salido and Murakami, 2003),
 #'                the degree of dependency as a parameter employed in the algorithm to select appropriate features. The explanation 
 #'                about lower and upper approximations based on \eqn{\beta}-PFRS can be found in \code{\link{BC.LU.approximation.FRST}}.
 #' } 
@@ -693,8 +694,8 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #'         The complete description can be found in Section \code{Details}.
 #' @param type.QR a string expressing the type of QuickReduct algorithm which is one of the two following algorithms:
 #'         \itemize{
-#'         		\item \code{"fuzzy.QR"}: it is the original fuzzy rough QuickReduct algorithm based on (R. Jensen and Q. Shen, 2002).
-#'         		\item \code{"modified.QR"}: it is the modified QuickReduct algorithm based on (R. B. Bhatt and M. Gopal, 2005).
+#'         		\item \code{"fuzzy.QR"}: it is the original fuzzy rough QuickReduct algorithm based on (Jensen and Shen, 2002).
+#'         		\item \code{"modified.QR"}: it is the modified QuickReduct algorithm based on (Bhatt and Gopal, 2005).
 #'         }
 #' @param control a list of other parameters as follows. 
 #'         \itemize{
@@ -708,7 +709,7 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #'
 #'                 \code{"min.positive.reg"}, and \code{"fuzzy.discernibility"}.
 #'                 The default value is 0.95.
-#'          \item \code{alpha.precision}: a real number between 0 and 1 expressing variable precision (alpha) for \code{"fvprs"}.
+#'          \item \code{alpha.precision}: a real number between 0 and 1 expressing variable precision (\eqn{\alpha}) for \code{"fvprs"}.
 #'                 See \code{\link{BC.LU.approximation.FRST}}. The default value is 0.05.  
 #'          \item \code{q.some}: a pair of numeric values for the alpha and beta parameter of VQRS for the quantifier \code{some}. 
 #'                 The default value is \code{q.some = c(0.1, 0.6)}. 
@@ -803,7 +804,7 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #' reduct.2 <- FS.quickreduct.FRST(decision.table, type.method = "fuzzy.boundary.reg", 
 #'                             type.QR = "fuzzy.QR", control = control)
 #' 
-#' ########## using vaquely quantified rough sets (VQRS) #########
+#' ########## using vaguely quantified rough sets (VQRS) #########
 #' control <- list(alpha = 0.9, q.some = c(0.1, 0.6), q.most = c(0.2, 1), 
 #'                 type.aggregation = c("t.tnorm", "lukasiewicz")) 
 #' reduct.3 <- FS.quickreduct.FRST(decision.table, type.method = "vqrs", 
@@ -890,7 +891,7 @@ FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency"
 
 #' This is a function implementing the near-optimal reduction algorithm by employing 
 #' fuzzy variable precision rough sets (FVPRS) for feature selection
-#' based on FRST proposed by (S. Zhao et al, 2009). 
+#' based on FRST proposed by (Zhao et al, 2009). 
 #' 
 #' The near-optimal algorithm is an algorithm to find one reduct only rather than all reducts. It modifies the \eqn{\alpha}-reduction based on
 #' discernibility matrix by using a heuristic algorithm. To get basic knowledge about discernibility matrix, 
@@ -1043,7 +1044,8 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 	}
 }
 
-#' It is a function used for computation of all reducts from a discernibility matrix based on RST and FRST
+#' It is a wrapper function used for generating all reducts. The reducts are obtained from functions based on a discernibility matrix based on RST and FRST. Therefore, it should be noted that
+#' before calling the function, we need to execute \code{BC.discernibility.mat.RST} and \code{BC.discernibility.mat.FRST}.
 #' 
 #' @title The function for computing all reducts
 #'
@@ -1053,8 +1055,8 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 #' @return A class \code{"ReductSet"}. 
 #' @examples
 #' ########################################################
-#' ## Example 1: Generate a single reduct and 
-#' ##            new decision table using RST
+#' ## Example 1: Generate all reducts and 
+#' ##            a new decision table using RST
 #' ########################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
@@ -1062,15 +1064,15 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 #' ## build the decision-relation discernibility matrix
 #' res.2 <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
 #' 
-#' ## generate single reduct
+#' ## generate all reducts
 #' reduct <- FS.all.reducts.computation(res.2)
 #'
 #' ## generate new decision table
 #' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
 #'
 #' ##############################################################
-#' ## Example 2: Generate a single reduct and 
-#' ##            new decision table using FRST
+#' ## Example 2: Generate all reducts and 
+#' ##            a new decision table using FRST
 #' ##############################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
@@ -1094,8 +1096,112 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
     stop("The argument is not in the class of \'DiscernibilityMatrix\' objects.")
   }
   
-  reductSet = calc.all.reducts(discernibilityMatrix)
+  reductSet = convertCNFtoDNF(discernibilityMatrix$disc.list)
+  
+  core = computeCore(reductSet)
+  
+  reductSet <- list(decision.reduct = reductSet, 
+                    core = core, 
+                    discernibility.type = discernibilityMatrix$type.discernibility, 
+                    type.task = "computation of all reducts", 
+                    type.model = discernibilityMatrix$type.model)  				
+  reductSet <- ObjectFactory(reductSet, classname = "ReductSet")
+  
   return(reductSet)
 }
+
+#' It is a function for computing one reduct from a discernibility matrix - it can be the greedy heuristic or a randomized search. 
+#' 
+#' @title The function for computing one reducts
+#'
+#' @param discernibilityMatrix a \code{"DiscernibilityMatrix"} class representing the discernibility matrix of RST and FRST.
+#' @param greedy a boolean value whether we are using the greedy heuristic or a randomized search.
+#' @param power a numeric representing a parameter of the greedy heuristic.
+#'
+#' See \code{\link{BC.discernibility.mat.RST}} and \code{\link{BC.discernibility.mat.FRST}}. 
+#' @return A class \code{"ReductSet"}. 
+#' @examples
+#' ########################################################
+#' ## Example 1: Generate one reducts and 
+#' ##            a new decision table using RST
+#' ########################################################
+#' data(RoughSetData)
+#' decision.table <- RoughSetData$hiring.dt 
+#' 
+#' ## build the decision-relation discernibility matrix
+#' res.1 <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
+#' 
+#' ## generate all reducts
+#' reduct <- FS.one.reduct.computation(res.1)
+#'
+#' ## generate new decision table
+#' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
+#'
+#' ##############################################################
+#' ## Example 2: Generate one reducts and 
+#' ##            a new decision table using FRST
+#' ##############################################################
+#' data(RoughSetData)
+#' decision.table <- RoughSetData$hiring.dt 
+#' 
+#' ## build the decision-relation discernibility matrix
+#' control <- list(type.relation = c("crisp"), 
+#'                 type.aggregation = c("crisp"), 
+#'                 t.implicator = "lukasiewicz", type.LU = "implicator.tnorm")
+#' res.2 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "standard.red", 
+#'                                     control = control)
+#' 
+#' ## generate single reduct
+#' reduct <- FS.one.reduct.computation(res.2)
+#'
+#' ## generate new decision table
+#' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
+#' @export
+FS.one.reduct.computation <- function(discernibilityMatrix, greedy = TRUE, power = 2) {
+  
+  if(!inherits(discernibilityMatrix, "DiscernibilityMatrix")) {
+    stop("The argument is not in the class of \'DiscernibilityMatrix\' objects.")
+  }
+  
+  CNFclauses = discernibilityMatrix$disc.list
+  
+  reduct = character()
+  tmpIdx = rep(TRUE, length(CNFclauses))
+  attrInvertedIdx = list()
+  
+  while(any(tmpIdx)) {
+    attributeCounts = table(unlist(CNFclauses[tmpIdx], use.names = FALSE))
+    
+    if(greedy) bestAttr = which.max(attributeCounts)
+    else bestAttr = sample(length(attributeCounts), 1, prob = attributeCounts^power)
+    
+    tmpName = names(attributeCounts)[bestAttr]
+    reduct = append(reduct, tmpName)
+    attrInvertedIdx = append(attrInvertedIdx, list(sapply(CNFclauses, function(clause) tmpName %in% clause)))
+    tmpIdx = tmpIdx & !attrInvertedIdx[[length(attrInvertedIdx)]]
+  }
+  rm(tmpIdx, tmpName, attributeCounts, bestAttr)
+  
+  if(length(reduct) > 1) {
+    attrInvertedIdx = do.call(cbind, attrInvertedIdx)
+    tmpSums = rowSums(attrInvertedIdx)
+    for(i in (ncol(attrInvertedIdx) - 1):1) {
+      if(all(tmpSums > 1) || !(any(attrInvertedIdx[tmpSums == 1,i]))) {
+        reduct = reduct[-i]
+        attrInvertedIdx = attrInvertedIdx[ , -i, drop = FALSE]
+        tmpSums = rowSums(attrInvertedIdx)
+      }
+    }
+  }
+  
+  reduct <- list(decision.reduct = list(reduct), 
+                 core = NULL, 
+                 discernibility.type = discernibilityMatrix$type.discernibility, 
+                 type.task = "computation of one reduct from a discernibility matrix", 
+                 type.model = discernibilityMatrix$type.model)    			
+  reduct <- ObjectFactory(reduct, classname = "ReductSet")
+  return(reduct)
+}
+
 
 

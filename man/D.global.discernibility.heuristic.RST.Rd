@@ -2,16 +2,17 @@
 \alias{D.global.discernibility.heuristic.RST}
 \title{The global maximum discernibility heuristic}
 \usage{
-  D.global.discernibility.heuristic.RST(decision.table,
-    maxNOfCuts = 2 * ncol(decision.table),
-    attrSampleSize = ncol(infoSystem),
-    cutCandidatesList = NULL,
-    discFunction = global.discernibility, ...)
+D.global.discernibility.heuristic.RST(decision.table, maxNOfCuts = 2 *
+  ncol(decision.table), attrSampleSize = ncol(infoSystem),
+  cutCandidatesList = NULL, discFunction = global.discernibility, ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
   representing the decision table. See
-  \code{\link{SF.asDecisionTable}}.}
+  \code{\link{SF.asDecisionTable}}.  It should be noted
+  that especially for this method, all conditional
+  attributes must in real values. So, in the case we have
+  mixed values, we should choose other methods.}
 
   \item{maxNOfCuts}{a numeric value representing the
   maximum number of cut values.}
@@ -31,39 +32,38 @@
   \item{...}{other parameters.}
 }
 \value{
-  A class \code{"Discretization"} that contains the
-  following components: \itemize{ \item \code{cut.values}:
-  a list representing cut values of each considered
-  attributes. \item \code{type.method}: a type of method
-  which is used to define cut values.
+A class \code{"Discretization"} that contains the following
+components: \itemize{ \item \code{cut.values}: a list
+representing cut values of each considered attributes.
+\item \code{type.method}: a type of method which is used to
+define cut values.
 
-  In this case, it is \code{"global.discernibility"}. \item
-  \code{type.task}: a type of task which is
-  \code{"discretization"}. \item \code{model}: a type of
-  model which is \code{"RST"}. }
+In this case, it is \code{"global.discernibility"}. \item
+\code{type.task}: a type of task which is
+\code{"discretization"}. \item \code{model}: a type of
+model which is \code{"RST"}. }
 }
 \description{
-  It is a function used for computing globally semi-optimal
-  cuts using the maximum discernibility heuristic.
+It is a function used for computing globally semi-optimal
+cuts using the maximum discernibility heuristic.
 }
 \details{
-  Based on the "divide and conquer" strategy, the best cut
-  could be determined. First, we determine the interval
-  containing all possible cuts and then for every cut, the
-  mean of quality and standard deviation are calculated. A
-  measure of quality which considers the mean and standard
-  deviation is used to determined the best cut. There are
-  two different approaches which are "local search
-  strategy" and "global search strategy". In this function,
-  the latter one has been implemented. It is searching for
-  the best cut over all continuous attributes and doing
-  attribute selection at the same time. The complete
-  description can be seen in (S. H. Nguyen, 2001).
+Based on the "divide and conquer" strategy, the best cut
+could be determined. First, we determine the interval
+containing all possible cuts and then for every cut, the
+mean of quality and standard deviation are calculated. A
+measure of quality which considers the mean and standard
+deviation is used to determined the best cut. There are two
+different approaches which are "local search strategy" and
+"global search strategy". In this function, the latter one
+has been implemented. It is searching for the best cut over
+all continuous attributes and doing attribute selection at
+the same time. The complete description can be seen in
+(Nguyen, 2001).
 
-  It should be noted that the output of this function is a
-  class containing cut values. In order to generate the new
-  decision table, \code{\link{SF.applyDecTable}} is
-  executed.
+It should be noted that the output of this function is a
+class containing cut values. In order to generate the new
+decision table, \code{\link{SF.applyDecTable}} is executed.
 }
 \examples{
 #################################################################
@@ -81,15 +81,15 @@ cut.values <- D.global.discernibility.heuristic.RST(decision.table)
 new.decTable <- SF.applyDecTable(decision.table, cut.values)
 }
 \references{
-  S. H. Nguyen, "On Efficient Handling of Continuous
-  Attributes in Large Data Bases", Fundamenta Informaticae,
-  vol. 48, p. 61 - 81 (2001).
+S. H. Nguyen, "On Efficient Handling of Continuous
+Attributes in Large Data Bases", Fundamenta Informaticae,
+vol. 48, p. 61 - 81 (2001).
 }
 \seealso{
-  \code{\link{D.local.discernibility.matrix.RST}},
-  \code{\link{D.max.discernibility.matrix.RST}},
+\code{\link{D.local.discernibility.matrix.RST}},
+\code{\link{D.max.discernibility.matrix.RST}},
 
-  \code{\link{D.discretize.quantiles.RST}}, and
-  \code{\link{D.discretize.equal.intervals.RST}}
+\code{\link{D.discretize.quantiles.RST}}, and
+\code{\link{D.discretize.equal.intervals.RST}}
 }
 

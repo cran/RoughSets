@@ -2,7 +2,7 @@
 \alias{FS.all.reducts.computation}
 \title{The function for computing all reducts}
 \usage{
-  FS.all.reducts.computation(discernibilityMatrix)
+FS.all.reducts.computation(discernibilityMatrix)
 }
 \arguments{
   \item{discernibilityMatrix}{a
@@ -13,16 +13,20 @@
   \code{\link{BC.discernibility.mat.FRST}}.}
 }
 \value{
-  A class \code{"ReductSet"}.
+A class \code{"ReductSet"}.
 }
 \description{
-  It is a function used for computation of all reducts from
-  a discernibility matrix based on RST and FRST
+It is a wrapper function used for generating all reducts.
+The reducts are obtained from functions based on a
+discernibility matrix based on RST and FRST. Therefore, it
+should be noted that before calling the function, we need
+to execute \code{BC.discernibility.mat.RST} and
+\code{BC.discernibility.mat.FRST}.
 }
 \examples{
 ########################################################
-## Example 1: Generate a single reduct and
-##            new decision table using RST
+## Example 1: Generate all reducts and
+##            a new decision table using RST
 ########################################################
 data(RoughSetData)
 decision.table <- RoughSetData$hiring.dt
@@ -30,15 +34,15 @@ decision.table <- RoughSetData$hiring.dt
 ## build the decision-relation discernibility matrix
 res.2 <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
 
-## generate single reduct
+## generate all reducts
 reduct <- FS.all.reducts.computation(res.2)
 
 ## generate new decision table
 new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
 
 ##############################################################
-## Example 2: Generate a single reduct and
-##            new decision table using FRST
+## Example 2: Generate all reducts and
+##            a new decision table using FRST
 ##############################################################
 data(RoughSetData)
 decision.table <- RoughSetData$hiring.dt

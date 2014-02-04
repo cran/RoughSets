@@ -13,6 +13,8 @@
                          list(threshold.tau = 0.5, alpha = 1, 
                          type.aggregation = c("t.tnorm", "lukasiewicz"), 
                          t.implicator = "lukasiewicz"))
+ print(res.1)
  
  ## generate new decision table
  new.decTable <- SF.applyDecTable(decision.table, res.1)
+ print(new.decTable)

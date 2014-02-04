@@ -2,7 +2,7 @@
 \alias{summary.IndiscernibilityRelation}
 \title{The summary function of indiscernibility relation based on RST and FRST}
 \usage{
-  \method{summary}{IndiscernibilityRelation} (object, ...)
+\method{summary}{IndiscernibilityRelation}(object, ...)
 }
 \arguments{
   \item{object}{a \code{"IndiscernibilityRelation"} object.
@@ -12,9 +12,13 @@
 
   \item{...}{the other parameters.}
 }
+\value{
+a description that contains the following information. For
+FRST model:
+}
 \description{
-  This function enables the output of a summary of the
-  indiscernibility relation functions.
+This function enables the output of a summary of the
+indiscernibility relation functions.
 }
 \examples{
 ###########################################################

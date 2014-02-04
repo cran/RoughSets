@@ -2,20 +2,20 @@
 \alias{X.nOfConflictsSqrt}
 \title{The discernibility measure function based on \code{sqrt}}
 \usage{
-  X.nOfConflictsSqrt(decisionDistrib)
+X.nOfConflictsSqrt(decisionDistrib)
 }
 \arguments{
   \item{decisionDistrib}{a distribution of values on the
   decision attribute.}
 }
 \value{
-  \code{qualityF}.
+\code{qualityF}.
 }
 \description{
-  It is an auxiliary function for the \code{qualityF}
-  parameter in the
-  \code{\link{FS.greedy.heuristic.reduct.RST}} and
-  \code{\link{FS.greedy.heuristic.superreduct.RST}}
-  functions.
+It is an auxiliary function for the \code{qualityF}
+parameter in the
+\code{\link{FS.greedy.heuristic.reduct.RST}} and
+\code{\link{FS.greedy.heuristic.superreduct.RST}}
+functions.
 }
 

@@ -1,8 +1,8 @@
 \name{C.FRNN.O.FRST}
 \alias{C.FRNN.O.FRST}
-\title{The fuzzy-rough ownership nearest neighbour algorithm}
+\title{The fuzzy-rough ownership nearest neighbor algorithm}
 \usage{
-  C.FRNN.O.FRST(decision.table, newdata, control = list())
+C.FRNN.O.FRST(decision.table, newdata, control = list())
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -21,31 +21,31 @@
   is 2.  }}
 }
 \value{
-  A matrix of predicted classes of newdata.
+A matrix of predicted classes of newdata.
 }
 \description{
-  It is used to predict classes of new datasets/patterns
-  based on the fuzzy-rough ownership nearest neighbour
-  algorithm (FRNN.O) proposed by (M. Sarkar, 2007).
+It is used to predict classes of new datasets/patterns
+based on the fuzzy-rough ownership nearest neighbor
+algorithm (FRNN.O) proposed by (Sarkar, 2007).
 }
 \details{
-  This method improves fuzzy k-nearest neighbors (FNN) by
-  introducing rough sets into it. To avoid determining k by
-  trial and error procedure, this method uses all training
-  data. Uncertainties in data are accommodated by
-  introducing the rough ownership function. It is the
-  following equation \eqn{o_c} of each class expressing a
-  squared weighted distance between a test pattern and all
-  training data \eqn{d} and constrained fuzzy membership
-  \eqn{\mu_{C_c}}.
+This method improves fuzzy \eqn{k}-nearest neighbors (FNN)
+by introducing rough sets into it. To avoid determining
+\eqn{k} by trial and error procedure, this method uses all
+training data. Uncertainties in data are accommodated by
+introducing the rough ownership function. It is the
+following equation \eqn{o_c} of each class expressing a
+squared weighted distance between a test pattern and all
+training data \eqn{d} and constrained fuzzy membership
+\eqn{\mu_{C_c}}.
 
-  \eqn{o_c(y) =
-  \frac{1}{|X|}\mu_{C_c}(x)\exp{(-d^{1/(q-1)})}}
+\eqn{o_c(y) =
+\frac{1}{|X|}\mu_{C_c}(x)\exp{(-d^{1/(q-1)})}}
 
-  where \eqn{d = \sum_{j=1}^{N}K_j(y_j-x_{ij})^2}
+where \eqn{d = \sum_{j=1}^{N}K_j(y_j-x_{ij})^2}
 
-  The predicted value of \eqn{y} is obtained by selecting
-  class \eqn{c} where \eqn{o_c(y)} is maximum.
+The predicted value of \eqn{y} is obtained by selecting
+class \eqn{c} where \eqn{o_c(y)} is maximum.
 }
 \examples{
 #############################################################
@@ -79,11 +79,11 @@ control <- list(m = 2)
                                  control = control)}
 }
 \references{
-  M. Sarkar, "Fuzzy-Rough Nearest-Neighbor Algorithm in
-  Classification" Fuzzy Sets and Systems, vol. 158, no. 19,
-  p. 2123 - 2152 (2007).
+M. Sarkar, "Fuzzy-Rough Nearest-Neighbor Algorithm in
+Classification" Fuzzy Sets and Systems, vol. 158, no. 19,
+p. 2123 - 2152 (2007).
 }
 \seealso{
-  \code{\link{C.FRNN.FRST}}, \code{\link{C.POSNN.FRST}}
+\code{\link{C.FRNN.FRST}}, \code{\link{C.POSNN.FRST}}
 }
 

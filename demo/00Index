@@ -25,3 +25,7 @@ D.max.discernibility.matrix.RST	Discretization using D.max.discernibility.matrix
 D.global.discernibility.heuristic.RST Discretization using D.global.discernibility.heuristic.RST
 D.discretize.equal.intervals.RST Discretization using D.discretize.equal.intervals.RST
 D.discretize.quantiles.RST Discretization using D.discretize.quantiles.RST
+MV.simpleData Examples showing function for dealing with missing value
+SimulationDataAnalysisWine	Examples of data analysis using the Wine dataset 
+GettingStarted.B Example of data analysis in the getting started page
+GettingStarted.A Example of the basic concept in the getting started page

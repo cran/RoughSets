@@ -2,25 +2,25 @@
 \alias{X.entropy}
 \title{The information gain measure function}
 \usage{
-  X.entropy(decisionDistrib)
+X.entropy(decisionDistrib)
 }
 \arguments{
   \item{decisionDistrib}{a distribution of values on the
   decision attribute.}
 }
 \value{
-  \code{qualityF}.
+\code{qualityF}.
 }
 \description{
-  It is an auxiliary function for \code{qualityF} parameter
-  in the \code{\link{FS.greedy.heuristic.reduct.RST}} and
-  \code{\link{FS.greedy.heuristic.superreduct.RST}}
-  functions. It is based on \emph{entropy} as a measure of
-  information(C. E. Shannon, 1948).
+It is an auxiliary function for \code{qualityF} parameter
+in the \code{\link{FS.greedy.heuristic.reduct.RST}} and
+\code{\link{FS.greedy.heuristic.superreduct.RST}}
+functions. It is based on \emph{entropy} as a measure of
+information(Shannon, 1948).
 }
 \references{
-  C. E. Shannon, "A Mathematical Theory of Communication",
-  Bell System Technical Journal, vol. 27, p. 379 - 423, 623
-  - 656 (1948).
+C. E. Shannon, "A Mathematical Theory of Communication",
+Bell System Technical Journal, vol. 27, p. 379 - 423, 623 -
+656 (1948).
 }
 

@@ -1,8 +1,8 @@
 \name{C.POSNN.FRST}
 \alias{C.POSNN.FRST}
-\title{The positive region based fuzzy-rough nearest neighbour algorithm}
+\title{The positive region based fuzzy-rough nearest neighbor algorithm}
 \usage{
-  C.POSNN.FRST(decision.table, newdata, control = list())
+C.POSNN.FRST(decision.table, newdata, control = list())
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -20,28 +20,28 @@
   same as \code{\link{C.FRNN.FRST}}.}
 }
 \value{
-  A matrix of predicted classes of newdata.
+A matrix of predicted classes of newdata.
 }
 \description{
-  It is a function used to implement the positive region
-  based fuzzy-rough nearest neighbour algorithm (POSNN)
-  which was proposed by (N. Verbiest et al, 2012) for
-  predicting classes of new data.
+It is a function used to implement the positive region
+based fuzzy-rough nearest neighbor algorithm (POSNN) which
+was proposed by (Verbiest et al, 2012) for predicting
+classes of new data.
 }
 \details{
-  This method is aimed to improve the fuzzy-rough nearest
-  neighbour algorithm (\code{\link{C.FRNN.FRST}}) algorithm
-  by considering the fuzzy positive region. Basically the
-  following steps are used to classify an instance \eqn{t}:
-  \itemize{ \item determine the set of k-nearest neighbour
-  of \eqn{t}, \eqn{NN}.  \item assign \eqn{t} to the class
-  \eqn{C} for which
+This method is aimed to improve the fuzzy-rough nearest
+neighbor algorithm (\code{\link{C.FRNN.FRST}}) algorithm by
+considering the fuzzy positive region. Basically the
+following steps are used to classify an instance \eqn{t}:
+\itemize{ \item determine the set of \eqn{k}-nearest
+neighbor of \eqn{t}, \eqn{NN}.  \item assign \eqn{t} to the
+class \eqn{C} for which
 
-  \eqn{\frac{\displaystyle\sum\limits_{x \in NN}
-  R(x,t)C(x)POS(x)}{\displaystyle\sum\limits_{x \in NN}
-  R(x,t)}}
+\eqn{\frac{\displaystyle\sum\limits_{x \in NN}
+R(x,t)C(x)POS(x)}{\displaystyle\sum\limits_{x \in NN}
+R(x,t)}}
 
-  is maximal. }
+is maximal. }
 }
 \examples{
 #############################################################
@@ -77,12 +77,12 @@ control <- list(type.LU = "implicator.tnorm", k = 20, t.tnorm = "lukasiewicz",
                               newdata = tst.iris, control = control)}
 }
 \references{
-  N. Verbiest, C. Cornelis and R. Jensen, "Fuzzy-rough
-  Positive Region Based Nearest Neighbour Classification",
-  In Proceedings of the 20th International Conference on
-  Fuzzy Systems (FUZZ-IEEE 2012), p. 1961 - 1967 (2012).
+N. Verbiest, C. Cornelis and R. Jensen, "Fuzzy-rough
+Positive Region Based Nearest Neighbour Classification", In
+Proceedings of the 20th International Conference on Fuzzy
+Systems (FUZZ-IEEE 2012), p. 1961 - 1967 (2012).
 }
 \seealso{
-  \code{\link{C.FRNN.FRST}}, \code{\link{C.FRNN.O.FRST}}
+\code{\link{C.FRNN.FRST}}, \code{\link{C.FRNN.O.FRST}}
 }
 

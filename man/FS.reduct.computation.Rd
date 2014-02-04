@@ -2,8 +2,7 @@
 \alias{FS.reduct.computation}
 \title{The reduct computation methods based on RST and FRST}
 \usage{
-  FS.reduct.computation(decision.table,
-    method = "greedy.heuristic", ...)
+FS.reduct.computation(decision.table, method = "greedy.heuristic", ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -20,34 +19,33 @@
   \code{\link{FS.permutation.heuristic.reduct.RST}}.}
 }
 \value{
-  A class \code{"FeatureSubset"}. See
-  \code{\link{FS.greedy.heuristic.reduct.RST}}
+A class \code{"FeatureSubset"}. See
+\code{\link{FS.greedy.heuristic.reduct.RST}}
 
-  or \code{\link{FS.nearOpt.fvprs.FRST}}.
+or \code{\link{FS.nearOpt.fvprs.FRST}}.
 }
 \description{
-  It is an additional function aimed as wrapper of
-  approaches calculating a reduct.
+It is an additional function aimed as wrapper of approaches
+calculating a reduct.
 }
 \details{
-  There exist three methods considered in this function
-  based on RST and FRST as follows: \itemize{ \item
-  \code{"greedy.heuristic"}: it is the greedy heuristic
-  method based on RST.
+There exist three methods considered in this function based
+on RST and FRST as follows: \itemize{ \item
+\code{"greedy.heuristic"}: it is the greedy heuristic
+method based on RST.
 
-  See \code{\link{FS.greedy.heuristic.reduct.RST}}. \item
-  \code{"nearOpt.fvprs"}: it is the near-optimal reduction
-  algorithm based on FRST.
+See \code{\link{FS.greedy.heuristic.reduct.RST}}. \item
+\code{"nearOpt.fvprs"}: it is the near-optimal reduction
+algorithm based on FRST.
 
-  See \code{\link{FS.nearOpt.fvprs.FRST}}. \item
-  \code{"permutation.heuristic"}: it is the permutation
-  heuristic approach based on RST.
+See \code{\link{FS.nearOpt.fvprs.FRST}}. \item
+\code{"permutation.heuristic"}: it is the permutation
+heuristic approach based on RST.
 
-  See \code{\link{FS.permutation.heuristic.reduct.RST}}. }
-  Those methods can be selected by assigning the parameter
-  \code{method}. Additionally,
-  \code{\link{SF.applyDecTable}} has been provided to
-  generate the new decision table.
+See \code{\link{FS.permutation.heuristic.reduct.RST}}. }
+Those methods can be selected by assigning the parameter
+\code{method}. Additionally, \code{\link{SF.applyDecTable}}
+has been provided to generate the new decision table.
 }
 \examples{
 ##############################################################
@@ -70,7 +68,7 @@ new.decTable.1 <- SF.applyDecTable(decision.table, reduct.1)
 new.decTable.2 <- SF.applyDecTable(decision.table, reduct.2)
 }
 \seealso{
-  \code{\link{D.discretization.RST}},
-  \code{\link{BC.LU.approximation.RST}}
+\code{\link{D.discretization.RST}},
+\code{\link{BC.LU.approximation.RST}}
 }
 

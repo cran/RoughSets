@@ -3,8 +3,7 @@
 \alias{predict.RuleSetRST}
 \title{The predicting function for rule induction methods based on RST}
 \usage{
-  \method{predict}{RuleSetRST} (object, newdata,
-    votingScheme = X.bestFirst, ...)
+\method{predict}{RuleSetRST}(object, newdata, votingScheme = X.bestFirst, ...)
 }
 \arguments{
   \item{object}{a \code{"RuleSetRST"} class resulted by
@@ -22,14 +21,14 @@
   \item{...}{the other parameters.}
 }
 \value{
-  The predicted values.
+The predicted values.
 }
 \description{
-  It is a function used to obtain predicted values after
-  obtaining rules by using rule induction methods. We have
-  provided the functions
-  \code{\link{RI.indiscernibilityBasedRules.RST}} to
-  generate rules based on RST.
+It is a function used to obtain predicted values after
+obtaining rules by using rule induction methods. We have
+provided the functions
+\code{\link{RI.indiscernibilityBasedRules.RST}} to generate
+rules based on RST.
 }
 \examples{
 ##############################################
@@ -50,7 +49,7 @@ rules.rst <- RI.indiscernibilityBasedRules.RST(decision.table, reduct)
 res.1 <- predict(rules.rst, decision.table[, -ncol(decision.table)])
 }
 \seealso{
-  \code{\link{RI.GFRS.FRST}} and
-  \code{\link{RI.hybridFS.FRST}}.
+\code{\link{RI.GFRS.FRST}} and
+\code{\link{RI.hybridFS.FRST}}.
 }
 

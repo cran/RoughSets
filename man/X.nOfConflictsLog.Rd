@@ -2,20 +2,20 @@
 \alias{X.nOfConflictsLog}
 \title{The discernibility measure function based on \code{log2}}
 \usage{
-  X.nOfConflictsLog(decisionDistrib)
+X.nOfConflictsLog(decisionDistrib)
 }
 \arguments{
   \item{decisionDistrib}{a distribution of values on the
   decision attribute.}
 }
 \value{
-  \code{qualityF}.
+\code{qualityF}.
 }
 \description{
-  It is an auxiliary function for the \code{qualityF}
-  parameter in the
-  \code{\link{FS.greedy.heuristic.reduct.RST}} and
-  \code{\link{FS.greedy.heuristic.superreduct.RST}}
-  functions.
+It is an auxiliary function for the \code{qualityF}
+parameter in the
+\code{\link{FS.greedy.heuristic.reduct.RST}} and
+\code{\link{FS.greedy.heuristic.superreduct.RST}}
+functions.
 }
 

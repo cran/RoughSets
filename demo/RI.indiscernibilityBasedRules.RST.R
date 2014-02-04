@@ -12,7 +12,9 @@
 
  ## generate rules						 
  rules.rst <- RI.indiscernibilityBasedRules.RST(decision.table, reduct)
-					
+ summary(rules.rst)
+ 
  ## predicting newdata
  ## in this case, we are using the same dataset as training data
  res.1 <- predict(rules.rst, decision.table[, -ncol(decision.table)])
+ print(res.1)

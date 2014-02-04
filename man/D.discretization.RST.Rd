@@ -2,13 +2,19 @@
 \alias{D.discretization.RST}
 \title{The wrapper function of discretization methods}
 \usage{
-  D.discretization.RST(decision.table,
-    type.method = "unsupervised.quantiles", ...)
+D.discretization.RST(decision.table, type.method = "unsupervised.quantiles",
+  ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
   representing a decision table. See
-  \code{\link{SF.asDecisionTable}}.}
+  \code{\link{SF.asDecisionTable}}.  It should be noted
+  that all functions used for discretization need the
+  nominal decision attribute.  Furthermore, especially for
+  the method type \code{"global.discernibility"}, all
+  conditional attributes must in real values. So, in the
+  case we have mixed values, we should choose other
+  methods.}
 
   \item{type.method}{one of the following methods:
   \itemize{ \item \code{"global.discernibility"}: See
@@ -26,29 +32,29 @@
   methods.}
 }
 \value{
-  A class \code{"Discretization"}. See
-  \code{\link{D.local.discernibility.matrix.RST}}.
+A class \code{"Discretization"}. See
+\code{\link{D.local.discernibility.matrix.RST}}.
 }
 \description{
-  It is a wrapper function collecting all discretization
-  methods based on RST. It provides an additional interface
-  that allows users to use the methods of the
-  discretization easily.
+It is a wrapper function collecting all discretization
+methods based on RST. It provides an additional interface
+that allows users to use the methods of the discretization
+easily.
 }
 \details{
-  Discretization is used to convert continuous attributes
-  into nominal ones in an information system. It is very
-  important to perform this process since any methods based
-  on rough set theory need nominal attributes to compute
-  the indiscernibility relation or perform other functions.
-  Furthermore, in order to avoid loss of information, in
-  rough set theory point of view, the discernibility
-  relation among objects is maintained.
+Discretization is used to convert continuous attributes
+into nominal ones in an information system. It is very
+important to perform this process since any methods based
+on rough set theory need nominal attributes to compute the
+indiscernibility relation or perform other functions.
+Furthermore, in order to avoid loss of information, in
+rough set theory point of view, the discernibility relation
+among objects is maintained.
 
-  It should be noted that the output of this function is a
-  class containing cut values. In order to generate a new
-  decision table, the function
-  \code{\link{SF.applyDecTable}} is executed.
+It should be noted that the output of this function is a
+class containing cut values. In order to generate a new
+decision table, the function \code{\link{SF.applyDecTable}}
+is executed.
 }
 \examples{
 #################################################################
@@ -65,7 +71,7 @@ cut.values <- D.discretization.RST(decision.table, type.method = "global.discern
 new.decTable <- SF.applyDecTable(decision.table, cut.values)
 }
 \seealso{
-  \code{\link{BC.LU.approximation.RST}},
-  \code{\link{BC.LU.approximation.FRST}}
+\code{\link{BC.LU.approximation.RST}},
+\code{\link{BC.LU.approximation.FRST}}
 }
 

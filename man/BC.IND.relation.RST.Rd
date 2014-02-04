@@ -2,7 +2,7 @@
 \alias{BC.IND.relation.RST}
 \title{Indiscernibility relation based on rough set theory}
 \usage{
-  BC.IND.relation.RST(decision.table, attribute = NULL)
+BC.IND.relation.RST(decision.table, attribute = NULL)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -14,34 +14,33 @@
   is \code{NULL} which means that all condition attributes
   will be considered. It should be noted that in this case,
   all attributes considered should be nominal attributes,
-  otherwise the discretization task must be performed
-  first.}
+  otherwise discretization must be performed first.}
 }
 \value{
-  A class \code{"IndiscernibilityRelation"} which contains
-  \itemize{ \item \code{IND.relation}: a list representing
-  indiscernibility relation over all objects.  \item
-  \code{type.relation}: it is \code{"equivalence"}.  \item
-  \code{type.model}: a string showing the type of model
-  which is used. In this case, it is \code{"RST"} which
-  means fuzzy rough set theory.  }
+A class \code{"IndiscernibilityRelation"} which contains
+\itemize{ \item \code{IND.relation}: a list representing
+indiscernibility relation over all objects.  \item
+\code{type.relation}: it is \code{"equivalence"}.  \item
+\code{type.model}: a string showing the type of model which
+is used. In this case, it is \code{"RST"} which means rough
+set theory.  }
 }
 \description{
-  This is a function that implements a fundamental part of
-  RST: the indiscernibility relation. The indiscernibility
-  relation is a binary relation showing whether two objects
-  can be discerned. The detailed description based on
-  theoritical point of view can be seen in
-  \code{\link{A.Introduction-RoughSets}}.
+This is a function implementing a fundamental part of RST:
+the indiscernibility relation. The indiscernibility
+relation is a binary relation showing whether two objects
+can be discerned. The detailed description based on
+theoritical point of view can be seen in
+\code{\link{A.Introduction-RoughSets}}.
 }
 \details{
-  This function is used as a basic function and is needed
-  by other functions such as
-  \code{\link{BC.LU.approximation.RST}},
-  \code{\link{BC.positive.reg.RST}} for calculating lower
-  and upper approximation and determining the positive
-  region. The formula of the indiscernibility relation has
-  been explained in \code{\link{A.Introduction-RoughSets}}.
+This function is used as a basic function and is needed by
+other functions such as
+\code{\link{BC.LU.approximation.RST}},
+\code{\link{BC.positive.reg.RST}} for calculating lower and
+upper approximations and determining the positive region.
+The formula of the indiscernibility relation has been
+explained in \code{\link{A.Introduction-RoughSets}}.
 }
 \examples{
 #############################################
@@ -63,12 +62,12 @@ P <- c(2,3)
 IND <- BC.IND.relation.RST(decision.table, attribute = P)
 }
 \references{
-  Z. Pawlak, "Rough Sets", International Journal of
-  Computer and Information Sciences, vol. 11, no. 5, p. 341
-  - 356 (1982).
+Z. Pawlak, "Rough Sets", International Journal of Computer
+and Information Sciences, vol. 11, no. 5, p. 341 - 356
+(1982).
 }
 \seealso{
-  \code{\link{BC.LU.approximation.RST}},
-  \code{\link{BC.LU.approximation.RST}}
+\code{\link{BC.LU.approximation.RST}},
+\code{\link{BC.LU.approximation.RST}}
 }
 

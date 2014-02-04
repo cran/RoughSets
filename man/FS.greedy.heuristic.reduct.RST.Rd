@@ -2,9 +2,9 @@
 \alias{FS.greedy.heuristic.reduct.RST}
 \title{The greedy heuristic algorithm for determining a reduct}
 \usage{
-  FS.greedy.heuristic.reduct.RST(decision.table,
-    decisionIdx = ncol(decision.table), qualityF = X.gini,
-    nAttrs = NULL, epsilon = 0, ...)
+FS.greedy.heuristic.reduct.RST(decision.table,
+  decisionIdx = ncol(decision.table), qualityF = X.gini, nAttrs = NULL,
+  epsilon = 0, ...)
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -35,50 +35,49 @@
   \item{...}{other parameters.}
 }
 \value{
-  A class \code{"FeatureSubset"} that contains the
-  following components: \itemize{ \item \code{reduct}: a
-  list representing a single reduct. In this case, it could
-  be a superreduct or just a subset of features. \item
-  \code{type.method}: a string representing the type of
-  method which is \code{"greedy.heuristic"}. \item
-  \code{type.task}: a string showing the type of task which
-  is \code{"feature selection"}. \item \code{model}: a
-  string representing the type of model. In this case, it
-  is \code{"RST"} which means rough set theory. }
+A class \code{"FeatureSubset"} that contains the following
+components: \itemize{ \item \code{reduct}: a list
+representing a single reduct. In this case, it could be a
+superreduct or just a subset of features. \item
+\code{type.method}: a string representing the type of
+method which is \code{"greedy.heuristic"}. \item
+\code{type.task}: a string showing the type of task which
+is \code{"feature selection"}. \item \code{model}: a string
+representing the type of model. In this case, it is
+\code{"RST"} which means rough set theory. }
 }
 \description{
-  This is a function used for implementing a greedy
-  heuristic method for feature selection based on RST.
+This is a function used for implementing a greedy heuristic
+method for feature selection based on RST.
 }
 \details{
-  In this function, we have provided some quality measures
-  of subsets of attributes. The measure are important to
-  determine the quality of a subset to be a reduct. For
-  example, \code{X.entropy} is a measure of information
-  gain. We select one of the measures by assigning the
-  \code{qualityF} parameter.
+In this function, we have provided some quality measures of
+subsets of attributes. The measure are important to
+determine the quality of a subset to be a reduct. For
+example, \code{X.entropy} is a measure of information gain.
+We select one of the measures by assigning the
+\code{qualityF} parameter.
 
-  Additionally, this function has implemented
-  \eqn{\epsilon}-approximate reducts. It means that the
-  method attempts to approximate the original decision
-  model by producing an approximate reduct which is subset
-  of attributes. The \eqn{\epsilon}-approximate can be
-  defined as
+Additionally, this function has implemented
+\eqn{\epsilon}-approximate reducts. It means that the
+method attempts to approximate the original decision model
+by producing an approximate reduct which is subset of
+attributes. The \eqn{\epsilon}-approximate can be defined
+as
 
-  \eqn{Disc_{\mathcal{A}}(B) \ge (1 -
-  \epsilon)Disc_{\mathcal{A}}(A)}
+\eqn{Disc_{\mathcal{A}}(B) \ge (1 -
+\epsilon)Disc_{\mathcal{A}}(A)}
 
-  where \eqn{Disc_{\mathcal{A}}(B)} is the discernibility
-  measure of attributes \eqn{B} in decision table
-  \eqn{\mathcal{A}} and \eqn{\epsilon} is numeric value
-  between 0 and 1. A lot of monographs provide
-  comprehensive explanations about this topics, for example
-  (A. Janusz and S. Stawicki, 2011; D. Slezak, 2002; J.
-  Wroblewski, 2001) which are used as the references of
-  this function.
+where \eqn{Disc_{\mathcal{A}}(B)} is the discernibility
+measure of attributes \eqn{B} in decision table
+\eqn{\mathcal{A}} and \eqn{\epsilon} is numeric value
+between 0 and 1. A lot of monographs provide comprehensive
+explanations about this topics, for example (Janusz and
+Stawicki, 2011; Slezak, 2002; Wroblewski, 2001) which are
+used as the references of this function.
 
-  Additionally, \code{\link{SF.applyDecTable}} has been
-  provided to generate new decision table.
+Additionally, \code{\link{SF.applyDecTable}} has been
+provided to generate new decision table.
 }
 \examples{
 ###################################################
@@ -96,20 +95,20 @@ res.1 <- FS.greedy.heuristic.reduct.RST(decision.table, qualityF = X.entropy,
 new.decTable <- SF.applyDecTable(decision.table, res.1)
 }
 \references{
-  A. Janusz and S. Stawicki, "Applications of Approximate
-  Reducts to the Feature Selection Problem", Proceedings of
-  International Conference on Rough Sets and Knowledge
-  Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
+A. Janusz and S. Stawicki, "Applications of Approximate
+Reducts to the Feature Selection Problem", Proceedings of
+International Conference on Rough Sets and Knowledge
+Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
 
-  D. Slezak, "Approximate Entropy Reducts", Fundamenta
-  Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
+D. Slezak, "Approximate Entropy Reducts", Fundamenta
+Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
 
-  J. Wroblewski, "Ensembles of Classifiers Based on
-  Approximate Reducts", Fundamenta Informaticae, vol. 47,
-  no. 3 - 4, p. 351 - 360 (2001).
+J. Wroblewski, "Ensembles of Classifiers Based on
+Approximate Reducts", Fundamenta Informaticae, vol. 47, no.
+3 - 4, p. 351 - 360 (2001).
 }
 \seealso{
-  \code{\link{FS.quickreduct.RST}} and
-  \code{\link{FS.reduct.computation}}.
+\code{\link{FS.quickreduct.RST}} and
+\code{\link{FS.reduct.computation}}.
 }
 

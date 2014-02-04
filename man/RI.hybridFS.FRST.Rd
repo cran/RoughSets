@@ -2,7 +2,7 @@
 \alias{RI.hybridFS.FRST}
 \title{Hybrid fuzzy-rough rule and induction and feature selection}
 \usage{
-  RI.hybridFS.FRST(decision.table, control = list())
+RI.hybridFS.FRST(decision.table, control = list())
 }
 \arguments{
   \item{decision.table}{a \code{"DecisionTable"} class
@@ -24,30 +24,29 @@
   BC.LU.approximation.FRST.  }}
 }
 \value{
-  A class \code{"RuleSetFRST"} which has similar components
-  as \code{\link{RI.GFRS.FRST}} but in this case the
-  \code{threshold} component is not included.
+A class \code{"RuleSetFRST"} which has similar components
+as \code{\link{RI.GFRS.FRST}} but in this case the
+\code{threshold} component is not included.
 }
 \description{
-  It is a function for generating rules based on hybrid
-  fuzzy-rough rule induction and feature selection. It
-  allows for classification and regression tasks.
+It is a function for generating rules based on hybrid
+fuzzy-rough rule induction and feature selection. It allows
+for classification and regression tasks.
 }
 \details{
-  It was proposed by (R. Jensen et al, 2009) attempting to
-  combine rule induction and feature selection at the same
-  time. Basically this algorithm inserts some steps to
-  generate rules into the fuzzy QuickReduct algorithm (see
-  \code{\link{FS.quickreduct.FRST}}. Furthermore, by
-  introducing the degree of coverage, this algorithm
-  selects proper rules.
+It was proposed by (Jensen et al, 2009) attempting to
+combine rule induction and feature selection at the same
+time. Basically this algorithm inserts some steps to
+generate rules into the fuzzy QuickReduct algorithm (see
+\code{\link{FS.quickreduct.FRST}}. Furthermore, by
+introducing the degree of coverage, this algorithm selects
+proper rules.
 
-  This function allows not only for classification but also
-  for regression problems. After obtaining the rules,
-  predicting can be done by calling \code{predict} or
-  \code{\link{predict.RuleSetFRST}}. Additionally, to get
-  better representation we can execute
-  \code{link{summary}}.
+This function allows not only for classification but also
+for regression problems. After obtaining the rules,
+predicting can be done by calling \code{predict} or
+\code{\link{predict.RuleSetFRST}}. Additionally, to get
+better representation we can execute \code{\link{summary}}.
 }
 \examples{
 ###########################################################
@@ -71,14 +70,14 @@ control <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), type.relation =
 res.2 <- RI.hybridFS.FRST(decision.table, control)
 }
 \references{
-  R. Jensen, C. Cornelis, and Q. Shen, "Hybrid Fuzzy-rough
-  Rule Induction and Feature Selection", in: IEEE
-  International Conference on Fuzzy Systems (FUZZ-IEEE), p.
-  1151 - 1156 (2009).
+R. Jensen, C. Cornelis, and Q. Shen, "Hybrid Fuzzy-rough
+Rule Induction and Feature Selection", in: IEEE
+International Conference on Fuzzy Systems (FUZZ-IEEE), p.
+1151 - 1156 (2009).
 }
 \seealso{
-  \code{\link{RI.indiscernibilityBasedRules.RST}},
-  \code{\link{predict.RuleSetFRST}}, and
-  \code{\link{RI.GFRS.FRST}}.
+\code{\link{RI.indiscernibilityBasedRules.RST}},
+\code{\link{predict.RuleSetFRST}}, and
+\code{\link{RI.GFRS.FRST}}.
 }
 

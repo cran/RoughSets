@@ -99,17 +99,17 @@ def.discern.mat <- function(data, cut.val, type = "table"){
 # a function for discretizing a single attribute
 # @param vec a vector of data
 # @param cuts a vector of cut values
-applyDiscretization <- function(vec, cuts) {
-   vec = as.character(cut(vec, c(-Inf,cuts,Inf), right=FALSE))
-   return(vec)
+applyDiscretization <- function(vec, cuts, isNominal) {
+   if(!isNominal) vec = cut(vec, c(-Inf,cuts,Inf), right=TRUE, include.lowest = TRUE)
+   return(as.character(vec))
 }
 
 # a function for computing cuts of the "quantile-based" discretization of a single attribute into a given number of intervals
 # @param vec a vector of data
 # @param n a number 
 discretize.quantiles <- function(vec, n) {
-   uniqueValues = unique(vec)
-   if (length(uniqueValues) <= n) {
+  uniqueValues = unique(vec)
+  if (length(uniqueValues) < n) {
 		if(length(uniqueValues) == 1) cutVec = NULL
 		else cutVec = uniqueValues
 	} 

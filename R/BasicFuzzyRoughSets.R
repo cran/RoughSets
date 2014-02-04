@@ -18,17 +18,17 @@
 #
 #############################################################################
 #' This is a function used to implement a fundamental concept of FRST which is fuzzy indiscernibility relations. 
-#' It is used for any fuzzy relation that determines the degree to which two objects are indiscernibility. 
+#' It is used for any fuzzy relations that determine the degree to which two objects are indiscernibility. 
 #' The detailed description about basic concepts of FRST 
 #' can be found in \code{\link{B.Introduction-FuzzyRoughSets}}.
 #' 
 #' Briefly, the indiscernibility relation is a relation that shows a degree of similarity among the objects.
 #' For example, \eqn{R(x_i, x_j) = 0} means the object \eqn{x_i} is completely different from \eqn{x_j}, 
-#' and if \eqn{R(x_i, x_j) = 1}, while between those values we consider a degree of similarity. 
+#' and otherwise if \eqn{R(x_i, x_j) = 1}, while between those values we consider a degree of similarity. 
 #' To calculate this relation, several methods have been implemented
 #' in this function which are approaches based on fuzzy tolerance, equivalence and \eqn{T}-equivalence relations. 
-#' The fuzzy tolerance relations proposed by (R. Jensen and Q. Shen, 2009) include three equations while
-#' (Q. Hu, 2004) proposed five \eqn{T_{cos}}-transitive kernel functions as fuzzy \eqn{T}-equivalence relations. The simple
+#' The fuzzy tolerance relations proposed by (Jensen and Shen, 2009) include three equations while
+#' (Hu, 2004) proposed five \eqn{T_{cos}}-transitive kernel functions as fuzzy \eqn{T}-equivalence relations. The simple
 #' algorithm of fuzzy equivalence relation is implemented as well. Furthermore, we facilitate users to define their own equation for similarity relation.
 #' 
 #' To calculate a particular relation, we should pay attention to several components in 
@@ -36,22 +36,22 @@
 #' what kind of approach we are going to use. The detailed explanation about the parameters and their equations 
 #' is as follows:
 #' \itemize{
-#' \item \code{"tolerance"}: It refers to fuzzy tolerance relations proposed by (R. Jensen and Q. Shen, 2009). 
-#' 		In order to represent the \code{"tolerance"} relation, we must set \code{type.relation} as follows.
+#' \item \code{"tolerance"}: It refers to fuzzy tolerance relations proposed by (Jensen and Shen, 2009). 
+#' 		In order to represent the \code{"tolerance"} relation, we must set \code{type.relation} as follows:
 #'
 #' 		\code{type.relation = c("tolerance", <chosen equation>)} 
 #' 
-#'      where the chosen equation called as \code{t.similarity} is one of 
+#'      where the chosen equation called as \code{t.similarity} is one of the
 #' 		\code{"eq.1"}, \code{"eq.2"}, and \code{"eq.3"} equations which have been explained in \code{\link{B.Introduction-FuzzyRoughSets}}.
 #'      
-#' \item \code{"transitive.kernel"}: It refers to \eqn{T}-equivalence relation proposed by (Q. Hu et al, 2004).
-#' 		In order to represent the relation, we must set \code{type.relation} parameter as follows.
+#' \item \code{"transitive.kernel"}: It refers to the relations employing kernel functions (Genton, 2001).
+#' 		In order to represent the relation, we must set the \code{type.relation} parameter as follows.
 #'
 #' 		\code{type.relation = c("transitive.kernel", <chosen equation>, <delta>)}      
 #'
 #'      where the chosen equation is one of five following equations (called \code{t.similarity}):
 #'       \itemize{
-#'       \item \code{"gaussian"}: It means gaussian kernel which is \eqn{R_G(x,y) = \exp (-\frac{|x - y|^2}{\delta})}
+#'       \item \code{"gaussian"}: It means Gaussian kernel which is \eqn{R_G(x,y) = \exp (-\frac{|x - y|^2}{\delta})}
 #'       \item \code{"exponential"}: It means exponential kernel which is \eqn{R_E(x,y) = \exp(-\frac{|x - y|}{\delta})}
 #'       \item \code{"rational"}: It means rational quadratic kernel which is \eqn{R_R(x,y) = 1 - \frac{|x - y|^2}{|x - y|^2 + \delta}}
 #'       \item \code{"circular"}: It means circular kernel which is if \eqn{|x - y| < \delta}, 
@@ -65,13 +65,29 @@
 #' 
 #'       \code{type.relation = c("transitive.kernel", "gaussian", 0.2)}
 #'
-#'       If we omit the \code{delta} parameter then we are using \code{"gaussian"} defined as \eqn{R_E(x,y) = \exp(-\frac{|x - y|}{2\sigma^2})}, where \eqn{sigma} is the variance.
+#'       If we omit the \code{delta} parameter then we are using \code{"gaussian"} defined as \eqn{R_E(x,y) = \exp(-\frac{|x - y|}{2\sigma^2})}, where \eqn{\sigma} is the variance.
 #'       Furthermore, when using this relation, usually we set 
 #'
 #'       \code{type.aggregation = c("t.tnorm", "t.cos")}.  
 #'
-#'  \item \code{"transitive.closure"}: It refers to similarity relation (also called fuzzy equivalence relation). In this package, 
-#'       we consider a simple algorithm to calculate this relation as follows.
+#' \item \code{"kernel.frst"}: It refers to \eqn{T}-equivalence relation proposed by (Hu, 2004).
+#' 		In order to represent the relation, we must set \code{type.relation} parameter as follows.
+#'
+#' 		\code{type.relation = c("kernel.frst", <chosen equation>, <delta>)}      
+#'
+#'      where the chosen equation is one of the kernel functions, but they have different names corresponding to previous ones: 
+#'      \code{"gaussian.kernel"}, \code{"exponential.kernel"}, \code{"rational.kernel"}, \code{"circular.kernel"}, and \code{"spherical.kernel"}. And
+#'      \code{delta} is a specified value. 
+#'       For example: let us assume we are going to use \code{"gaussian.kernel"} as its equation and the delta is 0.2. 
+#'       So, we assign the \code{type.relation} parameter as follows:
+#' 
+#'       \code{type.relation = c("kernel.frst", "gaussian.kernel", 0.2)}
+#'
+#'       In this case, we do not need to define type of aggregation. Furthemore, regarding the distance used in the equations if objects \eqn{x} and \eqn{y} contains mixed values (nominal and continuous)
+#'       then we use the Gower distance and we use the euclidean distance for continuous only. 
+#'
+#'  \item \code{"transitive.closure"}: It refers to similarity relation (also called fuzzy equivalence relation). 
+#'       We consider a simple algorithm to calculate this relation as follows:
 #'
 #'       Input: a fuzzy relation R
 #'
@@ -81,13 +97,13 @@
 #'
 #'       1. For every x, y: compute
 #'
-#'       \eqn{R'(x,y) = max(R(x,y), max_{z \in U}min(R(x,y), R(z,y)))}
+#'       \eqn{R'(x,y) = max(R(x,y), max_{z \in U}min(R(x,z), R(z,y)))}
 #'
 #'       2. If \eqn{R' \not= R}, then \eqn{R \gets R'} and go to 1, else \eqn{R^m \gets R'}
 #'
-#'      For interested readers, other algorithms can be seen in (H. Naessens et al, 2002). Let \code{"eq.1"} be the \eqn{R} fuzzy relations, to define it as parameter is
+#'      For interested readers, other algorithms can be seen in (Naessens et al, 2002). Let \code{"eq.1"} be the \eqn{R} fuzzy relations, to define it as parameter is
 #'      
-#'      \code{type.relation = c("transitive.closure", "eq.1")}. Instead of \code{"eq.1"}, we can also use other equations that have been explained in \code{"tolerance"} and \code{"transitive.kernel"}.
+#'      \code{type.relation = c("transitive.closure", "eq.1")}. We can also use other equations that have been explained in \code{"tolerance"} and \code{"transitive.kernel"}.
 #'
 #' \item \code{"crisp"}: It uses crisp equality for all attributes and 
 #'       we set the parameter \code{type.relation = "crisp"}. In this case, we only have \eqn{R(x_i, x_j) = 0} 
@@ -99,10 +115,10 @@
 #'
 #'       \code{type.relation = c("custom", <FUN.relation>)}
 #'
-#'        The customized function should consist of three arguments which are \code{decision.table}, 
+#'        The function \code{FUN.relation} should consist of three arguments which are \code{decision.table}, 
 #'        \code{x}, and \code{y}, where \code{x} and \code{y} represent two objects which we want to compare. 
-#'        It should be noted that the user must ensure that the values of this equation are alwayas between 0 and 1. 
-#'        Furthermore, the function must have a return value. An example can be seen in Section \code{Examples}.
+#'        It should be noted that the user must ensure that the values of this equation are always between 0 and 1. 
+#'        An example can be seen in Section \code{Examples}.
 #' }
 #'
 #' Beside the above \code{type.relation}, we provide several options of values for the \code{type.aggregation} parameter. 
@@ -113,13 +129,13 @@
 #'               which is a triangular norm operator with 
 #'               a specified operator \code{t.tnorm} as follows: 
 #'     			\itemize{
-#'     				\item \code{"min"}: standard t-norm which is \eqn{min(x_1, x_2)}.
-#'     				\item \code{"hamacher"}: hamacher product which is \eqn{(x_1 * x_2)/(x_1 + x_2 - x_1 * x_2)}.
-#'     				\item \code{"yager"}: yager class which is \eqn{1 - min(1, ((1 - x_1) + (1 - x_2)))}.
-#'     				\item \code{"product"}: product t-norm which is \eqn{(x_1 * x_2)}.
-#'     				\item \code{"lukasiewicz"}: lukasiewicz's t-norm (default) which is \eqn{max(x_2 + x_1 - 1, 0)}. 
-#'     				\item \code{"t.cos"}: \eqn{T_{cos}}t-norm which is \eqn{max(x_1 * x_2 - \sqrt{1 - x_1^2}\sqrt{1 - x_2^2, 0})}.
-#'                  \item \code{FUN.tnorm}: It is a user-defined function. It has to have two arguments, for example:
+#'     				\item \code{"min"}: standard t-norm i.e., \eqn{min(x_1, x_2)}.
+#'     				\item \code{"hamacher"}: hamacher product i.e., \eqn{(x_1 * x_2)/(x_1 + x_2 - x_1 * x_2)}.
+#'     				\item \code{"yager"}: yager class i.e., \eqn{1 - min(1, ((1 - x_1) + (1 - x_2)))}.
+#'     				\item \code{"product"}: product t-norm i.e., \eqn{(x_1 * x_2)}.
+#'     				\item \code{"lukasiewicz"}: lukasiewicz's t-norm (default) i.e., \eqn{max(x_2 + x_1 - 1, 0)}. 
+#'     				\item \code{"t.cos"}: \eqn{T_{cos}}t-norm i.e., \eqn{max(x_1 * x_2 - \sqrt{1 - x_1^2}\sqrt{1 - x_2^2, 0})}.
+#'                  \item \code{FUN.tnorm}: It is a user-defined function for \code{"t.tnorm"}. It has to have two arguments, for example:
 #'                              
 #' 								\code{FUN.tnorm <- function(left.side, right.side)}
 #'
@@ -130,33 +146,17 @@
 #'                					 \code{else return(0)}
 #'               	}
 #' 		  			 The default value is \code{type.aggregation = c("t.tnorm", "lukasiewicz")}.
-#    \item \code{type.aggregation = c("custom", <FUN.aggregation>)}: this option is selected when we want to define
-#   		our own equation as <FUN.aggregation>. In this case, this function must be a binary operator and fulfil the associative rule. 
-#          So, the function requires two arguments. For example:
-#                              
-#    		 \code{FUN.aggregation <- function(x, y){return(x * y * 0.5)}}
-#
-#          So, we can set \code{type.aggregation} as follows:
-#
-#  		 \code{type.aggregation = c("custom", FUN.aggregation)}. 
-#
-#           Another example can be seen in Section \code{Examples}. 
-#           It should be noted that the argument of the functions \code{FUN.aggregation} must contain two parameters representing two objects that will be aggregated, 
-#           e.g. \code{x} and \code{y}.
-# 
-#'    \item \code{type.aggregation = c("custom", <FUN.agg>)}: It is quite similar to the previous one but
-#'          using this option users have more possibilities to define their own functions. \code{<FUN.agg>} is 
+#'    \item \code{type.aggregation = c("custom", <FUN.agg>)}: It is used to define our own function for a type of aggregations. \code{<FUN.agg>} is 
 #'          a function having one argument representing data that is produced by fuzzy similarity equation calculation.
-#'          The data is a list of one or many matrices which depend on the number of considered attributes and has dimension
-#'          number of object x number of object. For example:
+#'          The data is a list of one or many matrices which depend on the number of considered attributes and has dimension: 
+#'          the number of object \eqn{\times} the number of object. For example:
 #'
 #'         \code{FUN.agg <- function(data) return(Reduce("+", data)/length(data))}
 #'
 #'         which is a function to calculate average along all attributes. Then,
 #'         we can set \code{type.aggregation} as follows:
 #'
-#'        \code{type.aggregation = c("general.custom", <FUN.agg>)}. Another example can be seen in Section \code{Examples}.
-#'         As we mentioned before, this option gives more flexibility to define functions since we do not need to consider the associative rule.         
+#'        \code{type.aggregation = c("general.custom", <FUN.agg>)}. An example can be seen in Section \code{Examples}.        
 #'    }
 #'
 #' Furthermore, the use of this function has been illustrated in Section \code{Examples}. 
@@ -169,16 +169,16 @@
 #' @param attributes a numerical vector expressing indexes of subset of attributes to be considered. 
 #'                 The default value is \code{NULL} which means that 
 #'                 all conditional attributes will be considered.
-#' @param control a list of other parameters which involves the following parameters.
+#' @param control a list of other parameters consisting of the following parameters:
 #'        \itemize{ 
-#'        \item \code{type.relation}: a vector containing string values that express the 
+#'        \item \code{type.relation}: a list containing string values that express the 
 #'              type of the fuzzy relation and its equation. The default value is \code{type.relation = c("tolerance", "eq.1")}. See in the Section \code{Details}.
 #'        \item \code{type.aggregation}: a list expressing type of aggregation. The default value is \code{type.aggregation = c("t.tnorm", "lukasiewicz")}. 
 #'              See in the Section \code{Details}.
 #'        }
 #' @return A class \code{"IndiscernibilityRelation"} which contains
 #'          \itemize{
-#'          \item \code{IND.relation}: a matrix representing indiscernibility relation over all objects. 
+#'          \item \code{IND.relation}: a matrix representing the indiscernibility relation over all objects. 
 #'          \item \code{type.relation}: a vector representing the type of relation. 
 #'          \item \code{type.aggregation}: a vector representing the type of aggregation operator.
 #'          \item \code{type.model}: a string showing the type of model which is used. In this case it is \code{"FRST"} which means fuzzy rough set theory.
@@ -187,6 +187,9 @@
 #'
 #' and \code{\link{BC.positive.reg.FRST}}
 #' @references
+#' M. Genton, "Classes of Kernels for Machine Learning: a Statistics Perspective", 
+#' J. Machine Learning Research, vol. 2, p. 299 - 312 (2001). 
+#'
 #' H. Naessens, H. De Meyer, and B. De Baets, 
 #' "Algorithms for the Computation of T-Transitive Closures",
 #' IEEE Trans. on Fuzzy Systems, vol. 10, No. 4, p. 541 - 551 (2002).
@@ -208,12 +211,13 @@
 #' dt.ex1 <- data.frame(c(1,0,2,1,1,2,2,0), c(0, 1,0, 1,0,2,1,1), 
 #'                         c(2,1,0,0,2,0,1,1), c(2,1,1,2,0,1,1,0), c(0,2,1,2,1,1,2,1))
 #' colnames(dt.ex1) <- c("aa", "bb", "cc", "dd", "ee")
-#' decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 5)
+#' decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 5, 
+#'       indx.nominal = c(1:5))
 #'
 #' ## In this case, we only consider the second and third attributes.
 #' attributes <- c(2, 3)
 #' 
-#' #### calculate fuzzy indiscernibility relation ####
+#' ## calculate fuzzy indiscernibility relation ##
 #' ## in this case, we are using "crisp" as a type of relation and type of aggregation
 #' control.ind <- list(type.relation = c("crisp"), type.aggregation = c("crisp"))
 #' IND <- BC.IND.relation.FRST(decision.table, attribute = attributes, control = control.ind)
@@ -226,34 +230,37 @@
 #'				        c(-0.5, -0.1, -0.3, 0, 0, 0),
 #'				        c("no", "yes", "no", "yes", "yes", "no"))
 #' colnames(dt.ex2) <- c("a", "b", "c", "d")
-#' desc.attributes <- list(a = c(-0.4, 0.3), b = c(-0.4, 0.2), 
-#'                     c = c(-0.5, 0), d = c("no", "yes"))
 #' decision.table <- SF.asDecisionTable(dataset = dt.ex2, decision.attr = 4)
 #' 
 #' ## in this case, we only consider the first and second attributes
 #' attributes <- c(1, 2)
 #'
-#' #### Calculate fuzzy indiscernibility relation ####
+#' ## Calculate fuzzy indiscernibility relation 
 #' ## in this case, we choose "tolerance" relation and "eq.1" as similarity equation
 #' ## and "lukasiewicz" as t-norm of type of aggregation
-#' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
+#' control.1 <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
 #'                     type.relation = c("tolerance", "eq.1"))
 #' IND.1 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind) 
+#'                               control = control.1) 
 #'
-#' #### Calculate fuzzy indiscernibility relation: gaussian kernel ####
-#' control.ind <- list(type.aggregation = c("t.tnorm", "t.cos"), 
+#' ## Calculate fuzzy indiscernibility relation: transitive.kernel
+#' control.2 <- list(type.aggregation = c("t.tnorm", "t.cos"), 
 #'                     type.relation = c("transitive.kernel", "gaussian", 0.2))
 #' IND.2 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind) 
+#'                               control = control.2) 
 #'
-#' #### calculate fuzzy transitive closure ####
-#' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
-#'                     type.relation = c("transitive.closure", "eq.1"))
+#' ## Calculate fuzzy indiscernibility relation: kernel.frst 
+#' control.3 <- list(type.relation = c("kernel.frst", "gaussian.kernel", 0.2))
 #' IND.3 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind) 
+#'                               control = control.3) 
 #'
-#' #### Calculate fuzzy indiscernibility relation: using user-defined relation #####
+#' ## calculate fuzzy transitive closure
+#' control.4 <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
+#'                     type.relation = c("transitive.closure", "eq.1"))
+#' IND.4 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
+#'                               control = control.4) 
+#'
+#' ## Calculate fuzzy indiscernibility relation: using user-defined relation
 #' ## The customized function should have three arguments which are : decision.table 
 #' ## and object x, and y.
 #' ## This following example shows that we have an equation for similarity equation: 
@@ -262,29 +269,35 @@
 #' FUN.relation <- function(decision.table, x, y) {
 #'            return(1 - (abs(x - y)))
 #'        }
-#' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
+#' control.5 <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
 #'                      type.relation = c("custom", FUN.relation))
-#' IND.4 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind) 
-#' #### The other example using "custom"
+#' IND.5 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
+#'                               control = control.5) 
+#'
 #' ## In this case, we calculate aggregation as average of all objects 
+#' ## by executing the Reduce function
 #' FUN.average <- function(data){
 #'   	 return(Reduce("+", data)/length(data))
 #' }
-#' control.ind <- list(type.aggregation = c("custom", FUN.average), 
+#' control.6 <- list(type.aggregation = c("custom", FUN.average), 
 #'                      type.relation = c("tolerance", "eq.1"))
-#' IND.5 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind)
+#' IND.6 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
+#'                               control = control.6)
 #'	
-#' #### Calculate fuzzy indiscernibility relation: using user-defined tnorms ####
+#' ## using user-defined tnorms 
 #' FUN.tnorm <- function(left.side, right.side) {
 #'                if ((left.side + right.side) > 1)
 #'                    return(min(left.side, right.side))
 #'                else return(0)}
-#' control.ind <- list(type.aggregation = c("t.tnorm", FUN.tnorm), 
+#' control.7 <- list(type.aggregation = c("t.tnorm", FUN.tnorm), 
 #'                     type.relation = c("tolerance", "eq.1"))
-#' IND.6 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
-#'                               control = control.ind) 						   
+#' IND.7 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
+#'                               control = control.7) 
+#'
+#' ## Calculate fuzzy indiscernibility relation: kernel fuzzy rough set 
+#' control.8 <- list(type.relation = c("kernel.frst", "gaussian.kernel", 0.2))
+#' IND.8 <- BC.IND.relation.FRST(decision.table, attributes = attributes, 
+#'                               control = control.8) 						   
 #' ##################################################################
 #' ## Example 3: Dataset containing continuous and nominal attributes
 #' ## Note. we only consider type.relation = c("tolerance", "eq.1")
@@ -296,24 +309,32 @@
 #' ## in this case, we only consider the attribute: 1, 2, 3, 4 
 #' attributes <- c(1,2,3,4)
 #'
-#' #### Calculate fuzzy indiscernibility relation ####
-#' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"),
+#' ## Calculate fuzzy indiscernibility relation
+#' control.9 <- list(type.aggregation = c("t.tnorm", "lukasiewicz"),
 #'                     type.relation = c("tolerance", "eq.1"))
-#' IND.6 <- BC.IND.relation.FRST(decision.table, attributes = attributes, control = control.ind) 
+#' IND.9 <- BC.IND.relation.FRST(decision.table, attributes = attributes, control = control.9) 
 #' 
 #' @export
 BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = list()){
 	## set default values of all parameters
 	control <- setDefaultParametersIfMissing(control, list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
-	           type.relation = c("tolerance", "eq.1"), disc.mat = FALSE))
-						
+	           type.relation = c("tolerance", "eq.1"), disc.mat = FALSE, type.MVCompletion = FALSE))
+	
+	## check missing values
+	if (any(is.na(decision.table))){
+		type.MVCompletion <- TRUE
+	}
+	else {
+		type.MVCompletion <- FALSE
+	}
+	
 	## get the data
 	type.relation <- control$type.relation
 	disc.mat <- control$disc.mat
 
 	## get type of aggregation
 	type.aggregation <- ch.typeAggregation(control$type.aggregation)
-	
+
 	## check whether attributes is exist or not
 	if (is.null(attributes)){
 		attributes <- c(seq(1, (ncol(decision.table) - 1)))
@@ -321,33 +342,63 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 	
 	## calculate fuzzy similarity relation based on the chosen type.relation
 	if (type.relation[1] == "crisp"){
-		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.tnorm = type.aggregation[[2]], disc.mat = disc.mat, t.aggregation = type.aggregation[[1]])	
+		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.tnorm = type.aggregation[[2]], disc.mat = disc.mat, 
+		                           t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
 	}
 	else if (type.relation[1] == "tolerance"){
+		## set default value
 		if (is.na(type.relation[2])) t.similarity <- c("eq.1")
 		else t.similarity <- type.relation[2]
-
 		type.relation <- list(type = type.relation[1], equation = t.similarity)
+		
+		## calculate relation
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], FUN = NULL, 
-		                           disc.mat = disc.mat, t.aggregation = type.aggregation[[1]])	
+		                           disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
 	}
 	else if (type.relation[1] == "transitive.kernel"){
+		## set the default values
 		if (is.na(type.relation[2])) t.similarity <- c("gaussian")
-		else t.similarity <- type.relation[2]
-		
+		else t.similarity <- type.relation[2]		
 		if (is.na(type.relation[3])) delta <- NULL
 		else delta <- as.numeric(type.relation[3])
 
-		
+		## calculate relation
 		type.relation <- list(type = type.relation[1], equation = t.similarity, delta = delta)
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], FUN = NULL, disc.mat = disc.mat, 
-		                           delta = delta, t.aggregation = type.aggregation[[1]])	
+		                           delta = delta, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
+	}
+	else if (type.relation[1] == "kernel.frst"){
+		## set the default values
+		if (is.na(type.relation[2])) t.similarity <- c("gaussian.kernel")
+		else t.similarity <- type.relation[2]		
+		if (is.na(type.relation[3])) delta <- NULL
+		else delta <- as.numeric(type.relation[3])		
+		if (t.similarity == "gaussian.kernel"){
+			t.tnorm <- func.gaussian.kernel
+		}
+		else if (t.similarity == "exponential.kernel"){
+			t.tnorm <- func.exponential.kernel
+		}
+		else if (t.similarity == "rational.kernel"){
+			t.tnorm <- func.rational.kernel
+		}
+		else if (t.similarity == "circular.kernel"){
+			t.tnorm <- func.circular.kernel
+		}
+		else if (t.similarity == "spherical.kernel"){
+			t.tnorm <- func.spherical.kernel
+		}
+		
+		## calculate relation
+		type.relation <- list(type = type.relation[1], equation = t.similarity, delta = delta)
+		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = t.tnorm, FUN = NULL, disc.mat = disc.mat, 
+		                           delta = delta, t.aggregation = "kernel.frst", type.MVCompletion = type.MVCompletion)	
 	}
 	else if (type.relation[1] == "custom"){
 		FUN <- type.relation[[2]]
 		type.relation <- list(type = type.relation[1], equation = FUN)
 		miu.Ra <- calc.fsimilarity(decision.table = decision.table, attributes = attributes, FUN = FUN, t.tnorm = type.aggregation[[2]], 
-		                          disc.mat = disc.mat, t.aggregation = type.aggregation[[1]]) 
+		                          disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion) 
 	}
 	else if (type.relation[1] == "transitive.closure"){
 		if (is.na(type.relation[2])) t.similarity <- c("eq.1")
@@ -355,19 +406,23 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 			
 		type.relation <- list(type = type.relation[1], equation = t.similarity)
 		IND.relation.tolerance <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], 
-		                                          FUN = NULL, disc.mat = disc.mat, t.aggregation = type.aggregation[[1]])	
-		miu.Ra <- calc.transitive.closure(IND.relation.tolerance)
+		                                          FUN = NULL, disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], 
+												  type.MVCompletion = type.MVCompletion)	
+		miu.Ra <- calc.transitive.closure(IND.relation.tolerance, type.MVCompletion = type.MVCompletion)
 	}
 	else {
-		stop("please define the type of relation which is going to be used")
+		stop("Please define the type of relation which is going to be used.")
 	}
 	
 	## build class
 	if (type.relation[1] == "crisp"){
-		mod <- list(IND.relation = miu.Ra, type.relation = "crisp", type.aggregation = "crisp", type.model = "FRST")
+		mod <- list(IND.relation = miu.Ra, type.relation = "crisp", type.aggregation = "crisp", missing.value = type.MVCompletion, type.model = "FRST")
+	}
+	else if (type.relation[1] == "kernel.frst"){
+		mod <- list(IND.relation = miu.Ra, type.relation = type.relation, missing.value = type.MVCompletion, type.model = "FRST")
 	}
 	else {
-		mod <- list(IND.relation = miu.Ra, type.relation = type.relation, type.aggregation = type.aggregation, type.model = "FRST")
+		mod <- list(IND.relation = miu.Ra, type.relation = type.relation, type.aggregation = type.aggregation, missing.value = type.MVCompletion, type.model = "FRST")
 	}	
 	class.mod <- ObjectFactory(mod, classname = "IndiscernibilityRelation")
 	
@@ -376,25 +431,23 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 }
 
 
-#' This is a function that implements a fundamental concept of FRST which are fuzzy lower and upper approximations. 
+#' This is a function implementing a fundamental concept of FRST: fuzzy lower and upper approximations. 
 #' Many options have been considered for determining lower and upper approximations, 
 #' such as techniques based on implicator and t-norm functions proposed by 
-#' (A. M. Radzikowska and E. E. Kerre, 2002), etc.
+#' (Radzikowska and Kerre, 2002).
 #' 
 #' Fuzzy lower and upper approximations as explained in \code{\link{B.Introduction-FuzzyRoughSets}} are used
-#' to define to what extent the set of elements can be classified into a certain class strongly or weakly. This function
-#' allows various methods that can be chosen by the parameter \code{type.LU}. 
-#' The following is a list of all \code{type.LU} values. 
+#' to define to what extent the set of elements can be classified into a certain class strongly or weakly. We can perform various methods by choosing the parameter \code{type.LU}. 
+#' The following is a list of all \code{type.LU} values: 
 #'    \itemize{
-#'    \item \code{"implicator.tnorm"}: It means implicator/t-norm based model. 
-#'          This strategy was proposed by (A. M. Radzikowska and E. E. Kerre, 2002). 
+#'    \item \code{"implicator.tnorm"}: It means implicator/t-norm based model proposed by (Radzikowska and Kerre, 2002). 
 #'          The explanation has been given in \code{\link{B.Introduction-FuzzyRoughSets}}.
 #'          Other parameters in \code{control} related with this approach are \code{t.tnorm} and \code{t.implicator}.
 #'          In other words, when we are using \code{"implicator.tnorm"} as \code{type.LU}, 
 #'          we should consider parameters \code{t.tnorm} and \code{t.implicator}.
 #'          The possible values of these parameters can be seen in the description of parameters. 
-#'    \item \code{"vqrs"}: It means vaquely quantified rough sets. This strategy was proposed by 
-#'          (C. Cornelis et al, 2007). Basically, this concept proposed to replace fuzzy lower and upper approximation 
+#'    \item \code{"vqrs"}: It means vaguely quantified rough sets proposed by 
+#'          (Cornelis et al, 2007). Basically, this concept proposed to replace fuzzy lower and upper approximations 
 #'          based on Radzikowska and Kerre's technique (see \code{\link{B.Introduction-FuzzyRoughSets}})
 #'          with the following equations, respectively. 
 #' 
@@ -405,15 +458,15 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #'          where the quantifier \eqn{Q_u} and \eqn{Q_l} represent the terms \code{most} and \code{some}. 
 #'
 #'    \item \code{"owa"}: It refers to ordered weighted average based fuzzy rough sets. 
-#'            This method was introduced by (C. Cornelis et al, 2010) and computes the approximations
-#'            by an aggregation process proposed by (R. R. Yager, 1988). The OWA-based lower and upper approximations of 
+#'            This method was introduced by (Cornelis et al, 2010) and computes the approximations
+#'            by an aggregation process proposed by (Yager, 1988). The OWA-based lower and upper approximations of 
 #'            \eqn{A} under \eqn{R} with weight vectors \eqn{W_l} and \eqn{W_u} are defined as
 #'
 #'           \eqn{(R \downarrow W_l A)(y) = OW A_{W_l}\langle I(R(x, y), A(y))\rangle}
 #'
 #'           \eqn{(R \uparrow W_u A)(y) = OW A_{W_u}\langle T(R(x, y), A(y))\rangle}
 #'
-#'           In this package, we provide two ways to define the weight vectors as follows:
+#'           We provide two ways to define the weight vectors as follows:
 #'
 #'           \itemize{
 #'           \item \code{m.owa}: Let \eqn{m.owa} be \eqn{m} and \eqn{m \le n}, this model is defined by
@@ -442,19 +495,15 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #            \eqn{T_{cos}(a,b) = max(ab - \sqrt{1 - a^2}\sqrt{1 - b^2}, 0)}.  
 #
 #'    \item \code{"fvprs"}: It refers to fuzzy variable precision rough sets (FVPRS) introduced by 
-#'            (S. Y. Zhao et al, 2009). It is a combination between variable precision rough sets (VPRS)
+#'            (Zhao et al, 2009). It is a combination between variable precision rough sets (VPRS)
 #'             and FRST. This function implements the construction of lower and upper approximations as follows.
 #'       
-#'			  \eqn{(R_{\alpha} \downarrow A)(y) = inf_{A(y) \le \alpha} \mathcal{I}(R(x,y), \alpha) \wedge}
+#'			  \eqn{(R_{\alpha} \downarrow A)(y) = inf_{A(y) \le \alpha} \mathcal{I}(R(x,y), \alpha) \wedge inf_{A(y) > \alpha} \mathcal{I}(R(x,y), A(y))}
 #'
-#'                     \eqn{inf_{A(y) > \alpha} \mathcal{I}(R(x,y), A(y))}
-#'
-#'           \eqn{(R_{\alpha} \uparrow A)(y) = sup_{A(y) \ge N(\alpha)} \mathcal{T}(R(x,y), N(\alpha)) \vee}
-#'
-#'                     \eqn{sup_{A(y) < N(\alpha)} \mathcal{T}(R(x,y), A(y))}
+#'           \eqn{(R_{\alpha} \uparrow A)(y) = sup_{A(y) \ge N(\alpha)} \mathcal{T}(R(x,y), N(\alpha)) \vee sup_{A(y) < N(\alpha)} \mathcal{T}(R(x,y), A(y))}
 #'             
 #'           where \eqn{\alpha}, \eqn{\mathcal{I}} and \eqn{\mathcal{T}} are the variable precision parameter, implicator and t-norm operators, respectively.
-#	  \item \code{"sfrs"}: It refers to soft fuzzy rough sets (SFRS) proposed by (Q. Hu et al, 2010). It is inspired by idea of
+#	  \item \code{"sfrs"}: It refers to soft fuzzy rough sets (SFRS) proposed by (Hu et al, 2010). It is inspired by idea of
 #           soft-margin support vector machine (SVM) which can reduce the influence of noise. So, this concept introduced 
 #           soft distance between an object \eqn{x} and a set of objects \eqn{Y}, which is defined as 
 # 
@@ -475,7 +524,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #
 #           \eqn{Y_U = \{y|A(y) \ge A(y_U), y \in U\}, y_U = arg_y sup_{y \in U} min\{1 - R(x,y), A(y)\}}.
 # 
-#'    \item \code{"rfrs"}: It refers to robust fuzzy rough sets (RFRS) proposed by (Q. Hu et al, 2012). 
+#'    \item \code{"rfrs"}: It refers to robust fuzzy rough sets (RFRS) proposed by (Hu et al, 2012). 
 #'            This package provides six types of RFRS which are k-trimmed minimum, k-mean minimum, k-median minimum, 
 #'            k-trimmed maximum, k-mean maximum, and k-median maximum. 
 #'            Basically, these methods are a special case of ordered weighted average (OWA) where they consider 
@@ -492,21 +541,21 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #'            }
 #'
 #'    \item \code{"beta.pfrs"}: It refers to \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS) proposed by 
-#'            (J. M. F. Salido and S. Murakami, 2003). This algorithm uses \eqn{\beta}-precision quasi-T-norm and 
-#'            \eqn{\beta}-precision quasi-T-conorm. The following are the \eqn{\beta}-precision versions of fuzzy lower and upper approximations of a fuzzy set \eqn{A} in \eqn{U}
+#'            (Salido and Murakami, 2003). This algorithm uses \eqn{\beta}-precision quasi-\eqn{\mathcal{T}}-norm and 
+#'            \eqn{\beta}-precision quasi-\eqn{\mathcal{T}}-conorm. The following are the \eqn{\beta}-precision versions of fuzzy lower and upper approximations of a fuzzy set \eqn{A} in \eqn{U}
 #' 
 #' 				\eqn{(R_B \downarrow A)(y) = T_{\beta_{x \in U}} \mathcal{I}(R_B(x,y), A(x))}
 #'
 #' 				\eqn{(R_B \uparrow A)(y) = S_{\beta_{x \in U}} \mathcal{T}(R_B(x,y), A(x))} 
 #'
-#'            where \eqn{T_{\beta}} and \eqn{S_{\beta}} are \eqn{\beta}-precision quasi-T-norm and \eqn{\beta}-precision quasi-T-conorm.
-#'            Given a t-norm \eqn{T}, a t-conorm \eqn{S}, \eqn{\beta \in [0,1]} and \eqn{n \in N \setminus \{0, 1\}}, the corresponding 
-#'            \eqn{\beta}-precision quasi-t-norm \eqn{T_{\beta}} and \eqn{\beta}-precision-T-conorm \eqn{S_{\beta}} of order \eqn{n} are
+#'            where \eqn{T_{\beta}} and \eqn{S_{\beta}} are \eqn{\beta}-precision quasi-\eqn{\mathcal{T}}-norm and \eqn{\beta}-precision quasi-\eqn{\mathcal{T}}-conorm.
+#'            Given a t-norm \eqn{\mathcal{T}}, a t-conorm \eqn{S}, \eqn{\beta \in [0,1]} and \eqn{n \in N \setminus \{0, 1\}}, the corresponding 
+#'            \eqn{\beta}-precision quasi-t-norm \eqn{T_{\beta}} and \eqn{\beta}-precision-\eqn{\mathcal{T}}-conorm \eqn{S_{\beta}} of order \eqn{n} are
 #'            \eqn{[0,1]^n \to [0,1]} mappings such that for all \eqn{x = (x_1,...,x_n)} in \eqn{[0,1]^n},
 #'
-#'             \eqn{T_{\beta}(x) = T(y_1,...,y_{n-m}},
+#'             \eqn{T_{\beta}(x) = \mathcal{T}(y_1,...,y_{n-m})},
 #'
-#'             \eqn{S_{\beta}(x) = T(z_1,...,z_{n-p}},
+#'             \eqn{S_{\beta}(x) = \mathcal{T}(z_1,...,z_{n-p})},
 #'
 #'             where \eqn{y_i} is the \eqn{i^{th}} greatest element of \eqn{x} and \eqn{z_i} is the \eqn{i^{th}} smallest element of \eqn{x}, and
 #'
@@ -514,14 +563,14 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #'
 #'             \eqn{p = max(i \in \{0,...,n\}|i \le (1-\beta)\sum_{j=1}^{n}(a - x_j))}.
 #' 
-#'            In this package we use \code{min} and \code{max} for \eqn{T}-norm and \eqn{T}-conorm, respectively. 
+#'            In this package we use \code{min} and \code{max} for \eqn{\mathcal{T}}-norm and \eqn{\mathcal{T}}-conorm, respectively. 
 #' 
 #'    \item \code{"custom"}: It refers to user-defined lower and upper approximations. An example can be seen in Section \code{Examples}.
 #'    }
-#' The parameter \code{type.LU} which is explained above is related with parameter \code{control}. 
+#' The parameter \code{type.LU}, which is explained above, is related with parameter \code{control}. 
 #' In other words, when choosing a specific value of \code{type.LU}, we should take into account to set values of related components in \code{control}.
 #' The components that are considered depend on what kind of lower and upper approximations are used. 
-#' In other words, we do not need to assign all components for a particular approach but only components related with \code{type.LU}.
+#' So, we do not need to assign all components for a particular approach but only components related with \code{type.LU}.
 #' The following is a list showing the components of each approaches.
 #'                \itemize{
 #'                \item \code{type.LU = "implicator.tnorm"}: 
@@ -554,7 +603,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #
 #'                \item \code{type.LU = "beta.pfrs"}: 
 #'
-#'                 \code{control <- list(t.implicator, t.tnorm, beta.quasi = 0.01)}
+#'                 \code{control <- list(t.implicator, t.tnorm, beta.quasi)}
 #'
 #'                 \item \code{type.LU = "rfrs"}:
 #'
@@ -569,15 +618,15 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' when we have to handle a nominal decision attribute and a continuous one. 
 #'
 #' It should be noted that this function depends on \code{\link{BC.IND.relation.FRST}}
-#' which is used to calculate the fuzzy indiscernibility relation as input data. 
+#' which is a function used to calculate the fuzzy indiscernibility relation as input data. 
 #' So, it is obvious that before performing this function, users must execute \code{\link{BC.IND.relation.FRST}} first. 
 #'
-#' @title The fuzzy lower and upper approximation based on fuzzy rough set theory
+#' @title The fuzzy lower and upper approximations based on fuzzy rough set theory
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param IND.condAttr a \code{"IndiscernibilityRelation"} class of the conditional attributes which is produced by \code{\link{BC.IND.relation.FRST}}.
 #' @param IND.decAttr a \code{"IndiscernibilityRelation"} class of the decision attribute which is produced by \code{\link{BC.IND.relation.FRST}}.
-#' @param type.LU a string representing a chosen method to calculate lower and upper approximation. See the explanation in Section \code{Details}. 
+#' @param type.LU a string representing a chosen method to calculate lower and upper approximations. See the explanation in Section \code{Details}. 
 #' @param control a list of other parameters. In order to understand how to express the \code{control} parameter, 
 #'         see the explanation in Section \code{Details}. 
 #'         The descriptions of those components and their values is as follows. 
@@ -597,20 +646,20 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' 						\item \code{"mizumoto"} means \eqn{(1 - x_1 + x_1 * x_2)}.
 #' 						\item \code{"dubois_prade"} means \eqn{(x_2 == 0 ? 1 - x_1 : (x_1 == 1 ? x_2 : 1))}.
 #' 						}
-#'              	Where we consider the following rule: \code{x_1 -> x_2}. 
-#'        		\item \code{q.some}: a vector of alpha and beta parameters of vaguely guantified rough set  
+#'              	Where we consider the following rule: \eqn{x_1 -> x_2}. 
+#'        		\item \code{q.some}: a vector of alpha and beta parameters of vaguely quantified rough set  
 #'              	for quantifier \code{some}. The default value is \code{q.some = c(0.1, 0.6)}.
-#'        		\item \code{q.most}: a vector of alpha and beta parameters of vaguely guantified rough set 
+#'        		\item \code{q.most}: a vector of alpha and beta parameters of vaguely quantified rough set 
 #'              	for quantifier \code{most}. The default value is \code{q.most = c(0.2, 1)}.
-#'        		\item \code{alpha}: a numeric of the threshold parameter of the fuzzy variable precision rough sets 
+#'        		\item \code{alpha}: a numeric between 0 and 1 representing the threshold parameter of the fuzzy variable precision rough sets 
 #'              	 (FVPRS) (see Section \code{Details}). The default value is 0.05.
-#'              \item \code{penalty.fact}: a numeric representing penalty factor which is used in soft fuzzy rough sets (SFRS) (see Section \code{Details}).
-#'                    The default value is 0.8.
-#'              \item \code{m.owa}: an integer number (\eqn{m}) which is used in the OWA fuzzy rough sets(see Section \code{Details}). 
+#              \item \code{penalty.fact}: a numeric representing penalty factor which is used in soft fuzzy rough sets (SFRS) (see Section \code{Details}).
+#                    The default value is 0.8.
+#'              \item \code{m.owa}: an integer number (\eqn{m}) which is used in the OWA fuzzy rough sets (see Section \code{Details}). 
 #'                    
-#'                   The default value is \code{m.owa = 0.5 * ncol(decision.table)}.
+#'                   The default value is \code{m.owa = round(0.5 * ncol(decision.table))}.
 #'              \item \code{w.owa}: a vector representing the weight vector in the OWA fuzzy rough sets (see Section \code{Details}).
-#'                    The default value is \code{NULL} which means we use the defined \code{m.owa}.
+#'                    The default value is \code{NULL}, which means we use the \code{m.owa} type.
 #'              \item \code{type.rfrs}: a type of robust fuzzy rough sets which is one of the following methods:
 #'                    \code{"k.trimmed.min"}, \code{"k.mean.min"}, \code{"k.median.min"}, \code{"k.trimmed.max"},
 #'                    \code{"k.mean.max"}, and \code{"k.median.max"} (see Section \code{Details}). The default value is \code{"k.trimmed.min"}.
@@ -620,19 +669,21 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #'              \item \code{beta.quasi}: a number between 0 and 1 representing \eqn{\beta}-precision t-norms and t-conorms in \eqn{\beta}-PFRS.
 #'                    The default value is 0.05.
 #'        }
-#' @return A class \code{"LowerUpperApproximation"} representing fuzzy rough set (fuzzy lower and upper approximation). It contains the following components:
+#' @return A class \code{"LowerUpperApproximation"} representing fuzzy rough set (fuzzy lower and upper approximations). It contains the following components:
 #'         \itemize{
-#'          \item \code{fuzzy.lower}: a list showing lower approximations classified 
-#'                based on decision concepts for each index of objects. 
+#'          \item \code{fuzzy.lower}: a list showing the lower approximation classified 
+#'                based on decision concepts for each index of objects. The value refers to
+#'                the degree of objects included in the lower approximation.  
 #'                In case the decision attribute is continuous, the result is in a data frame 
 #'                with dimension (number of objects x number of objects) and the value on position \eqn{(i,j)} 
 #'                shows the membership of object \eqn{i} to the lower approximation of the similarity class of object \eqn{j}.
-#'          \item \code{fuzzy.upper}: a list showing upper approximations classified 
-#'                based on decision concepts for each index of objects.
+#'          \item \code{fuzzy.upper}: a list showing the upper approximation classified 
+#'                based on decision concepts for each index of objects. The value refers to
+#'                the degree of objects included in the upper approximation. 
 #'                In case the decision attribute is continuous values, the result is in data frame 
 #'                with dimension (number of objects x number of objects) and the value on position \eqn{(i,j)} 
 #'                shows the membership of object \eqn{i} to the upper approximation of the similarity class of object \eqn{j}.
-#'          \item \code{type.LU}: a string representing the type of lower and upper approximation approach.
+#'          \item \code{type.LU}: a string representing the type of lower and upper approximation approaches.
 #'          \item \code{type.model}: a string showing the type of model which is used. In this case, it is \code{"FRST"} which means fuzzy rough set theory.
 #'          } 
 #'         
@@ -670,8 +721,8 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' IEEE Trans. on Fuzzy Systems, vol. 19, no. 4,
 #' p. 824 - 838 (2009).
 #' 
-#' R. R. Yager, "On ordered weighted averaging aggregation operators in multicriteria
-#' decision making", IEEE Transactions on Systems, Man, and Cybernetics, vol. 18, p. 183 - 190 (1988).
+#' R. R. Yager, "On Ordered Weighted Averaging Aggregation Operators in Multicriteria
+#' Decision Making", IEEE Transactions on Systems, Man, and Cybernetics, vol. 18, p. 183 - 190 (1988).
 #'
 #' S. Y. Zhao, E. C. C. Tsang, and D. G. Chen, 
 #' "The Model of Fuzzy Variable Precision Rough Sets",
@@ -714,16 +765,6 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' #### Calculate fuzzy lower and upper approximation using type.LU : "implicator.tnorm" ####	 
 #' control <- list(t.implicator = "lukasiewicz", t.tnorm = "lukasiewicz")
 #' FRST.LU <- BC.LU.approximation.FRST(decision.table, IND.condAttr, IND.decAttr, 
-#'               type.LU = "implicator.tnorm", control = control)
-#'			
-#' #### Calculate fuzzy lower and upper approximation using type.LU : "implicator.tnorm" 
-#' ####	with user-defined t-norm
-#' FUN.tnorm <- function(left.side, right.side) {
-#'                if ((left.side + right.side) > 1)
-#'                    return(min(left.side, right.side))
-#'                else return(0)}
-#' control <- list(t.implicator = "lukasiewicz",  t.tnorm = FUN.tnorm )
-#' FRST.LU.1 <- BC.LU.approximation.FRST(decision.table, IND.condAttr, IND.decAttr, 
 #'               type.LU = "implicator.tnorm", control = control)
 #'
 #' #### Calculate fuzzy lower and upper approximation using type.LU : "vqrs" ####	 
@@ -807,7 +848,8 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$housing7.dt
 #'
-#' ## let us consider the first and second conditional attributes only
+#' ## let us consider the first and second conditional attributes only,
+#' ## and the decision attribute at 14.
 #' cond.attributes <- c(1, 2)
 #' dec.attributes <- c(14)
 #' control.ind <- list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
@@ -1273,7 +1315,7 @@ BC.LU.approximation.FRST <- function(decision.table, IND.condAttr, IND.decAttr, 
 #
 #' @examples
 #' ###########################################################
-#' ##### 1. Example: Using simple decision table containing 
+#' ##### 1. Example: Using a simple decision table containing 
 #' #####             nominal values for the decision attribute
 #' ###########################################################
 #' dt.ex1 <- data.frame(c(-0.4, -0.4, -0.3, 0.3, 0.2, 0.2), 
@@ -1309,11 +1351,11 @@ BC.LU.approximation.FRST <- function(decision.table, IND.condAttr, IND.decAttr, 
 #' res.1 <- BC.positive.reg.FRST(decision.table, FRST.LU)
 #' 
 #' ###########################################################
-#' ##### 2. Example: Using housing decision table containing 
+#' ##### 2. Example: Using the housing decision table containing 
 #' #####             continuous values for the decision attribute
 #' ###########################################################
 #'
-#' ## In this case, we are using housing dataset containing 7 objects
+#' ## In this case, we are using the housing dataset containing 7 objects
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$housing7.dt
 #' 
@@ -1357,25 +1399,26 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' It is a matrix whose elements contain discernible attributes among pairs of objects. 
 #' By means of this matrix, we are able to produce all decision reducts of the given decision system.
 #' 
-#' In this function, we provide several approaches in order to generate the decision-relative discernibility matrix. A particular approach can be executed by selecting
-#' a value of the parameter \code{type.discernibility}. Theoretically, all reducts are found by constructing 
+#' In this function, we provide several approaches in order to generate the decision-relative discernibility matrix. 
+#' Theoretically, all reducts are found by constructing 
 #' the matrix that contains elements showing discernible attributes among objects. 
-#' The discernible attributes are determined by a specific condition which depends on the selected algorithm. The following shows the different 
+#' The discernible attributes are determined by a specific condition which depends on the selected algorithm. A particular approach can be executed by selecting
+#' a value of the parameter \code{type.discernibility}. The following shows the different 
 #' values of the parameter \code{type.discernibility} corresponding approaches considered in this function.
 #' \itemize{
-#' \item \code{"standard.red"}: It is adopted from (E. C. C. Tsang et al, 2008)'s approach. 
+#' \item \code{"standard.red"}: It is adopted from (Tsang et al, 2008)'s approach. 
 #' The concept has been explained briefly in \code{\link{B.Introduction-FuzzyRoughSets}}. 
 #' In order to use this algorithm, we assign the \code{control} parameter
 #'        with the following components:
 #' 
-#'        \code{control = list(type.aggregation, type.relation, type.LU, t.implicator)}. 
+#'        \code{control = list(type.aggregation, type.relation, type.LU, t.implicator)}
 #'
 #'        The detailed description of the components can be seen in \code{\link{BC.IND.relation.FRST}} and 
 #'
 #'        \code{\link{BC.LU.approximation.FRST}}. Furthermore, in this case the authors suggest to use the "min" t-norm  
-#'       (\code{type.aggregation = c("t.tnorm", "min")}) and the implicator operator "kleene_dienes" (\code{t.implicator = "kleene_dienes"}).
+#'       (i.e., \code{type.aggregation = c("t.tnorm", "min")}) and the implicator operator "kleene_dienes" (i.e., \code{t.implicator = "kleene_dienes"}).
 #'   
-#' \item \code{"alpha.red"}: It is based on (S. Zhao et al, 2009)'s approach where all reductions will 
+#' \item \code{"alpha.red"}: It is based on (Zhao et al, 2009)'s approach where all reductions will 
 #'       be found by building an \eqn{\alpha}-discernibility matrix. This matrix contains elements which are defined by
 #'
 #'       1) if \eqn{x_i} and \eqn{x_j} belong to different decision concept,
@@ -1398,7 +1441,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #'
 #'        e.g., \code{type.relation = c("transitive.closure", "eq.3")},
 #'
-#'        the "lukasiewicz" t-norm  (\code{type.aggregation = c("t.tnorm", "lukasiewicz")}), and \code{alpha.precision} from 0 to 0.5.
+#'        the "lukasiewicz" t-norm  (i.e., \code{type.aggregation = c("t.tnorm", "lukasiewicz")}), and \code{alpha.precision} from 0 to 0.5.
 #'    
 # \item \code{"consistence.degree"}: It is based on (E. C. C. Tsang and S. Y. Zhao, 2010)'s approach. This algorithm defines the 
 #        discernibility matrix of \eqn{M_D(U, A)} where \eqn{M} is a \eqn{n \times n} matrix that constitutes the following \eqn{(c_{ij})}.
@@ -1421,7 +1464,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #
 #        \code{\link{BC.LU.approximation.FRST}}.
 #
-#' \item \code{"gaussian.red"}: It is based on (D. G. Chen et al, 2011)'s approach. The discernibility matrix contains elements which are defined by: 
+#' \item \code{"gaussian.red"}: It is based on (Chen et al, 2011)'s approach. The discernibility matrix contains elements which are defined by: 
 #'        
 #'        1) if \eqn{x_i} and \eqn{x_j} belong to different decision concept, 
 #'
@@ -1429,7 +1472,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' 
 #'        where \eqn{\lambda = inf_{u \in U}\mathcal{I}_{cos}(R(x_i, u), A(u)) - \epsilon}. To generate fuzzy relation \eqn{R} , we use the fixed parameters as follows:
 #' 
-#'        \code{t.tnorm = "t.cos"} and \code{type.relation = c("transitive.kernel", "gaussian"}. 
+#'        \code{t.tnorm = "t.cos"} and \code{type.relation = c("transitive.kernel", "gaussian")}. 
 #'        
 #'        2) \eqn{c_{ij}={\oslash}}, otherwise.
 #' 
@@ -1437,7 +1480,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #'
 #'        \code{control <- list(epsilon)}
 #'
-#'       It should be noted that when having nominal values on all attributes then \eqn{\epsilon} should be 0. 
+#'       It should be noted that when having nominal values on all attributes then \code{epsilon} (\eqn{\epsilon}) should be 0. 
 #'
 #' \item \code{"min.element"}: It is based on (Chen et al, 2012)'s approach where we only consider finding 
 #'       the minimal element of the discernibility matrix by introducing the binary relation \eqn{DIS(R)} the relative discernibility relation 
@@ -1460,7 +1503,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' @title The decision-relative discernibility matrix based on fuzzy rough set theory
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
-#'        It should be noted that this function only supports nominal/symbolic decision attribute.
+#'        It should be noted that this case only supports the nominal/symbolic decision attribute.
 #' @param type.discernibility a string representing a type of discernibility. See in Section \code{Details}. 
 #' @param control a list of other parameters.
 #'        \itemize{
@@ -1481,23 +1524,23 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #'
 #'         		See \code{\link{BC.LU.approximation.FRST}}.  
 #'        \item \code{show.discernibilityMatrix}: a boolean value determining whether the discernibility matrix will be shown or not (NULL). The default value is \code{FALSE}.
-#'        \item \code{epsilon}: a numeric between 0 and 1 representing epsilon value on 
+#'        \item \code{epsilon}: a numeric between 0 and 1 representing the \eqn{\epsilon} value on 
 #'
 #'             \code{type.discernibility = "gaussian.red"}. It should be noted that when having nominal values on all attributes then \eqn{\epsilon} should be 0. 
 #'             The default value is 0.
-#'        \item \code{delta}: a numeric representing \eqn{\delta} on \code{"gaussian"} equations 
+#'        \item \code{delta}: a numeric representing the \eqn{\delta} value on \code{"gaussian"} equations 
 #'
 #'             (see \code{\link{BC.IND.relation.FRST}}). The default value is 2.
-#' 		  \item \code{range.object} a vector representing considered objects to construct the \code{k}-relative discernibility matrix. 
+#' 		  \item \code{range.object}: a vector representing considered objects to construct the \code{k}-relative discernibility matrix. 
 #'                The default value is \code{NULL} which means that we are using all objects in the decision table.
 #'        }
 #' @return A class \code{"DiscernibilityMatrix"} containing the following components: 
 #' \itemize{
-#' \item \code{dis.mat}: a matrix showing the decision-relative discernibility matrix \eqn{M(\mathcal{A})} 
+#' \item \code{disc.mat}: a matrix showing the decision-relative discernibility matrix \eqn{M(\mathcal{A})} 
 #'        which contains \eqn{n \times n} where \eqn{n} is the number of objects. It will be printed when choosing 
 #'
 #'        \code{show.discernibilityMatrix = TRUE}.
-#' \item \code{disc.list}: the decision-relative discernibility that is represented in a list.
+#' \item \code{disc.list}: the decision-relative discernibility represented in a list.
 #' \item \code{discernibility.type}: a string showing the chosen type of discernibility methods.
 #' \item \code{type.model}: in this case, it is \code{"FRST"}.
 #' }
@@ -1523,16 +1566,19 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' @examples
 #' #######################################################################
 #' ## Example 1: Constructing the decision-relative discernibility matrix
+#' ## In this case, we are using The simple Pima dataset containing 7 rows. 
 #' #######################################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$pima7.dt 
 #' 
+#' ## using "standard.red"
 #' control.1 <- list(type.relation = c("tolerance", "eq.1"), 
 #'                 type.aggregation = c("t.tnorm", "min"), 
 #'                 t.implicator = "kleene_dienes", type.LU = "implicator.tnorm")
 #' res.1 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "standard.red", 
 #'                                     control = control.1)
 #' 
+#' ## using "gaussian.red"
 #' control.2 <- list(epsilon = 0)
 #' res.2 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "gaussian.red",
 #'                                     control = control.2)
@@ -1542,13 +1588,14 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #                 t.implicator = "lukasiewicz", type.LU = "implicator.tnorm")
 # res.3 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "consistence.degree",
 #                                     control = control.3) 
-#' 
+#' ## using "alpha.red"
 #' control.3 <- list(type.relation = c("tolerance", "eq.1"), 
 #'                 type.aggregation = c("t.tnorm", "min"),
 #'                 t.implicator = "lukasiewicz", alpha.precision = 0.05)
 #' res.3 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "alpha.red", 
 #'                                     control = control.3)
 #'
+#' ## using "min.element"
 #' control.4 <- list(type.relation = c("tolerance", "eq.1"), 
 #'                 type.aggregation = c("t.tnorm", "lukasiewicz"),
 #'                 t.implicator = "lukasiewicz", type.LU = "implicator.tnorm")
@@ -1557,6 +1604,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' 
 #' #######################################################################
 #' ## Example 2: Constructing the decision-relative discernibility matrix
+#' ## In this case, we are using the Hiring dataset containing nominal values
 #' #######################################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 

@@ -17,11 +17,11 @@
 #  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #############################################################################
-#' It is used to predict classes of new datasets/patterns based on the fuzzy-rough ownership nearest neighbour algorithm (FRNN.O) 
-#' proposed by (M. Sarkar, 2007). 
+#' It is used to predict classes of new datasets/patterns based on the fuzzy-rough ownership nearest neighbor algorithm (FRNN.O) 
+#' proposed by (Sarkar, 2007). 
 #' 
-#' This method improves fuzzy k-nearest neighbors (FNN) by introducing rough sets into it. 
-#' To avoid determining k by trial and error procedure, this method uses all training data. Uncertainties in data are accommodated by 
+#' This method improves fuzzy \eqn{k}-nearest neighbors (FNN) by introducing rough sets into it. 
+#' To avoid determining \eqn{k} by trial and error procedure, this method uses all training data. Uncertainties in data are accommodated by 
 #' introducing the rough ownership function. It is the following equation \eqn{o_c} of each class expressing a squared weighted distance between a test pattern and all training data \eqn{d}
 #' and constrained fuzzy membership \eqn{\mu_{C_c}}. 
 #'
@@ -31,7 +31,7 @@
 #'
 #' The predicted value of \eqn{y} is obtained by selecting class \eqn{c} where \eqn{o_c(y)} is maximum.
 #'  
-#' @title The fuzzy-rough ownership nearest neighbour algorithm
+#' @title The fuzzy-rough ownership nearest neighbor algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}.
 #'        It should be noted that the data must be numeric values instead of strings/characters.  
@@ -143,16 +143,16 @@ C.FRNN.O.FRST <- function(decision.table, newdata, control = list()){
 	return(res.class)
 }
 
-#' It is used to predict new datasets/patterns based on the fuzzy-rough nearest neighbour algorithm (FRNN)
-#' proposed by (R. Jensen and C. Cornelis, 2011).  
+#' It is used to predict new datasets/patterns based on the fuzzy-rough nearest neighbor algorithm (FRNN)
+#' proposed by (Jensen and Cornelis, 2011).  
 #' 
-#' This method uses the fuzzy lower and upper approximation to improve the fuzzy nearest neighbour (FNN) algorithm.
+#' This method uses the fuzzy lower and upper approximations to improve the fuzzy nearest neighbor (FNN) algorithm.
 #' This algorithm assigns a class to a target instance \eqn{t} as follows.
 #' \itemize{
 #' \item Determine \eqn{k} nearest neighbors considering their similarity to new patterns.
-#' \item Assign new patterns to the class based on maximal value of fuzzy lower and upper approximation. 
-#' If a value of fuzzy lower approximation is high, it shows that neighbours of newdata belong to a particular class, e.g. \code{C}. On the other hand, 
-#' a high value of fuzzy upper approximation means that at least one neighbour belongs to that class. 
+#' \item Assign new patterns to the class based on maximal value of fuzzy lower and upper approximations. 
+#' If a value of fuzzy lower approximation is high, it shows that neighbors of newdata belong to a particular class, e.g. \code{C}. On the other hand, 
+#' a high value of fuzzy upper approximation means that at least one neighbor belongs to that class. 
 #' }  
 #'
 #' In this function, we provide two approaches based on types of fuzzy lower and upper approximations. The following is 
@@ -170,7 +170,7 @@ C.FRNN.O.FRST <- function(decision.table, newdata, control = list()){
 #'
 #'      \code{\link{BC.LU.approximation.FRST}}.
 #'
-#' \item \code{"vqrs"}: It refers to lower and upper approximations based on vaquely quantified rough sets. 
+#' \item \code{"vqrs"}: It refers to lower and upper approximations based on vaguely quantified rough sets. 
 #'       For more detail, it can be seen in \code{\link{BC.LU.approximation.FRST}}. When using this approach, 
 #'       we need to assign the \code{control} parameter as follows:
 #' 
@@ -183,7 +183,7 @@ C.FRNN.O.FRST <- function(decision.table, newdata, control = list()){
 #'      \code{\link{BC.LU.approximation.FRST}}.
 #' } 
 #'
-#' @title The fuzzy-rough nearest neighbour algorithm
+#' @title The fuzzy-rough nearest neighbor algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #'        It should be noted that the data must be numeric values instead of string/char. 
@@ -193,9 +193,9 @@ C.FRNN.O.FRST <- function(decision.table, newdata, control = list()){
 #' @param control a list of other parameters as follows.
 #'        \itemize{
 #'        \item \code{type.LU}: a type of lower and upper approximations. See Section \code{Details}. The default value is \code{type.LU = "implicator.tnorm"}.
-#'        \item \code{k}: the number of neighbours. It should be taken into account that 
+#'        \item \code{k}: the number of neighbors. It should be taken into account that 
 #'                        this value could affect the accuracy. The default value is 5.
-#'        \item \code{type.aggregation}: the type of aggregation operator. See \code{\link{BC.IND.relation.FRST}}.
+#'        \item \code{type.aggregation}: the type of the aggregation operator. See \code{\link{BC.IND.relation.FRST}}.
 #'                   The default value is \code{type.aggregation = c("t.tnorm", "lukasiewicz")}.
 #'        \item \code{type.relation}: the type of relation. See \code{\link{BC.LU.approximation.FRST}}.
 #'
@@ -203,7 +203,7 @@ C.FRNN.O.FRST <- function(decision.table, newdata, control = list()){
 #'        \item \code{type.implicator}: the type of implicator operator. 
 #'
 #'             See \code{\link{BC.LU.approximation.FRST}}. The default value is \code{"lukasiewicz"}.
-#'        \item \code{q.some}: a vector of values of alpha and beta parameter of VQRS. 
+#'        \item \code{q.some}: a vector of values of alpha and beta parameters of VQRS. 
 #'
 #'             See \code{\link{BC.LU.approximation.FRST}}. The default value is \code{c(0.1, 0.6)}.
 #'        \item \code{q.most}: a vector of values of alpha and beta parameter of VQRS. 
@@ -265,13 +265,13 @@ C.FRNN.FRST <- function(decision.table, newdata, control = list()){
 	return(res.class)
 }
 
-#' It is a function used to implement the positive region based fuzzy-rough nearest neighbour algorithm (POSNN)
-#' which was proposed by (N. Verbiest et al, 2012) for predicting classes of new data. 
+#' It is a function used to implement the positive region based fuzzy-rough nearest neighbor algorithm (POSNN)
+#' which was proposed by (Verbiest et al, 2012) for predicting classes of new data. 
 #' 
-#' This method is aimed to improve the fuzzy-rough nearest neighbour algorithm (\code{\link{C.FRNN.FRST}}) algorithm by considering the fuzzy positive region. 
+#' This method is aimed to improve the fuzzy-rough nearest neighbor algorithm (\code{\link{C.FRNN.FRST}}) algorithm by considering the fuzzy positive region. 
 #' Basically the following steps are used to classify an instance \eqn{t}:
 #' \itemize{
-#'	\item determine the set of k-nearest neighbour of \eqn{t}, \eqn{NN}.
+#'	\item determine the set of \eqn{k}-nearest neighbor of \eqn{t}, \eqn{NN}.
 #'  \item assign \eqn{t} to the class \eqn{C} for which
 #'
 #' \eqn{\frac{\displaystyle\sum\limits_{x \in NN} R(x,t)C(x)POS(x)}{\displaystyle\sum\limits_{x \in NN} R(x,t)}}
@@ -279,7 +279,7 @@ C.FRNN.FRST <- function(decision.table, newdata, control = list()){
 #' is maximal.
 #' }
 #' 
-#' @title The positive region based fuzzy-rough nearest neighbour algorithm 
+#' @title The positive region based fuzzy-rough nearest neighbor algorithm 
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #'        It should be noted that the data must be numeric values instead of string/char. 

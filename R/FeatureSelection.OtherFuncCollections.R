@@ -186,7 +186,7 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 			else if (any(type.method == c("fuzzy.dependency", "fuzzy.boundary.reg", "min.positive.reg", 
 			                              "hybrid.rule.induction", "fvprs", "sfrs", "vqrs", "owa", "rfrs", "beta.pfrs"))){
 				
-				## perform indiscernibility relation of each attribute in collection P 			
+				## calculate and construct the class of indiscernibility relation of each attribute in collection P 			
 				IND <- Reduce.IND(init.IND[c(P[, i])], t.tnorm)
 				list.IND <- list(IND.relation = IND, type.relation = type.relation, type.aggregation = type.aggregation, type.model = "FRST")
 				obj.IND <- ObjectFactory(list.IND, classname = "IndiscernibilityRelation")
@@ -206,10 +206,10 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 						
 						## perform rule induction: check positive region of each iteration
 						## Based on R. Jensen, C. Cornelis, Q. Shen, "Hybrid fuzzy-rough rule induction and feature selection"
-						if (type.method == "hybrid.rule.induction"){					
+						if (type.method == "hybrid.rule.induction"){	
 							pos.i <- fuzzy.region$positive.freg
 							IND <- obj.IND$IND.relation
-							
+
 							## all.indx.obj is indexes of objects which are considered, 
 							## initially, it is all indexes of objects
 							## cover.indx is indexes which are convered 
@@ -217,12 +217,11 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 							
 							## loop until all objects are covered
 							ii <- 1
-							while (ii <= length(cons.indx)){	
-								
-								## condition when positive region of subset attributes is the same as all attributes
+							while (ii <= length(cons.indx)){			 
+								## condition when positive region of subset attributes is the same as positive region on all attributes
 							   if (pos.i[cons.indx[ii]] == pos.region.all[cons.indx[ii]]){
-								
-									## the following step refers to "check" procedure in the paper
+
+									## the following step refers to the "check" procedure in the paper
 									add <- TRUE		
 									
 									## it is for first time/initialization
@@ -233,14 +232,17 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 										 IND.rules <- IND[cons.indx[ii], ,drop = FALSE]
 										 cov.rules <- IND[cons.indx[ii], ,drop = FALSE]								
 										 num.rules <- 1
+
+
 										 ## set add == FALSE to avoid redudant adding
 										 add <- FALSE
 									}	else {
 										## repeat for each existing rules
 										for (j in 1 : num.rules){	
-											## if existing rule is subset of new rule
+											## if existing rule is subset of new rule											
 											if (all(rules$attributes[[j]] %in% colnames(objects[c(P[, i])])) == TRUE){											
 												## compare degree of coverage between existing rule and new one
+
 												if (all(IND[cons.indx[ii], ,drop = FALSE] <= cov.rules) == TRUE){
 													add <- FALSE
 													j <- nrow(IND.rules)
@@ -249,9 +251,9 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 													rules$attributes[[j]] <- NULL
 													rules$objects[[j]] <- NULL	
 												}				
-												
-											}
 											
+											}
+										
 										}										
 									}
 									## add a new rule and update coverage 
@@ -273,7 +275,8 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 								ii <- ii + 1
 							}												
 						}
-					}	else if (type.method == c("fuzzy.boundary.reg")){
+					}	
+					else if (type.method == c("fuzzy.boundary.reg")){
 						## get boundary fuzzy region
 						boundary.reg <- fuzzy.region$boundary.freg
 					
@@ -606,7 +609,7 @@ func.conorm <- function(right.val, init.val, t.conorm){
 }
 
 #' It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
-#' It is based on the \emph{gini} index as a measure of information (K. Stoffel and L. E. Raileanu, 2000). 
+#' It is based on the \emph{gini} index as a measure of information (Stoffel and Raileanu, 2000). 
 #'
 #' @title The gini-index gain measure function
 #' @param decisionDistrib a distribution of values on the decision attribute.
@@ -621,7 +624,7 @@ X.gini <- function(decisionDistrib)  {
 }
 
 #' It is an auxiliary function for \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
-#' It is based on \emph{entropy} as a measure of information(C. E. Shannon, 1948).
+#' It is based on \emph{entropy} as a measure of information(Shannon, 1948).
 #'
 #' @title The information gain measure function
 #' @param decisionDistrib a distribution of values on the decision attribute.
@@ -675,7 +678,6 @@ qualityGain <- function(vec, decisionVec, discernVec, baseChaos, chaosFunction =
 randomize.attrs <- function(attributes){
 	## check whether randomize = TRUE means we select attributes randomly
 	rand.num <- sample(0:1, ncol(attributes), replace = TRUE)
-	print("rand.num")
 	if (sum(rand.num) == 0){
 		attributes <- attributes[, 1, drop = FALSE]
 	}	else {
@@ -820,4 +822,68 @@ boolean.func <- function(disc.list){
 	}
 	
 	return(list(dec.red = dec.red, core = core))
+}
+
+#a function for converting formulas in a CNF form to a DNF form
+convertCNFtoDNF = function(CNFclauses){
+  
+  if(length(CNFclauses) > 1) {
+    ## sort the clauses by their length  
+    CNFlengths = sapply(CNFclauses, length)
+    CNFclauses = CNFclauses[order(CNFlengths)]
+    
+    ## eliminate unnecessary clauses for efficiency
+    tmpCNFlength = length(CNFclauses)
+    j = 2
+    while(j <= tmpCNFlength){    
+      tmpIdx = sapply(CNFclauses[j:tmpCNFlength], function(x,y) all(y %in% x), CNFclauses[[j-1]])
+      CNFclauses = CNFclauses[c(rep(T, j-1), !tmpIdx)]
+      j = j + 1
+      tmpCNFlength = length(CNFclauses)
+    }
+    
+    ## convert to DNF form - start from the first CNF clause
+    tmpDNF = CNFclauses[[1]]
+    for(i in 2:length(CNFclauses))  {
+      ## expand two clauses into possible DNFs
+      tmpDNF = expand.grid(tmpDNF, CNFclauses[[i]], KEEP.OUT.ATTRS = F, stringsAsFactors = F)
+      tmpDNF = split(tmpDNF, 1:nrow(tmpDNF))
+      ## take only those which are unique
+      tmpDNF = lapply(tmpDNF, function(x) unique(unlist(x)))
+      tmpLengths = sapply(tmpDNF, length)
+      tmpDNF = tmpDNF[order(tmpLengths)]
+      ## eliminate unnecessary clauses for efficiency
+      tmpDNFlength = length(tmpDNF)
+      j = 2
+      while(j <= tmpDNFlength)  {
+        tmpIdx = sapply(tmpDNF[j:tmpDNFlength], function(x,y) all(y %in% x), tmpDNF[[j-1]])
+        tmpDNF = tmpDNF[c(rep(T, j-1), !tmpIdx)]
+        j = j + 1
+        tmpDNFlength = length(tmpDNF)
+      }
+    }
+  } else {
+    tmpDNF = CNFclauses
+  }
+  
+  DNFclauses = lapply(tmpDNF, function(x) x[order(x)])
+  names(DNFclauses) = paste("reduct", 1:length(DNFclauses), sep = "")
+  return(DNFclauses)
+}
+
+#a function for computing a core from a list of all reducts of a data set
+computeCore = function(reductList) {
+  
+  if(length(reductList) > 0) {
+    stopFlag = FALSE
+    i = 2
+    core = reductList[[1]]
+    while(!stopFlag && i < length(reductList)) {
+      core = core[core %in% reductList[[i]]]
+      i = i + 1
+      if(length(core) < 1) stopFlag = TRUE
+    }
+  } else stop("empty reduct list")
+  
+  return(core)
 }

@@ -38,7 +38,7 @@
 #'
 #' This data was taken from the Boston housing dataset located at the UCI Machine Learning repository, 
 #' available at http://www.ics.uci.edu. It was first created by 
-#' (Harrison, D. and Rubinfeld, D.L., 1978). It contains 506 objects with 13 conditional attributes and one decision attribute.
+#' (Harrison and Rubinfeld, 1978). It contains 506 objects with 13 conditional attributes and one decision attribute.
 #' Furthermore, it should be noted that the housing dataset is a regression dataset which means that 
 #' the decision attribute has continuous values. The conditional attributes contain both continuous and nominal attributes.
 #' The following is a description of each attribute:
@@ -75,9 +75,9 @@
 #'
 #' \bold{The wine dataset}
 #' 
-#' This dataset is a classification dataset introduced first by (Forina, M. et al) 
+#' This dataset is a classification dataset introduced first by (Forina, et al) 
 #' which is commonly used as benchmark for simulation in the machine learning area. 
-#' Additionally, it is available at the KEEL dataset repository (J. Alcala-Fdez, 2009), available at http://www.keel.es/. 
+#' Additionally, it is available at the KEEL dataset repository (Alcala-Fdez, 2009), available at http://www.keel.es/. 
 #' It consists of 178 instances with 13 conditional attributes and one decision attribute 
 #' where all conditional attributes have continuous values. The description of 
 #' each attribute is as follows:
@@ -101,7 +101,7 @@
 #' \bold{The pima dataset}
 #' 
 #' It was taken from the pima Indians diabetes dataset which is available at the KEEL dataset repository 
-#' (J. Alcala-Fdez, 2009), available at http://www.keel.es/. It was first created by 
+#' (Alcala-Fdez, 2009), available at http://www.keel.es/. It was first created by 
 #' National Institute of Diabetes and Digestive and Kidney Diseases. It contains 768 objects with 8 continuous conditional
 #' attributes. The description of each attribute is as follows:
 #' \itemize{

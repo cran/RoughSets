@@ -119,12 +119,14 @@ calc.implFunc <- function(antecedent, consequent, type.implication.func = "lukas
 # @param disc.mat a boolean value showing whether it produces discernibility matrix completely or not
 # @param delta a numeric value for gaussian
 # @param alpha a numeric value between [0, 1]
+# @param t.aggregation a type of aggregator
+# @param type.MVCompletion a boolean value shows whether the decision table contains missing value or not 
 calc.fsimilarity <- function(decision.table, attributes, t.similarity = "eq.1", t.tnorm = "lukasiewicz",
-                            FUN = NULL, disc.mat = FALSE, delta = NULL, alpha = 0.5, t.aggregation = "t.tnorm"){
+                            FUN = NULL, disc.mat = FALSE, delta = NULL, alpha = 0.5, t.aggregation = "t.tnorm", type.MVCompletion = FALSE){
 				   
 	## get data
 	objects <- decision.table
-	nominal.att <- attr(decision.table, "nominal.attrs")	
+	nominal.att <- attr(decision.table, "nominal.attrs")
 	temp <- matrix()
 	num.objects <- nrow(objects)
 	
@@ -134,37 +136,81 @@ calc.fsimilarity <- function(decision.table, attributes, t.similarity = "eq.1", 
 	range.data <- res.varRange$range.data
 	
 	## initialization which depends on value of disc.mat
-	if (disc.mat == TRUE){			
+	if (disc.mat == TRUE){	
 		miu.Ra <- data.frame()
 	}
 	else {
-		miu.Ra <- matrix(nrow = 1, ncol = num.objects)
+		if (type.MVCompletion == TRUE){
+			miu.Ra <- list()
+		}
+		else {
+			miu.Ra <- matrix(nrow = 1, ncol = num.objects)
+		}
 	}
 	
 	## get attributes
 	obj <- objects[, c(attributes), drop = FALSE]
 	nom <- nominal.att[c(attributes)]	
+	all.nom <- unique(nom) %in% TRUE
 	t.range.data <- matrix(range.data, ncol = 1)
 	t.variance.data <- matrix(variance.data, ncol = 1)
 
 	## disc.mat == FALSE means we do not create discernibility matrix
 	if (disc.mat == FALSE){		
-		init.IND <- list()
-		for (i in 1 : length(attributes)){
-			if (nom[i] == TRUE){
-			## overwrite type of similarity when crisp
-			t.similarity <- "boolean"
-			}
+		if (all.nom == FALSE && t.aggregation == "kernel.frst") {
+			options(warn=-1)			
+			distance <- as.matrix(dist(obj, method = "euclidean", diag = TRUE, upper = TRUE))
 
-			## calculate indiscernibility relation
-			init.IND[[i]] <- outer(c(obj[, i]), c(obj[, i]), 
-						 function(x, y) similarity.equation(x, y, t.similarity, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))	
+			miu.Ra.temp <- do.call(t.tnorm, list(distance, delta))
+			
+			## if the decision table contains missing values
+			if (type.MVCompletion == TRUE){
+				miu.Ra <- list()
+				miu.Ra$lower <- miu.Ra.temp^2
+				miu.Ra$upper <- miu.Ra.temp^0.5
+				for (j in 1 : length(miu.Ra)){
+					miu.Ra[[j]][which(is.na(miu.Ra[[j]]), arr.ind=TRUE)] <- 0
+					miu.Ra[[j]][which(is.na(miu.Ra[[j]]), arr.ind=TRUE)] <- 1
+				}
+			}
+			else {
+				miu.Ra <- miu.Ra.temp
+			}
 		}
-		## Reduce into single matrix by considering t.tnorm operator
-		miu.Ra <- Reduce.IND(init.IND, t.tnorm, t.aggregation = t.aggregation)
+		else {
+			init.IND <- list()
+			for (i in 1 : length(attributes)){
+				if (nom[i] == TRUE){
+				## overwrite type of similarity when crisp
+				t.similarity <- "boolean"
+				}
+				## calculate indiscernibility relation
+				init.IND[[i]] <- outer(c(obj[, i]), c(obj[, i]), 
+							 function(x, y) similarity.equation(x, y, t.similarity, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))	
+			}
+			
+			if (type.MVCompletion == TRUE){				
+				init.IND.lower <- lapply(init.IND, function(x) x^2)
+				init.IND.upper <- lapply(init.IND, function(x) x^0.5)
+				for (j in 1 : length(init.IND.lower)){
+					init.IND.lower[[j]][which(is.na(init.IND.lower[[j]]), arr.ind=TRUE)] <- 0
+					init.IND.upper[[j]][which(is.na(init.IND.upper[[j]]), arr.ind=TRUE)] <- 1
+				}	
+				## Reduce into single matrix by considering t.tnorm operator			
+				miu.Ra$lower <- Reduce.IND(init.IND.lower, t.tnorm, t.aggregation = t.aggregation, delta = delta)
+				miu.Ra$upper <- Reduce.IND(init.IND.upper, t.tnorm, t.aggregation = t.aggregation, delta = delta)
+			}
+			else {
+				## Reduce into single matrix by considering t.tnorm operator			
+				miu.Ra <- Reduce.IND(init.IND, t.tnorm, t.aggregation = t.aggregation, delta = delta)
+			}
+		}
 	}
 	else {
 		temp.init <- NULL
+		if (type.MVCompletion == TRUE){
+			stop("The decision table contains missing values, please estimate them by using missing value preprocessing.")
+		}
 		for (i in 1 : length(attributes)){
 			if (nom[i] == TRUE){
 				t.similarity <- "boolean"
@@ -191,9 +237,12 @@ calc.fsimilarity <- function(decision.table, attributes, t.similarity = "eq.1", 
 			}
 		}			
 	}
-		
-	rownames(miu.Ra) <- seq(1 : nrow(miu.Ra))
-	colnames(miu.Ra) <- seq(1 : nrow(miu.Ra))
+	
+	if (type.MVCompletion == FALSE){
+		rownames(miu.Ra) <- seq(1 : nrow(miu.Ra))
+		colnames(miu.Ra) <- seq(1 : nrow(miu.Ra))
+	}
+
 	return(miu.Ra)	
 }
 
@@ -286,7 +335,11 @@ similarity.equation <- function(x, temp.obj, t.similarity = "eq.1", delta = 0.2,
 		temp.miu.Ra <- 1 - 3/2 *  abs(x - temp.obj) / delta + 1/2 * 
 						(abs(x - temp.obj) / delta)^3		
 	}
-	
+	## Kernel fuzzy rough set
+	else if (any(t.similarity == c("gaussian.kernel", "exponential.kernel", "rational.kernel", "circular.kernel", "spherical.kernel"))){			
+			## calculate for all column/attributes
+			temp.miu.Ra <- abs(x - temp.obj)/range.data
+	}
 	else if (t.similarity == "boolean"){
 		temp.miu.Ra <- apply(cbind(x, temp.obj), 1, function(x) all(x[1] == x) - 0)
 	}
@@ -301,11 +354,20 @@ similarity.equation <- function(x, temp.obj, t.similarity = "eq.1", delta = 0.2,
 cal.var.range <- function(objects, attributes, nominal.att){
 	variance.data <- c()
 	range.data <- c()
+	desc.attrs <- attr(objects, "desc.attrs")
 	
 	for (i in c(attributes)){
 		if (nominal.att[i] == FALSE){
-			temp.variance.data <- sqrt(var(objects[, i, drop = FALSE]))
-			temp.range.data <- c(max(objects[, i]) - min(objects[, i]))
+			temp.variance.data <- sqrt(var(objects[, i, drop = FALSE], na.rm = TRUE))
+			temp.range.data <- c(desc.attrs[[i]][2] - desc.attrs[[i]][1])
+			
+			## condition to avoid "divide by zero"
+			if (temp.range.data < 0.000000001){
+				temp.range.data <- 0.000000001
+			}
+			if (temp.variance.data < 0.000000001){
+				temp.variance.data <- 0.000000001
+			}
 		}
 		else {
 			temp.variance.data <- NA
@@ -640,7 +702,7 @@ calc.LU.betaPFRS <- function(imp.val, tnorm.val, beta.quasi){
 # @param type.aggregation a type.aggregation parameter
 ch.typeAggregation <- function(type.aggregation){
 	if (type.aggregation[[1]] == "t.tnorm"){
-		if (!is.na(type.aggregation[[2]])){
+		if (!is.na(list(type.aggregation[[2]]))){
 			t.tnorm <- type.aggregation[[2]]
 		}
 		else t.tnorm <- "lukasiewicz"
@@ -660,13 +722,17 @@ ch.typeAggregation <- function(type.aggregation){
 # It is used to Reduce indiscernibility relation 
 # @param IND.relation a list indiscernibility relation of considered attributes
 # @param t.tnorm a triangular norm operator
-Reduce.IND <- function(IND.relation, t.tnorm, t.aggregation = "t.tnorm"){	
+Reduce.IND <- function(IND.relation, t.tnorm, t.aggregation = "t.tnorm", delta = 0.5, variance.data = 0.5){	
 	if (length(IND.relation) == 1){
 		new.IND = IND.relation
 	}
 	else {
 		if (t.aggregation == "custom"){
 			new.IND <- t.tnorm(IND.relation)
+		}
+		else if (t.aggregation == "kernel.frst"){
+			distance <- Reduce("+", IND.relation)/length(IND.relation)
+			new.IND <- do.call(t.tnorm, list(distance, delta))
 		}
 		else {	
 			temp.init <- IND.relation[[1]]
@@ -1141,11 +1207,10 @@ splitINDclass <- function(INDclass, splitVec)  {
 # It is used to calculate transitive closure
 #
 # @param IND.relation a indiscernibility relation
-calc.transitive.closure <- function(IND.relation){
+calc.transitive.closure <- function(IND.relation, type.MVCompletion){
 
 	new.IND.relation <- IND.relation
 	exit <- FALSE
-	new.IND.relation <- IND.relation
 	
 	## vectorize the function
 	func <- function(i, j, IND.relation){
@@ -1157,15 +1222,68 @@ calc.transitive.closure <- function(IND.relation){
 
 	while (exit == FALSE){
 		## do calculation
-		new.IND.relation <- outer(1 : nrow(IND.relation), 1 : ncol(IND.relation), vec.func, IND.relation)
-		
-		## stopping criteria
-		if (isTRUE(all.equal(new.IND.relation, IND.relation))){
-			exit <- TRUE
-			return(new.IND.relation)
+		if (type.MVCompletion == TRUE){
+			stop("The decision table contains missing values. For current version, they have not supported yet. 
+			     Please perform missing value preprocessing.")
 		}
 		else {
-			IND.relation <- new.IND.relation
+			new.IND.relation <- outer(1 : nrow(IND.relation), 1 : ncol(IND.relation), vec.func, IND.relation)
+			
+			## stopping criteria
+			if (isTRUE(all.equal(new.IND.relation, IND.relation))){
+				exit <- TRUE
+				return(new.IND.relation)
+			}
+			else {
+				IND.relation <- new.IND.relation
+			}
 		}
 	}
 }
+## It is used to calculate kernilized FRST: gaussian
+func.gaussian.kernel <- function(distance, delta){
+	## calculate for all column/attributes
+	Rg <- exp(- (distance^2)/delta)								
+
+	return (Rg)
+}
+
+## It is used to calculate kernilized FRST: exponential
+func.exponential.kernel <- function(distance, delta){
+	## calculate for all column/attributes
+	Re <- exp(- distance/delta)	
+	
+	return (Re)
+}
+
+## It is used to calculate kernilized FRST: rational quadratic kernel
+func.rational.kernel <- function(distance, delta){
+	## calculate for all column/attributes
+	Rr <- 1 - (distance^2/ (distance^2 + delta))	
+	
+	return (Rr)
+}
+
+## It is used to calculate kernilized FRST: circular kernel
+func.circular.kernel <- function(distance, delta){
+	if (distance >= delta){
+		warnings("the condition is not satisfied, please increase the value of delta")
+	}
+	## calculate for all column/attributes
+	Rc <- 2/pi * acos(distance/delta) - 2/pi * 
+						(distance/delta) * sqrt(1 - (distance/delta)^2)	
+	
+	return (Rc)
+}
+
+## It is used to calculate kernilized FRST: spherical kernel
+func.spherical.kernel <- function(distance, delta){
+	if (distance >= delta){
+		warnings("the condition is not satisfied, please increase the value of delta")
+	}
+	## calculate for all column/attributes
+	Rs <- 1 - 3/2 *  distance / delta + 0.5 * 
+						(distance / delta)^3	
+	
+	return (Rs)
+}		

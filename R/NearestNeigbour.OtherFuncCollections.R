@@ -154,18 +154,20 @@ FRNN.alg <- function(decision.table, newdata, type.method = "C.FRNN.FRST", contr
 	## get the data
 	objects <- as.matrix(decision.table)
 	newdata <- as.matrix(newdata)
-
 	desc.attrs <- attr(decision.table, "desc.attrs")
 	nominal.att <- attr(decision.table, "nominal.attrs")
 	num.att <- ncol(objects)
 	classes.dt <- as.numeric(unlist(desc.attrs[length(desc.attrs)]))
 	
+	## check default parameters 
 	control <- setDefaultParametersIfMissing(control, list(k = 5, type.aggregation = c("t.tnorm", "lukasiewicz"), 
 	                 type.relation = c("tolerance", "eq.1"), t.implicator = "lukasiewicz", 
 					 q.some = c(0.1, 0.6), q.most = c(0.2, 1), type.LU = "implicator.tnorm"))
+	
 	## get range data from decision.table
 	range.data.input <- matrix(unlist(desc.attrs[-length(desc.attrs)]), nrow = 2)
 	
+	## get data
 	k <- control$k
 	method.type <- "euclidean"
 	type.aggregation <- control$type.aggregation
@@ -175,62 +177,59 @@ FRNN.alg <- function(decision.table, newdata, type.method = "C.FRNN.FRST", contr
 	type.LU <- control$type.LU
 	q.some <- control$q.some
 	q.most <- control$q.most
-	 
-	#temp <- check.data(objects, newdata, range.data.input, norm = FALSE)
-	#objects <- temp$decision.table
-	#newdata <- temp$newdata
 	num.inputvar <- num.att - 1
 	P.attributes <- c(seq(1, num.inputvar))
 	res.class <- matrix(nrow = nrow(newdata), ncol = 1)
 	
+	## iterate for each testing data
 	for (ii in 1 : nrow (newdata)){
 		## calculate and get K-nearest neighbor
 		nearest.dt <- get.knearest(decision.table = objects, newdata.i = newdata[ii, ,drop = FALSE], k = k, method.type = method.type)
 		objects.knn <- nearest.dt[, -ncol(nearest.dt), drop = FALSE]
 
 		threshold.val <- 0
-		for (i in 1 : length(classes.dt)) {					
+		
+		## iterate over classes
+		for (i in 1 : length(classes.dt)) {	
+			## put testing data into decision table (training data)
 			decision.table <- rbind(cbind(newdata[ii, ,drop = FALSE], classes.dt[i]), objects.knn)
 			colnames(decision.table) <- names(desc.attrs)
 			attr(decision.table, "nominal.attrs") = nominal.att
 			attr(decision.table, "desc.attrs") = desc.attrs
-		
-			#### Perform fuzzy indiscernibility relation ####
+
+			## calculate indiscernibility relation over conditional attributes and the decision attribute
 			control.ind <- list(type.aggregation = type.aggregation, type.relation = type.relation)
 			obj.IND <- BC.IND.relation.FRST(decision.table, attributes = P.attributes, control = control.ind)
 			IND <- obj.IND$IND.relation
 			obj.IND.decAttr <- BC.IND.relation.FRST(decision.table, attributes = c(num.att), control = control.ind)
-			
-			#### Perform fuzzy lower and upper approximation using type.LU : "implicator.tnorm" ####	 
+
+			## Perform fuzzy lower and upper approximation using type.LU : "implicator.tnorm" and "vqrs"
 			decision.attr = c(num.att)
 			if (type.LU == "implicator.tnorm"){
 				control <- list(t.implicator = t.implicator, t.tnorm = t.tnorm)				
 			}
 			else if (type.LU == "vqrs"){
 				control <- list(q.some = q.some, q.most = q.most, t.tnorm = t.tnorm)
-			}
-			
+			}			
 			LU <- BC.LU.approximation.FRST(decision.table, obj.IND, obj.IND.decAttr, 
 					type.LU = type.LU, control = control)
-						
+
+			## check the method that is going to be used
 			if (type.method == "C.FRNN.FRST"){						
 				fuzzy.lower <- LU$fuzzy.lower[[1]][1]
-				fuzzy.upper <- LU$fuzzy.upper[[1]][1]
-				
-				new.value <- (fuzzy.lower + fuzzy.upper)/2
-				
+				fuzzy.upper <- LU$fuzzy.upper[[1]][1]				
+				new.value <- (fuzzy.lower + fuzzy.upper)/2				
 			}
 			else if (type.method == "C.POSNN.FRST"){
 				#### Perform fuzzy indiscernibility relation ####
 				control.ind <- list(type.aggregation = type.aggregation, type.relation = type.relation)
-				IND.dec <- BC.IND.relation.FRST(decision.table, attributes = c(num.att), control = control.ind)$IND.relation
-				
+				IND.dec <- BC.IND.relation.FRST(decision.table, attributes = c(num.att), control = control.ind)$IND.relation				
 				pos <- BC.positive.reg.FRST(decision.table, LU)$positive.freg
-
 				new.value <- sum(IND.dec[1, ,drop = FALSE] * pos * IND[1, ,drop = FALSE])
 
 			}
 			
+			## checking threshold value
 			if (new.value >= threshold.val){
 					res.class[ii] <- classes.dt[i]
 					threshold.val <- new.value

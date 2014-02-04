@@ -18,7 +18,7 @@
 #
 #############################################################################
 #' This is a function that implements the fuzzy-rough instance selection (FRIS) proposed by  
-#' (R. Jensen and C. Cornelis, 2010) which is used to perform instance selection.
+#' (Jensen and Cornelis, 2010) which is used to perform instance selection.
 #' 
 #' FRIS is used to remove training instances that cause conflicts with other instances as 
 #' determined by the fuzzy positive region. 
@@ -43,8 +43,9 @@
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param control a list of other parameters which are 
 #'        \itemize{
-#'        \item \code{threshold.tau}: a value determining whether an object can be removed or not. The default value is 0.95.
-#'        \item \code{alpha}: a parameter determining the granularity of the fuzzy similarity measure. The default value is 1.
+#'        \item \code{threshold.tau}: a value determining whether an object can be removed or not. 
+#'              The object can be removed if it is less than the threshold. The default value is 0.95.
+#'        \item \code{alpha}: a parameter determining the granularity of the fuzzy similarity measure, which has positive values (>= 0). The default value is 1.
 #'        \item \code{type.aggregation}: a list representing the type of aggregation and its value. 
 #'              The default value is \code{type.aggregation = c("t.tnorm", "lukasiewicz")}. See \code{\link{BC.IND.relation.FRST}}.
 #'        \item \code{t.implicator}: a string representing the value of implicator function. The default value is \code{"lukasiewicz"}. See \code{\link{BC.LU.approximation.FRST}}.
@@ -122,7 +123,7 @@ IS.FRIS.FRST <- function(decision.table, control){
 }
 
 
-#' This is a function for implementing instance selection using prototype selection method (FRPS) proposed by (N. Verbiest et al, 2013).
+#' This is a function for implementing instance selection using prototype selection method (FRPS) proposed by (Verbiest et al, 2013).
 #' 
 #' This algorithm uses prototype selection (PS) to improve the accuracy of the k-nearest neighbour (kNN) method. 
 #' It selects a subset of instances \eqn{S \subseteq X} and then classifies a new instance \eqn{t} using the kNN rule acting over

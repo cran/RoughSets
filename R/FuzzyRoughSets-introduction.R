@@ -19,7 +19,7 @@
 #############################################################################
 #' This part introduces briefly fuzzy rough set theory (FRST) and its application to data analysis. 
 #' Since recently there are a lot of FRST variants that have been
-#' proposed by researchers, in this introduction, we only provide some basic concepts of FRST based on (A. M. Radzikowska and E. E. Kerre, 2002). 
+#' proposed by researchers, in this introduction, we only provide some basic concepts of FRST based on (Radzikowska and Kerre, 2002). 
 #'
 #' Just like in RST (see \code{\link{A.Introduction-RoughSets}}),
 #' a data set is represented as a table called an information system \eqn{\mathcal{A} = (U, A)}, where
@@ -27,7 +27,7 @@
 #' in datasets) and \eqn{A} is a non-empty finite set of attributes, such that \eqn{a : U \to V_{a}} for every \eqn{a \in A}. 
 #' The set \eqn{V_{a}} is the set of values that attribute \eqn{a} may take. Information systems that involve a decision attribute, 
 #' containing classes or decision values of each objects, are called decision systems (or said as decision tables). More formally, it is a pair \eqn{\mathcal{A} = (U, A \cup \{d\})},
-#' where \eqn{d \notin A} is the decision attribute. The elements of \eqn{A} are called conditional attributes. However, different from RST, the FRST has several ways
+#' where \eqn{d \notin A} is the decision attribute. The elements of \eqn{A} are called conditional attributes. However, different from RST, FRST has several ways
 #' to express indiscernibility. 
 #' 
 #' Fuzzy indiscernibility relation (FIR) is used for any fuzzy relation that determines the degree to which two objects are indiscernible. 
@@ -44,12 +44,12 @@
 #'
 #'       \eqn{min(R(x,y), R(y,z)) \le R(x,z)}
 #'
-#' \item \eqn{T}-similarity relation (also called fuzzy \eqn{T}-equivalence relation): this relation is a fuzzy tolerance relation that is also T-transitive.
+#' \item \eqn{\mathcal{T}}-similarity relation (also called fuzzy \eqn{\mathcal{T}}-equivalence relation): this relation is a fuzzy tolerance relation that is also \eqn{\mathcal{T}}-transitive.
 #'
-#'       \eqn{T(R(x,y), R(y,z)) \le R(x,z)}, for a given triangular norm \eqn{T}. 
+#'       \eqn{\mathcal{T}(R(x,y), R(y,z)) \le R(x,z)}, for a given triangular norm \eqn{\mathcal{T}}. 
 #' }
 #'
-#' The following equations are the tolerance relations on a quantitative attribute \eqn{a}, \eqn{R_a}, proposed by (R. Jensen and Q. Shen, 2009).
+#' The following equations are the tolerance relations on a quantitative attribute \eqn{a}, \eqn{R_a}, proposed by (Jensen and Shen, 2009).
 #' \itemize{
 #' \item \code{eq.1}: \eqn{R_a(x,y) = 1 - \frac{|a(x) - a(y)|}{|a_{max} - a_{min}|}}
 #' \item \code{eq.2}: \eqn{R_a(x,y) = exp(-\frac{(a(x) - a(y))^2}{2 \sigma_a^2})}
@@ -64,9 +64,9 @@
 #' \eqn{R_B(x,y) = \mathcal{T}(R_a(x,y))},
 #'
 #' where \eqn{\mathcal{T}} is a t-norm operator, for instance minimum, product and Lukasiewicz t-norm. 
-#' In general, \eqn{\mathcal{T}} can be replaced by any aggregation operator, like e.g. the average.
+#' In general, \eqn{\mathcal{T}} can be replaced by any aggregation operator, like e.g., the average.
 #'
-#' In the context of FRST, according to (A. M. Radzikowska and E. E. Kerre, 2002) lower and upper approximation 
+#' In the context of FRST, according to (Radzikowska and Kerre, 2002) lower and upper approximation 
 #' are generalized by means of an implicator \eqn{\mathcal{I}} and a t-norm \eqn{\mathcal{T}}. 
 #' The following are the fuzzy \eqn{B}-lower and \eqn{B}-upper approximations of a fuzzy set \eqn{A} in \eqn{U}
 #' 

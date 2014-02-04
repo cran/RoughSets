@@ -25,21 +25,13 @@
 #' 
 #' The output of this function is a decision table which fulfills a standard format of RoughSets package 
 #' (See \code{\link{SF.asDecisionTable}}). 
-#' In order to construct the decision table, especially in determining description of attributes, this function uses simple heuristic techniques as follows:
-#' \itemize{
-#' \item string values: they will be recognized as nominal/symbolic values. 
-#' \item integer values: they will be recognized as continuous/real values.
-#' \item decimal/real values: they will be recognized as continuous/real values. 
-#' \item indx.nominal: the attributes that are set in this parameter will be assigned as nominal values. 
-#' }
 #'
 #' @title The importing function
-#' @param filename a file name that contains objects/data. 
-#' @param decision.attr a index position of decision attribute. When we ignore this parameter,  
-#'        the function will treat the data as an information system or newdata/testing data. In other words,
-#'        we must define the index of decision attribute if we have the decision attribute in the dataset. 
-#' @param indx.nominal a indexes of nominal values. It is used to define specific indexes as nominal attributes.
+#' @param filename a file name that contains objects/data. See also \code{\link{read.table}}.
+#' @param decision.attr a index position of decision attribute. See \code{\link{SF.asDecisionTable}}.
+#' @param indx.nominal a indexes of nominal values. See \code{\link{SF.asDecisionTable}}.
 #' @param ... other parameters which are involved in \code{read.table} function. See \code{\link{read.table}}.
+#'      An important parameter in \code{\link{read.table}} that should be taken into account is \code{col.names}. 
 #' @return A \code{"DecisionTable"} class which is the standard decision table. See \code{\link{SF.asDecisionTable}}.
 #' @examples
 #' #############################################################
@@ -53,9 +45,10 @@
 #' ## Then we would generate decision table from tes.dat file.
 #' ## in this case, we want to define that second and third attributes are nominal and continuous,
 #' ## respectively.
-#' \dontrun{decision.table <- SF.read.DecisionTable(filename = "tes.dat", decision.attr = 4, 
-#'                   indx.nominal = 2, sep= " ", col.names = c("v1", "v2", "v3", "v4", "o1"))}
+#' \dontrun{decision.table <- SF.read.DecisionTable(filename = "tes.dat", decision.attr = 5, 
+#'                   indx.nominal = c(2, 5), sep= " ", col.names = c("v1", "v2", "v3", "v4", "o1"))}
 #' 
+#' @export
 SF.read.DecisionTable <- function(filename, decision.attr = NULL, indx.nominal = NULL, ...) {
   
   if(is.null(decision.attr)) {
@@ -100,8 +93,16 @@ SF.read.DecisionTable <- function(filename, decision.attr = NULL, indx.nominal =
 #'        See in Section \code{Details}.
 #' @param decision.attr a numeric value representing the index position of the decision attribute. If we ignore this parameter, then 
 #'        the function will treat the data as an information system or newdata/testing data. In other words,
-#'        we must define the index of decision attribute if we have the decision attribute in the dataset. 
+#'        we must define the index of decision attribute if we want to construct a decision table (i.e., a training dataset). 
 #' @param indx.nominal a vector representing indexes of nominal values. It is used to define specific indexes as nominal attributes.
+#'         In a case, we do not define a value of this parameter, then the function will be using heuristic techniques to define the nominal attributes.
+#'         The following is a technique that will be used:
+#' 			\itemize{
+#' 			\item string values: they will be recognized as nominal/symbolic values. 
+#' 			\item integer values: they will be recognized as continuous/real values.
+#' 			\item decimal/real values: they will be recognized as continuous/real values. 
+#' 			\item indx.nominal: the attributes that are set in this parameter will be assigned as nominal values. 
+#' 			}
 #' @return A \code{"DecisionTable"} class which is the standard decision table.
 #' @examples
 #' ################################################################
@@ -155,7 +156,7 @@ SF.asDecisionTable <- function(dataset, decision.attr = NULL, indx.nominal = NUL
 #' 
 #' @param object a \code{"RuleSetFRST"} object. See \code{\link{RI.hybridFS.FRST}} and \code{\link{RI.GFRS.FRST}}.
 #' @param ... the other parameters.
-#' @return a description that contains the following information. For FRST model: 
+#' @return a description that contains the following information: 
 #' \itemize{
 #' \item The type of the considered model.
 #' \item The type of the considered method.
@@ -225,6 +226,52 @@ summary.RuleSetFRST <- function(object, ...){
  invisible(object)	
 }
 
+#' This function enables the output of a summary of the rule induction methods. 
+#'
+#' @title The summary function of rules based on RST
+#' 
+#' @param object a \code{"RuleSetRST"} object. See \code{\link{RI.indiscernibilityBasedRules.RST}}.
+#' @param ... the other parameters.
+#' @return a description that contains the following information: 
+#' \itemize{
+#' \item The type of the considered model. 
+#' \item The type of the considered method.
+#' \item The type of the considered task.
+#' \item The rules. Every rule constitutes two parts which are IF and THEN parts. 
+#'       For example, \code{"IF pres is around 90 and preg is around 8 THEN class is 2; (support=4;laplace=0.67)"}.
+#' }
+#' @examples
+#' ###########################################################
+#' ## Example : Classification problem
+#' ###########################################################
+#' data(RoughSetData)
+#' decision.table <- RoughSetData$hiring.dt 							 
+#'
+#' ## determine feature subset/reduct 	
+#' reduct <- FS.permutation.heuristic.reduct.RST(decision.table,  permutation = NULL)
+#'						 
+#' rules <- RI.indiscernibilityBasedRules.RST(decision.table, reduct)
+#'
+#' summary(rules)
+#' @export  
+#' @method summary RuleSetRST
+#' @S3method summary RuleSetRST
+summary.RuleSetRST <- function(object, ...){
+  
+ if(!inherits(object, "RuleSetRST")) stop("not a legitimate object in this package")
+ cat("The type of the considered model: ", "\n")
+ print("RST")
+ cat("The type of the considered method: ", "\n")
+ print(attr(object, "method"))
+ cat("The type of the considered task: ", "\n")
+ print("Classification")
+ rules <- toStr.rules(rules = object, type.model = "RST")
+ print(rules)
+   
+ invisible(object)	
+}
+
+
 #' This function enables the output of a summary of the indiscernibility relation functions. 
 #'
 #' @title The summary function of indiscernibility relation based on RST and FRST
@@ -233,6 +280,7 @@ summary.RuleSetFRST <- function(object, ...){
 #'
 #'        and \code{\link{BC.IND.relation.RST}}.
 #' @param ... the other parameters.
+#' @return a description that contains the following information. For FRST model: 
 #' @examples
 #' ###########################################################
 #' ## Example 1: Dataset containing nominal values for 
@@ -311,13 +359,22 @@ summary.LowerUpperApproximation <- function(object, ...){
  if (object$type.model == c("FRST")){
  print(object$fuzzy.lower)
  }
- else print(object$lower.approximation)
- 
+ else {
+	for (i in 1:length(object$lower.approximation)){
+		names(object$lower.approximation[[i]]) <- NULL 
+	}
+	print(object$lower.approximation)
+ }
  cat("The upper approximation: ", "\n")
  if (object$type.model == c("FRST")){
- print(object$fuzzy.upper)
+	print(object$fuzzy.upper)
  }
- else print(object$upper.approximation)
+ else {
+	for (i in 1:length(object$upper.approximation)){
+		names(object$upper.approximation[[i]]) <- NULL 
+	}
+	print(object$upper.approximation)
+ }
  
   invisible(object)	
 }
@@ -380,15 +437,16 @@ ObjectFactory <- function(mod, classname){
 	return(mod)
 }
 
-#' It is used to apply a particular object/model for obtaining a new decision table. The models have been calculated previously by feature selection, instance selection, and
-#' discretization.
+#' It is used to apply a particular object/model for obtaining a new decision table. In other words, in order to use the function, 
+#' the models, which are objects of missing value completion, feature selection, instance selection, or
+#' discretization, have been calculated previously .
 #'
 #' @title Apply for obtaining a new decision table
 #' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
-#' @param object a class resulting from feature selection (e.g. \code{\link{FS.reduct.computation}}), discretization (e.g. \code{\link{D.discretization.RST}}), 
-#'               and instance selection functions 
+#' @param object a class resulting from feature selection (e.g., \code{\link{FS.reduct.computation}}), discretization (e.g., \code{\link{D.discretization.RST}}), 
+#'               instance selection functions 
 #'
-#'              (e.g. \code{\link{IS.FRIS.FRST}}). 
+#'              (e.g., \code{\link{IS.FRIS.FRST}}), and missing value completion (e.g., \code{\link{MV.missingValueCompletion}}). 
 #' @param control a list of other parameters which are \code{indx.reduct} representing an index of the chosen decision reduct. It is only considered when 
 #'               we calculate all reducts using \code{\link{FS.all.reducts.computation}}. The default value is that the first reduct will be chosen.
 #' @return A new decision table. Especially for the new decision table resulting from discretization, we 
@@ -401,10 +459,11 @@ ObjectFactory <- function(mod, classname){
 #' #############################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
+#' 
+#' ## generate reducts
+#' red.1 <- FS.quickreduct.RST(decision.table)
 #'
-#' object.1 <- FS.quickreduct.RST(decision.table)
-#'
-#' new.decTable <- SF.applyDecTable(decision.table, object.1)
+#' new.decTable <- SF.applyDecTable(decision.table, red.1)
 #'
 #' #############################################################
 #' ## Example 2: The feature selection in FRST
@@ -417,11 +476,11 @@ ObjectFactory <- function(mod, classname){
 #' control <- list(decision.attr = c(5), t.implicator = "lukasiewicz", 
 #'                 type.relation = c("tolerance", "eq.1"), type.aggregation = 
 #'                 c("t.tnorm", "lukasiewicz"))
-#' object.2 <- FS.quickreduct.FRST(decision.table, type.method = "fuzzy.dependency", 
+#' red.2 <- FS.quickreduct.FRST(decision.table, type.method = "fuzzy.dependency", 
 #'                             type.QR = "fuzzy.QR", control = control)
 #' 
 #' ## generate new decision table
-#' new.decTable <- SF.applyDecTable(decision.table, object.2)
+#' new.decTable <- SF.applyDecTable(decision.table, red.2)
 #'
 #' ###################################################
 #' ## Example 3: The Instance selection by IS.FRPS and
@@ -432,7 +491,7 @@ ObjectFactory <- function(mod, classname){
 #' colnames(dt.ex1) <- c("a1", "a2", "d")
 #' decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 3)
 #'
-#' ## evaluate instances
+#' ## evaluate and select instances
 #' res.1 <- IS.FRPS.FRST(decision.table, type.alpha = "FRPS.3")
 #'
 #' ## generate new decision table
@@ -453,6 +512,24 @@ ObjectFactory <- function(mod, classname){
 #'
 #' ## generate new decision table
 #' new.decTable <- SF.applyDecTable(decision.table, cut.values)
+#'
+#' #################################################################
+#' ## Example 5: Missing value completion
+#' #################################################################
+#' dt.ex1 <- data.frame(
+#'      c(100.2, 102.6, NA, 99.6, 99.8, 96.4, 96.6, NA), 
+#'      c(NA, "yes", "no", "yes", NA, "yes", "no", "yes"), 
+#'      c("no", "yes", "no", "yes", "yes", "no", "yes", NA),
+#'      c("yes", "yes", "no", "yes", "no", "no", "no", "yes"))
+#' colnames(dt.ex1) <- c("Temp", "Headache", "Nausea", "Flu")
+#' decision.table <- SF.asDecisionTable(dataset = dt.ex1, decision.attr = 4, 
+#'                                     indx.nominal = c(2:4))
+#'
+#' ## missing value completion
+#' val.NA = MV.missingValueCompletion(decision.table, type.method = "globalClosetFit")
+#'
+#' ## generate new decision table
+#' new.decTable <- SF.applyDecTable(decision.table, val.NA)
 #' @export
 SF.applyDecTable <- function(decision.table, object, control = list()){
   
@@ -487,7 +564,7 @@ SF.applyDecTable <- function(decision.table, object, control = list()){
 			stop("there is no reducts at the given indx.reduct")
 		}
     
-		tmpIdx = c(reducts[[indx.reduct]], attr(objects, "decision.attr"))		
+		tmpIdx = c(reducts[[indx.reduct]], names(desc.attrs)[attr(objects, "decision.attr")])		
 		decision.table <- objects[, tmpIdx, drop = FALSE]
 		attr(decision.table, "nominal.attrs") = nominal.att[tmpIdx]
 		attr(decision.table, "desc.attrs") = desc.attrs[tmpIdx]
@@ -516,14 +593,24 @@ SF.applyDecTable <- function(decision.table, object, control = list()){
 
 		## get discrete values according to the cut values
 		if (!is.null(attr(objects, "decision.attr"))) {
+			if (length(cut.values) != (ncol(objects) - 1))
+				stop("The discretization is not conforming with the decision table.")
+      
 			decision.attr = as.character(objects[[attr(objects, "decision.attr")]])
 			decision.table = mapply(applyDiscretization, 
-  		                        objects[-attr(objects, "decision.attr")], cut.values, 
-                              SIMPLIFY = FALSE)
+  		                     objects[-attr(objects, "decision.attr")], cut.values, 
+                             attr(decision.table, "nominal.attrs")[-attr(objects, "decision.attr")],
+                             SIMPLIFY = FALSE)
 			decision.table[[length(decision.table) + 1]] = decision.attr
 		} 
 		else {
-			decision.table = mapply(applyDiscretization, objects, cut.values, SIMPLIFY = FALSE)
+		  if(length(cut.values) != ncol(objects)) 
+		    stop("The discretization is not conforming with the decision table.")
+      
+			decision.table = mapply(applyDiscretization, 
+                              objects, cut.values, 
+                              attr(decision.table, "nominal.attrs"), 
+                              SIMPLIFY = FALSE)
 		}
 		decision.table = data.frame(decision.table, stringsAsFactors = TRUE)
 		colnames(decision.table) = colnames(objects)
@@ -531,6 +618,21 @@ SF.applyDecTable <- function(decision.table, object, control = list()){
 		## generate decision table with changing in nominal.attrs attribute  
 		decision.table <- SF.asDecisionTable(dataset = decision.table, decision.attr = attr(objects, "decision.attr"), 
 	                                     indx.nominal = 1:ncol(decision.table))													   
+	}
+	else if (inherits(object, "MissingValue")){
+		new.DecTable <- decision.table
+		nominal.indx <- attr(decision.table, "nominal.attrs")
+		for (i in 1:nrow(object$val.NA)){
+			if (nominal.indx[object$val.NA[i, 2]] == FALSE){
+				new.DecTable[object$val.NA[i, 1], object$val.NA[i, 2]] <-  as.numeric(object$val.NA[i, 3])
+			}
+			else {
+				new.DecTable[object$val.NA[i, 1], object$val.NA[i, 2]] <- object$val.NA[i, 3] 
+			}
+		}
+		new.DecTable <- na.omit(new.DecTable)
+		decision.table <- SF.asDecisionTable(dataset = new.DecTable, decision.attr = attr(decision.table, "decision.attr"),
+										 indx.nominal = which(nominal.indx == TRUE))
 	}
   
     return(decision.table)
@@ -550,34 +652,45 @@ setDefaultParametersIfMissing <- function(control, defaults) {
 # @param rules rules in numeric
 # @param type.task a type of task
 # @param nominal.att a list of types of attributes
-toStr.rules <- function(rules, type.task = "classification", nominal.att){
-	options(stringsAsFactors = FALSE)
+toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL, type.model = "FRST"){
+	options(stringsAsFactors = FALSE)	
 	Str.rules <- list()
-	
-	for (h in 1 : length(rules)){
-		rule <- rules[[h]]
+	if (type.model == "FRST"){			
+		for (h in 1 : length(rules)){
+			rule <- rules[[h]]
+			if (ncol(rule) > 2){
+				ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))			
+				for (i in 2 : (ncol(rule) - 1)){
+					temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
+					ante <- paste(ante, temp, sep = " and ")
+				}
+			}
+			else {
+				ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))
+			}
+			
+			if (type.task == "classification"){
+				cons <- paste(colnames(rule[ncol(rule)]), rule[[ncol(rule)]], sep = c(" is "))		
+			}
+			else {
+				cons <- paste(colnames(rule[ncol(rule)]), rule[ncol(rule)], sep = c(" is around "))	
+			}
 
-		if (ncol(rule) > 2){
-			ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))			
-			for (i in 2 : (ncol(rule) - 1)){
-				temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
+			rule <- paste("IF", ante, "THEN", cons)	
+			Str.rules <- append(Str.rules, rule)
+		}
+	}
+	else {
+		for (i in 1 : length(rules)){
+			ante <- paste(colnames(rules[[i]]$value[1]), rules[[i]]$value[[1]], sep = " is ")
+			for (j in 2 : length(rules[[i]]$value)){
+				temp <- paste(colnames(rules[[i]]$value[j]), rules[[i]]$value[[j]], sep = " is ")
 				ante <- paste(ante, temp, sep = " and ")
 			}
+			cons <- paste(attr(rules, "dec.attr"), paste(rules[[i]]$consequent, "; (support=", rules[[i]]$support, ";", "laplace=", rules[[i]]$laplace,")", sep=""), sep = c(" is "))	
+			rule <- paste("IF", ante, "THEN", cons)
+			Str.rules <- append(Str.rules, rule)
 		}
-		else {
-			ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))
-		}
-		
-		if (type.task == "classification"){
-			cons <- paste(colnames(rule[ncol(rule)]), rule[[ncol(rule)]], sep = c(" is "))		
-		}
-		else {
-			cons <- paste(colnames(rule[ncol(rule)]), rule[ncol(rule)], sep = c(" is around "))	
-		}
-
-		rule <- paste("IF", ante, "THEN", cons)	
-		Str.rules <- append(Str.rules, rule)
 	}
-	
 	return(Str.rules)
 }

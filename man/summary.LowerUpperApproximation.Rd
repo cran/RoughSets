@@ -2,7 +2,7 @@
 \alias{summary.LowerUpperApproximation}
 \title{The summary function of lower and upper approximations based on RST and FRST}
 \usage{
-  \method{summary}{LowerUpperApproximation} (object, ...)
+\method{summary}{LowerUpperApproximation}(object, ...)
 }
 \arguments{
   \item{object}{a \code{"LowerUpperApproximation"} object.
@@ -12,8 +12,8 @@
   \item{...}{the other parameters.}
 }
 \description{
-  This function enables the output of a summary of the
-  lower and upper approximations.
+This function enables the output of a summary of the lower
+and upper approximations.
 }
 \examples{
 #######################################

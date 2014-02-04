@@ -30,7 +30,10 @@
 #'
 #' @title The wrapper function of discretization methods 
 #'
-#' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
+#' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
+#'        It should be noted that all functions used for discretization need the nominal decision attribute. 
+#'        Furthermore, especially for the method type \code{"global.discernibility"}, all conditional attributes
+#'        must in real values. So, in the case we have mixed values, we should choose other methods. 
 #' @param type.method one of the following methods:
 #'         \itemize{
 #'         \item \code{"global.discernibility"}: See \code{\link{D.global.discernibility.heuristic.RST}}.
@@ -62,22 +65,26 @@ D.discretization.RST <- function(decision.table, type.method = "unsupervised.qua
     stop("Unrecognized discretization type.")
 	}
   
-	if(!inherits(decision.table, "DecisionTable")) {
+	if (!inherits(decision.table, "DecisionTable")) {
 		stop("Provided data should inherit from the \'DecisionTable\' class.")
 	}
     
-	if(is.null(attr(decision.table, "decision.attr"))) {
-    decisionIdx = ncol(decision.table) + 1
-  } else decisionIdx = attr(decision.table, "decision.attr")
+	if (is.null(attr(decision.table, "decision.attr"))) {
+		decisionIdx = ncol(decision.table) + 1
+	} else decisionIdx = attr(decision.table, "decision.attr")
   
-  if(any(attr(decision.table, "nominal.attrs")[-decisionIdx])) {
-		stop("The conditional attributes need to be numeric.")
+	if (all(attr(decision.table, "nominal.attrs")[-decisionIdx])) {
+		stop("All the conditional attributes are nominal.")
+	} else {
+		if(any(attr(decision.table, "nominal.attrs")[-decisionIdx]) && type.method == "global.discernibility") {
+			stop("This discretization method is not implemented for decision tables with mixed attribute types.")
+		}
 	}
   	  
 	cut.values = switch(type.method,  
-    	                unsupervised.quantiles = D.discretize.quantiles.RST(decision.table[,-decisionIdx], ...),
-    	                unsupervised.intervals = D.discretize.equal.intervals.RST(decision.table[,-decisionIdx], ...),
-                      global.discernibility = D.global.discernibility.heuristic.RST(decision.table, ...),
+    	                unsupervised.quantiles = D.discretize.quantiles.RST(decision.table, ...),
+    	                unsupervised.intervals = D.discretize.equal.intervals.RST(decision.table, ...),
+                        global.discernibility = D.global.discernibility.heuristic.RST(decision.table, ...),
     	                local.disc.matrix = D.local.discernibility.matrix.RST(decision.table, ...),
     	                max.disc.matrix = D.max.discernibility.matrix.RST(decision.table, ...) )
   	
@@ -85,7 +92,7 @@ D.discretization.RST <- function(decision.table, type.method = "unsupervised.qua
 }
 
 #' This is a function that implements the local strategy algorithm based on rough set theory proposed by 
-#' (Jan G. Bazan et al, 2000), for discretization tasks.
+#' (Bazan et al, 2000), for discretization tasks.
 #' 
 #' The local strategy is an algorithm which implements a decision tree to calculate the quality of a cut 
 #' (i.e. number of objects discerned by cut). In other words, it finds the best cut by dividing the object 
@@ -106,6 +113,7 @@ D.discretization.RST <- function(decision.table, type.method = "unsupervised.qua
 #' @title The local strategy algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#'        It should be noted that the function need the nominal decision attribute. 
 #' @param ... other parameters,
 #' @seealso \code{\link{D.max.discernibility.matrix.RST}}, \code{\link{D.discretize.quantiles.RST}},
 #'
@@ -154,7 +162,7 @@ D.local.discernibility.matrix.RST <- function(decision.table, ...){
 	
 	## get cut for each attributes
 	if (nrow(non.nominal.obj) == 1 || ncol(non.nominal.obj) < 1)
-		stop("the number of object is only 1 or there is no the nominal attribute")
+		stop("the number of object is only 1 or there is no nominal attribute")
 	else {	
 		ready.list <- gen.cut.values(non.nominal.obj)
 	}
@@ -242,7 +250,7 @@ D.local.discernibility.matrix.RST <- function(decision.table, ...){
 			}
 		}
 	 }	
-	 names.all.cont <- colnames(non.nominal.obj)
+	 names.all.cont <- names(desc.attrs)[-decision.attr]
 	 names.miss <- names.all.cont[which(names.all.cont %in% names(cut.save.list) == FALSE)]
 	
 	 if (length(names.miss) >= 1){
@@ -260,7 +268,7 @@ D.local.discernibility.matrix.RST <- function(decision.table, ...){
 }
 
 #' This is a function that implements the maximal discernibility algorithm based on rough set theory proposed 
-#' by (Jan G. Bazan et al, 2000), for discretization tasks.
+#' by (Bazan et al, 2000), for discretization tasks.
 #' 
 #' Let \eqn{A = (U, A \cup \{d\})}  be a decision table. An arbitrary attribute \eqn{a \in A} defines a sequence \eqn{v_{1}^a < v_{2}^a < \ldots < v_{n_{a}}^a}, where
 #' \eqn{\{v_{1}^a, v_{2}^a, \ldots, v_{n_{a}}^a \} = \{a(x): x : \in U \}} and \eqn{n_{a} \leq n}. Then the set of all possible cuts on \eqn{a} is denoted by
@@ -283,6 +291,7 @@ D.local.discernibility.matrix.RST <- function(decision.table, ...){
 #' @title The maximal discernibility algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}.
+#'        It should be noted that the function need the nominal decision attribute.
 #' @param ... other parameters.
 #' @seealso \code{\link{D.local.discernibility.matrix.RST}}, \code{\link{D.discretize.quantiles.RST}},
 #'
@@ -297,8 +306,6 @@ D.local.discernibility.matrix.RST <- function(decision.table, ...){
 #' \item \code{model}: a type of model which is \code{"RST"}.
 #' }
 #' @references
-# S. H. Nguyen and H. S. Nguyen, "Discretization Methods", in: Rough Sets in Knowledge Discovery (A. Skowron, L. Polkowski, ed),
-# vol. 1, p. 451 - 481 (1998). 
 #' Jan G. Bazan, Hung Son Nguyen, Sinh Hoa Nguyen, Piotr Synak, and Jakub Wroblewski, 
 #' "Rough Set Algorithms in Classification Problem", Chapter 2
 #'  In: L. Polkowski, S. Tsumoto and T.Y. Lin (eds.): Rough Set Methods and Applications
@@ -348,6 +355,7 @@ D.max.discernibility.matrix.RST <- function(decision.table, ...){
 	cut.res <- def.discern.mat(data = dec.nominal.obj, cut.val = c(cut.att.all[1, 2], cut.att.all[1, 1]), type = "table")
 	mat.disc <- cut.res
 	cut.save.list <- list()
+
 	## run discernibility matrix for rest cut values
 	for (i in 2 : nrow(cut.att.all)){
 		## construct discernibility matrix which constitutes pairs of objects toward cut values
@@ -385,7 +393,7 @@ D.max.discernibility.matrix.RST <- function(decision.table, ...){
 			exit <- TRUE
 	}
 	
-	names.all.cont <- colnames(non.nominal.obj)
+	names.all.cont <- names(desc.attrs)[-decision.attr]
 	names.miss <- names.all.cont[which(names.all.cont %in% names(cut.save.list) == FALSE)]
 	
 	if (length(names.miss) >= 1){
@@ -406,7 +414,7 @@ D.max.discernibility.matrix.RST <- function(decision.table, ...){
 #' This method can be considered an unsupervised discretization method for continuous features 
 #' since it does not consider the class label. The basic idea of this algorithm is that
 #' we divide the data using the \code{\link{quantile}} function which produces distribution quantiles 
-#' corresponding to the given vector. The detailed information can be seen in (J. Dougherty et al, 1995).
+#' corresponding to the given vector. The detailed information can be seen in (Dougherty et al, 1995).
 #'
 #' It should be noted that the output of this function is a class containing cut values. 
 #' In order to generate the new decision table, \code{\link{SF.applyDecTable}} is executed.
@@ -414,6 +422,7 @@ D.max.discernibility.matrix.RST <- function(decision.table, ...){
 #' @title The "quantile-based" discretization algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#'        It should be noted that the function need the nominal decision attribute.
 #' @param nOfIntervals a numeric value representing the number of interval separating the data.
 #' @param ... other parameters.
 #' @seealso \code{\link{D.local.discernibility.matrix.RST}}, \code{\link{D.max.discernibility.matrix.RST}},
@@ -448,12 +457,19 @@ D.max.discernibility.matrix.RST <- function(decision.table, ...){
 #' new.decTable <- SF.applyDecTable(decision.table, cut.values)
 #' @export
 D.discretize.quantiles.RST <- function(decision.table, nOfIntervals = 4, ...) {
-	if (!is.null(attr(decision.table, "decision.attr"))) {
-		decision.table = decision.table[-attr(decision.table, "decision.attr")] 
-	} 
-	
-	cutsList = lapply(decision.table, discretize.quantiles, n = nOfIntervals)
   
+  nominalAttrs = attr(decision.table, "nominal.attrs")
+  if (!is.null(attr(decision.table, "decision.attr"))) {
+    nominalAttrs = nominalAttrs[-attr(decision.table, "decision.attr")]
+    decision.table = decision.table[-attr(decision.table, "decision.attr")]
+  } 
+	
+  if(sum(nominalAttrs) > 0) {
+    cutsList = list()
+    cutsList[1:ncol(decision.table)] = list(numeric())
+    cutsList[!nominalAttrs] = lapply(decision.table[!nominalAttrs], discretize.quantiles, n = nOfIntervals)
+  } else cutsList = lapply(decision.table, discretize.quantiles, n = nOfIntervals)
+    
 	cutsList = list(cut.values = cutsList, type.method = "unsupervised.quantiles",
                 type.task = "discretization", model = "RST")
 	cutsList = ObjectFactory(cutsList, classname = "Discretization")
@@ -470,7 +486,7 @@ D.discretize.quantiles.RST <- function(decision.table, nOfIntervals = 4, ...) {
 #'
 #' where \eqn{k} is a parameter supplied by the user to define how many intervals will be determined and 
 #' \eqn{x_{max}} and \eqn{x_{min}} are the upper and lower boundary of data. The detailed information can be seen 
-#' in (J. Dougherty et al, 1995).
+#' in (Dougherty et al, 1995).
 #' 
 #' It should be noted that the output of this function is a class containing cut values. 
 #' In order to generate the new decision table, \code{\link{SF.applyDecTable}} should be executed.
@@ -478,6 +494,7 @@ D.discretize.quantiles.RST <- function(decision.table, nOfIntervals = 4, ...) {
 #' @title The "equal interval size" discretization algorithm
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#'        It should be noted that the function need the nominal decision attribute.
 #' @param nOfIntervals a numeric value representing the number of interval separating the data. 
 #' @param ... other parameters.
 #' @seealso \code{\link{D.local.discernibility.matrix.RST}}, \code{\link{D.max.discernibility.matrix.RST}},
@@ -512,11 +529,18 @@ D.discretize.quantiles.RST <- function(decision.table, nOfIntervals = 4, ...) {
 #' new.decTable <- SF.applyDecTable(decision.table, cut.values)
 #' @export
 D.discretize.equal.intervals.RST <- function(decision.table, nOfIntervals = 4, ...) {
-	if (!is.null(attr(decision.table, "decision.attr"))) {
-		decision.table = decision.table[-attr(decision.table, "decision.attr")] 
+	
+  nominalAttrs = attr(decision.table, "nominal.attrs")
+  if (!is.null(attr(decision.table, "decision.attr"))) {
+    nominalAttrs = nominalAttrs[-attr(decision.table, "decision.attr")]
+		decision.table = decision.table[-attr(decision.table, "decision.attr")]
 	} 
-
-	cutsList = lapply(decision.table, discretize.equal.intervals, n = nOfIntervals)
+  
+  if(sum(nominalAttrs) > 0) {
+	  cutsList = list()
+	  cutsList[1:ncol(decision.table)] = list(numeric())
+    cutsList[!nominalAttrs] = lapply(decision.table[!nominalAttrs], discretize.equal.intervals, n = nOfIntervals)
+  } else cutsList = lapply(decision.table, discretize.equal.intervals, n = nOfIntervals)
   
 	cutsList = list(cut.values = cutsList, type.method = "unsupervised.intervals",
                 type.task = "discretization", model = "RST")
@@ -532,7 +556,7 @@ D.discretize.equal.intervals.RST <- function(decision.table, nOfIntervals = 4, .
 #' which considers the mean and standard deviation is used to determined the best cut. 
 #' There are two different approaches which are "local search strategy" and "global search strategy". 
 #' In this function, the latter one has been implemented. It is searching for the best cut over all continuous attributes
-#' and doing attribute selection at the same time. The complete description can be seen in (S. H. Nguyen, 2001).
+#' and doing attribute selection at the same time. The complete description can be seen in (Nguyen, 2001).
 #' 
 #' It should be noted that the output of this function is a class containing cut values. 
 #' In order to generate the new decision table, \code{\link{SF.applyDecTable}} is executed.
@@ -540,6 +564,8 @@ D.discretize.equal.intervals.RST <- function(decision.table, nOfIntervals = 4, .
 #' @title The global maximum discernibility heuristic
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#'        It should be noted that especially for this method, all conditional attributes
+#'        must in real values. So, in the case we have mixed values, we should choose other methods.
 #' @param maxNOfCuts a numeric value representing the maximum number of cut values.
 #' @param attrSampleSize a value representing the number of attributes.
 #' @param cutCandidatesList a list representing the candidates of cut values.
