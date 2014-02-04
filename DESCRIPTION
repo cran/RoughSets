@@ -1,0 +1,39 @@
+Package: RoughSets
+Maintainer: Christoph Bergmeir <c.bergmeir@decsai.ugr.es>
+License: GPL (>= 2)
+Title: Data Analysis Using Rough Set and Fuzzy Rough Set Theories.
+Author: Lala Septem Riza, Andrzej Janusz, Chris Cornelis, Francisco
+    Herrera, Dominik Slezak, and Jose Manuel Benitez
+Description: This package provides comprehensive implementations of the rough
+    set theory (RST) and the fuzzy rough set theory (FRST), and integrates
+    these two theories into a single package. It provides implementations, not
+    only for the basic concepts of RST and FRST, but also most common methods
+    based on them for handling some tasks such as discretization, feature
+    selection, instance selection, rule induction, and prediction. RST was
+    introduced by Zdzislaw Pawlak in 1982 as a sophisticated mathematical tool
+    based on indiscernibility relations to model and process imprecise or
+    incomplete information. It works on symbolic-valued datasets for tackling
+    the data analysis problems. By using the indiscernibility relation for
+    objects/instances, RST does not require additional parameters to analyze
+    the data. FRST is an extension of RST. The FRST combines concepts of
+    vagueness and indiscernibility that are expressed with fuzzy sets (as
+    proposed by Zadeh, in 1965) and RST.
+Version: 1.0-0
+URL: http://sci2s.ugr.es/dicits/software/RoughSets
+Date: 2014-02-04
+Suggests: sets, class
+Collate: 'BasicFuzzyRoughSets.R' 'BasicRoughSets.R' 'Discretization.R'
+        'FeatureSelection.R' 'FuzzyRoughSets-introduction.R'
+        'InstanceSelection.R'
+        'InstanceSelection.OtherFuncCollections.R' 'NearestNeigbour.R'
+        'RoughSets-introduction.R' 'RoughSets-package.R'
+        'BasicRoughSets.OtherFuncCollections.R'
+        'FeatureSelection.OtherFuncCollections.R'
+        'RuleInduction.OtherFuncCollections.R'
+        'NearestNeigbour.OtherFuncCollections.R' 'RuleInduction.R'
+        'docData.R' 'IOFunctions.R'
+        'Discretization.OtherFuncCollections.R'
+Packaged: 2014-02-04 16:35:38 UTC; bergmeir
+NeedsCompilation: yes
+Repository: CRAN
+Date/Publication: 2014-02-04 18:38:41
