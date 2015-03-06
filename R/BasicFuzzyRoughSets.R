@@ -164,6 +164,7 @@
 #' \code{\link{BC.positive.reg.FRST}} for calculating lower and upper approximation and determining positive regions.
 #'
 #' @title The indiscernibility relation based on fuzzy rough set theory
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param attributes a numerical vector expressing indexes of subset of attributes to be considered. 
@@ -220,7 +221,7 @@
 #' ## calculate fuzzy indiscernibility relation ##
 #' ## in this case, we are using "crisp" as a type of relation and type of aggregation
 #' control.ind <- list(type.relation = c("crisp"), type.aggregation = c("crisp"))
-#' IND <- BC.IND.relation.FRST(decision.table, attribute = attributes, control = control.ind)
+#' IND <- BC.IND.relation.FRST(decision.table, attributes = attributes, control = control.ind)
 #' 
 #' ###########################################################
 #' ## Example 2: Dataset containing real-valued attributes
@@ -318,7 +319,7 @@
 BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = list()){
 	## set default values of all parameters
 	control <- setDefaultParametersIfMissing(control, list(type.aggregation = c("t.tnorm", "lukasiewicz"), 
-	           type.relation = c("tolerance", "eq.1"), disc.mat = FALSE, type.MVCompletion = FALSE))
+	           type.relation = c("tolerance", "eq.1"), disc.mat = FALSE, type.MVCompletion = FALSE, alpha = 1))
 	
 	## check missing values
 	if (any(is.na(decision.table))){
@@ -343,7 +344,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 	## calculate fuzzy similarity relation based on the chosen type.relation
 	if (type.relation[1] == "crisp"){
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.tnorm = type.aggregation[[2]], disc.mat = disc.mat, 
-		                           t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
+		                           t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion, alpha = control$alpha)	
 	}
 	else if (type.relation[1] == "tolerance"){
 		## set default value
@@ -353,7 +354,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 		
 		## calculate relation
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], FUN = NULL, 
-		                           disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
+		                           disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion, alpha = control$alpha)	
 	}
 	else if (type.relation[1] == "transitive.kernel"){
 		## set the default values
@@ -365,7 +366,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 		## calculate relation
 		type.relation <- list(type = type.relation[1], equation = t.similarity, delta = delta)
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], FUN = NULL, disc.mat = disc.mat, 
-		                           delta = delta, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion)	
+		                           delta = delta, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion, alpha = control$alpha)	
 	}
 	else if (type.relation[1] == "kernel.frst"){
 		## set the default values
@@ -392,13 +393,13 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 		## calculate relation
 		type.relation <- list(type = type.relation[1], equation = t.similarity, delta = delta)
 		miu.Ra <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = t.tnorm, FUN = NULL, disc.mat = disc.mat, 
-		                           delta = delta, t.aggregation = "kernel.frst", type.MVCompletion = type.MVCompletion)	
+		                           delta = delta, t.aggregation = "kernel.frst", type.MVCompletion = type.MVCompletion, alpha = control$alpha)	
 	}
 	else if (type.relation[1] == "custom"){
 		FUN <- type.relation[[2]]
 		type.relation <- list(type = type.relation[1], equation = FUN)
 		miu.Ra <- calc.fsimilarity(decision.table = decision.table, attributes = attributes, FUN = FUN, t.tnorm = type.aggregation[[2]], 
-		                          disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion) 
+		                          disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], type.MVCompletion = type.MVCompletion, alpha = control$alpha) 
 	}
 	else if (type.relation[1] == "transitive.closure"){
 		if (is.na(type.relation[2])) t.similarity <- c("eq.1")
@@ -407,7 +408,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 		type.relation <- list(type = type.relation[1], equation = t.similarity)
 		IND.relation.tolerance <- calc.fsimilarity(decision.table, attributes, t.similarity, t.tnorm = type.aggregation[[2]], 
 		                                          FUN = NULL, disc.mat = disc.mat, t.aggregation = type.aggregation[[1]], 
-												  type.MVCompletion = type.MVCompletion)	
+												  type.MVCompletion = type.MVCompletion, alpha = control$alpha)	
 		miu.Ra <- calc.transitive.closure(IND.relation.tolerance, type.MVCompletion = type.MVCompletion)
 	}
 	else {
@@ -622,6 +623,7 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' So, it is obvious that before performing this function, users must execute \code{\link{BC.IND.relation.FRST}} first. 
 #'
 #' @title The fuzzy lower and upper approximations based on fuzzy rough set theory
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param IND.condAttr a \code{"IndiscernibilityRelation"} class of the conditional attributes which is produced by \code{\link{BC.IND.relation.FRST}}.
@@ -1295,6 +1297,7 @@ BC.LU.approximation.FRST <- function(decision.table, IND.condAttr, IND.decAttr, 
 #' and the lower and upper approximations by calling \code{\link{BC.LU.approximation.FRST}}.
 #'
 #' @title Positive region based on fuzzy rough set
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param fuzzyroughset a \code{"LowerUpperApproximation"} class representing a fuzzy rough set that is produced by \code{\link{BC.LU.approximation.FRST}}.
@@ -1501,6 +1504,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' }
 #'
 #' @title The decision-relative discernibility matrix based on fuzzy rough set theory
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #'        It should be noted that this case only supports the nominal/symbolic decision attribute.
@@ -1606,7 +1610,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' ## Example 2: Constructing the decision-relative discernibility matrix
 #' ## In this case, we are using the Hiring dataset containing nominal values
 #' #######################################################################
-#' data(RoughSetData)
+#' \dontrun{data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
 #'
 #' control.1 <- list(type.relation = c("crisp"), 
@@ -1614,10 +1618,10 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #'                 t.implicator = "lukasiewicz", type.LU = "implicator.tnorm")
 #' res.1 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "standard.red", 
 #'                                     control = control.1)
-#'
+#' 
 #' control.2 <- list(epsilon = 0)
 #' res.2 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "gaussian.red",
-#'                                     control = control.2)
+#'                                     control = control.2)}
 #' @export
 BC.discernibility.mat.FRST <- function(decision.table, type.discernibility = "standard.red", control = list()){
 

@@ -147,7 +147,7 @@ ch.rules <- function(rules, type.method = "RI.hybridFS.FRST", decision.table){
 	}
 }
 
-#an auxiliary function for constructing rules from indiscernibility classes
+#an auxiliary function for computing laplace estimate of rule's confidence
 laplaceEstimate <- function(rule, dataS, clsVec, uniqueCls, suppIdx = NULL) {
 	if (is.null(suppIdx)) {
 		if (length(rule$idx) > 1) {
@@ -171,17 +171,16 @@ laplaceEstimate <- function(rule, dataS, clsVec, uniqueCls, suppIdx = NULL) {
 	return(rule)
 }
 
-#' It is an auxiliary function of the best-first voting strategy.
-#'
-#' @title the best-first voting strategy function
-#' @param object a class "RuleSetRST". 
-#' @param ruleValues values of rules.
-#' @param consequents values on the consequent part.
-#' @param majorityCls  a value representing majority class of decision attribute.
-#' @param ... other parameters.
-#' @return predicted values. 
-#' @export
-X.bestFirst <- function(object, ruleValues, consequents, majorityCls, ...) { 
+# An auxiliary function that performs the best-first voting strategy.
+#
+# @title the best-first voting strategy function
+# @param object a class "RuleSetRST". 
+# @param ruleValues values of rules.
+# @param consequents values on the consequent part.
+# @param majorityCls  a value representing majority class of decision attribute.
+# @param ... other parameters.
+# @return predicted values. 
+bestFirst <- function(object, ruleValues, consequents, majorityCls, ...) { 
 	matchIdx <- which(ruleValues == object)
 	if (length(matchIdx) > 0) {
 		prediction <- consequents[matchIdx[1]]
@@ -192,3 +191,285 @@ X.bestFirst <- function(object, ruleValues, consequents, majorityCls, ...) {
   
 	return(prediction)
 }
+
+# An auxiliary function that performs the first-win voting strategy.
+#
+# @title the first-win voting strategy
+# @param a data vector representing the object for which predictions are to be made
+# @param object a class "RuleSetRST"
+# @return a predicted value 
+firstWin <- function(object, ruleSet) {
+  rulesCount = length(ruleSet)
+  i = 1
+  endFlag = FALSE
+  prediction = NULL
+  
+  while(!endFlag) {
+    if(all(object[ruleSet[[i]]$idx] == ruleSet[[i]]$values))  {
+      endFlag = T
+      prediction = ruleSet[[i]]$consequent
+    } else  {
+      if(i >= rulesCount) endFlag = TRUE
+      i = i + 1
+    }
+  }
+  
+  if(is.null(prediction)) prediction = attr(ruleSet, "majorityCls") 
+  return(prediction)
+}
+
+# An auxiliary function that classifies a data object using custom voting strategy.
+rulesVoting <- function(object, ruleSet, votingMethod = X.ruleStrength, ...) {
+  
+  rulesIdx = which(sapply(ruleSet,
+                          function(rule, obj) all(obj[rule$idx] == rule$values),
+                          object))
+  
+  prediction = NULL
+  voteCounter = rep(0, length(attr(ruleSet, "uniqueCls")))
+  names(voteCounter) = attr(ruleSet, "uniqueCls")
+  
+  if(length(rulesIdx) > 0) {
+    for(i in rulesIdx) {
+      voteCounter[ruleSet[[i]]$consequent] = voteCounter[ruleSet[[i]]$consequent] + votingMethod(ruleSet[[i]], ...)
+    }
+    tmpPreds = names(voteCounter)[which(voteCounter == max(voteCounter))]
+    if(length(tmpPreds) == 1) {
+      prediction = tmpPreds
+		} 
+		else {
+      prediction = names(attr(ruleSet, "clsProbs")[tmpPreds])[which.max(attr(ruleSet, "clsProbs")[tmpPreds])]
+    }
+  }
+  
+  if(is.null(prediction)) prediction = attr(ruleSet, "majorityCls") 
+	
+  return(prediction)
+}
+
+#' A function returning a weight of rule's vote understood as strength of the rule. 
+#' It is defined as a product of a cardinality of a support of a rule and the length of this rule.
+#'
+#' @title Rule voting by strength of the rule
+#' @author Andrzej Janusz
+#' 
+#' @param rule a decision rule, i.e. element of a "RuleSetRST" object 
+#' 
+#' @return a numerical weight of the vote
+#' 
+#' @seealso Other currently available voting methods are: \code{\link{X.laplace}}, \code{\link{X.rulesCounting}}.
+#' 
+#' @export
+X.ruleStrength <- function(rule) {
+	return(length(rule$support) * length(rule$idx))
+}
+
+#' A function returning a weight of rule's vote understood as the Laplace estimate of its confidence. 
+#'
+#' @title Rule voting by the Laplace estimate
+#' @author Andrzej Janusz
+#' 
+#' @param rule a decision rule, i.e. element of an "RuleSetRST" object 
+#' 
+#' @return a numerical weight of the vote
+#' 
+#' @seealso Other currently available voting methods are: \code{\link{X.ruleStrength}}, \code{\link{X.rulesCounting}}.
+#' 
+#' @export
+X.laplace <- function(rule) {
+	return(rule$laplace)
+}
+
+#' A function returning an equal vote's weight for every rule. It corresponds to voting by counting the
+#' matching rules.
+#'
+#' @title Rule voting by counting matching rules
+#' @author Andrzej Janusz
+#' 
+#' @param rule a decision rule, i.e. element of an "RuleSetRST" object 
+#' 
+#' @return a numerical weight of the vote
+#' 
+#' @seealso Other currently available voting methods are: \code{\link{X.ruleStrength}}, \code{\link{X.laplace}}.
+#' 
+#' @export
+X.rulesCounting = function(rule) {
+	return(1)
+}
+
+# It is an auxiliary function for greedy covering the data with decision rules using CN2 algorithm.
+findBestCN2Rule = function(dataSet, clsVec, uniqueCls, K = 10)  {
+  descriptorsList = lapply(dataSet, function(x) sort(unique(x)))
+  
+  descriptorCandidates = list()
+  for(i in 1:length(descriptorsList)) {
+    descriptorCandidates = c(descriptorCandidates,
+                             lapply(descriptorsList[[i]],
+                                    function(v, x) return(list(idx = x, values = v)), i))
+  }
+  
+  ruleCandidates = lapply(descriptorCandidates, laplaceEstimate, dataSet, clsVec, uniqueCls)
+  
+  endFlag = F
+  ruleScores = sapply(ruleCandidates, function(x) return(x$laplace))
+  bestIdx = which.max(ruleScores)
+  bestRule = ruleCandidates[[bestIdx]]
+  ruleCandidates = ruleCandidates[order(ruleScores, decreasing = T)[1:K]]
+  
+  while(!endFlag) {
+    
+    ruleCandidates = addDescriptorCN2(ruleCandidates, descriptorCandidates)
+    ruleCandidates = lapply(ruleCandidates, laplaceEstimate, dataSet, clsVec, uniqueCls)
+    ruleScores = sapply(ruleCandidates, function(x) return(x$laplace))
+    
+    if(bestRule$laplace < max(ruleScores)) {
+      bestIdx = which.max(ruleScores)
+      bestRule = ruleCandidates[[bestIdx]]
+      ruleCandidates = ruleCandidates[order(ruleScores, decreasing = T)[1:K]]
+		} 
+		else endFlag = T
+    
+  }
+  return(bestRule)
+}
+
+# Adding a descriptor to a rule in CN2 algorithm
+addDescriptorCN2 <- function(rulesList, descCandidates) {
+  candidates = list()
+  for(i in 1:length(rulesList)) {
+    candidates = c(candidates,
+                   lapply(descCandidates,
+                          function(descriptor, rule) return(list(idx = c(rule$idx, descriptor$idx),
+                                                                 values = c(as.character(rule$values), as.character(descriptor$values)))),
+                          rulesList[[i]]))
+  }
+  
+  return(candidates)
+}
+
+# Computation of a covering of a lower approximation of a concept by decision rules using the LEM2 algorithm.
+# It is an auxiliary function.
+computeLEM2covering <- function(concept, attributeValuePairs, decisionValues, uniqueCls) {
+  
+  if(length(concept) == 0) stop("Empty lower approximation of a decision class.")
+  uncoveredConcept = concept
+  rules = list()
+  
+  while(length(uncoveredConcept) > 0) {
+    support = 1:length(decisionValues)
+    rules[[length(rules) + 1]] = list(idx = integer(0), values = character(), support = support)
+    tmpAttributeValuePairs = attributeValuePairs
+    selectedAttributeValuePairs = list()
+    
+    while(!all(support %in% concept)) {
+      tmpSupp = intersect(support, uncoveredConcept)
+      correctLaplaceVec = sapply(tmpAttributeValuePairs, 
+                                 function(rule, cls) {
+                                   nOfCorrect = length(intersect(rule$support, tmpSupp));
+                                   (nOfCorrect + 1)/(length(rule$support) + length(uniqueCls))
+                                 },
+                                 decisionValues[concept[1]])
+      tmpIdx = which.max(correctLaplaceVec)
+      tmpRule = tmpAttributeValuePairs[[tmpIdx]]
+      selectedAttributeValuePairs[[length(selectedAttributeValuePairs) + 1]] = tmpRule
+      tmpAttributeValuePairs = tmpAttributeValuePairs[-tmpIdx]
+      support = intersect(support, tmpRule$support)
+    }
+    rm(tmpSupp, tmpIdx, tmpRule, tmpAttributeValuePairs)
+    
+    toRmIdx = integer(0)
+    if(length(selectedAttributeValuePairs) > 1) {
+      for(i in 1:length(selectedAttributeValuePairs)) {
+        suppList = lapply(selectedAttributeValuePairs[-c(toRmIdx, i)], function(x) x$support)
+        tmpSupport = Reduce(intersect, suppList)
+        if(all(tmpSupport %in% concept)) toRmIdx = c(toRmIdx, i)
+      }
+    }
+    if(length(toRmIdx) > 0) {
+      selectedAttributeValuePairs = selectedAttributeValuePairs[-toRmIdx]
+      suppList = lapply(selectedAttributeValuePairs, function(x) x$support)
+      support = Reduce(intersect, suppList)
+    }
+    
+    idxVec = sapply(selectedAttributeValuePairs, function(x) x$idx)
+    valuesVec = sapply(selectedAttributeValuePairs, function(x) x$values)
+    rules[[length(rules)]]$support = support
+    rules[[length(rules)]]$values = valuesVec
+    rules[[length(rules)]]$idx = idxVec
+    
+    uncoveredConcept = setdiff(uncoveredConcept, support)
+  }
+  
+  toRmIdx = integer(0)
+  for(i in 1:length(rules)) {
+    suppList = lapply(rules[-c(toRmIdx, i)], function(x) x$support)
+    tmpSupport = Reduce(intersect, suppList)
+    if(all(concept %in% tmpSupport)) toRmIdx = c(toRmIdx, i)
+  }
+  
+  if(length(toRmIdx) > 0) {
+    rules = rules[-toRmIdx]
+  }
+  
+  return(rules)  
+}
+
+# Computation of a covering of a lower approximation of a concept by decision rules using the AQ algorithm.
+# It is an auxiliary function.
+computeAQcovering <- function(concept, attributeValuePairs, dataTab, epsilon = 0.05, K = 2) {
+  
+  if(length(concept) == 0) stop("Empty lower approximation of a decision class.")
+  uncoveredConcept = concept
+  coverCounts = rep(0, length(concept))
+  names(coverCounts) = as.character(concept)
+  rules = list()
+  
+  while(length(uncoveredConcept) > 0) {
+    seedIdx = sample(uncoveredConcept, 1)
+    selectedAttributeValuePairs = mapply(function(avps, v) avps[[as.character(v)]],
+                                         attributeValuePairs, dataTab[seedIdx,],
+                                         SIMPLIFY = FALSE)
+    
+    suppList = lapply(selectedAttributeValuePairs, function(x) x$support)
+    support = Reduce(intersect, suppList)
+    rules[[length(rules) + 1]] = list(idx = integer(0), values = character(), support = support)
+    
+    attrOrdering = sample(1:length(selectedAttributeValuePairs))
+    suppList = suppList[attrOrdering]
+    selectedAttributeValuePairs = selectedAttributeValuePairs[attrOrdering]
+    
+    for(i in length(attrOrdering):1)  {
+      tmpSupport = Reduce(intersect, suppList[-i])
+      if(length(tmpSupport) > 0 && sum(tmpSupport %in% concept)/length(tmpSupport) >= 1-epsilon) {
+        support = tmpSupport
+        suppList = suppList[-i]
+        selectedAttributeValuePairs = selectedAttributeValuePairs[-i]
+      }
+    }
+    rm(tmpSupport, attrOrdering, suppList)
+    
+    idxVec = sapply(selectedAttributeValuePairs, function(x) x$idx)
+    valuesVec = sapply(selectedAttributeValuePairs, function(x) x$values)
+    rules[[length(rules)]]$support = support
+    rules[[length(rules)]]$values = valuesVec
+    rules[[length(rules)]]$idx = idxVec
+    
+    coveredConcept = intersect(support, concept)
+    coverCounts[as.character(coveredConcept)] = coverCounts[as.character(coveredConcept)] + 1
+    uncoveredConcept = concept[which(coverCounts < K)]
+  }
+  
+  for(i in length(rules):1) {
+    tmpCoveredConcept = intersect(concept, rules[[i]]$support)
+    tmpCoverCounts = coverCounts
+    tmpCoverCounts[as.character(tmpCoveredConcept)] = tmpCoverCounts[as.character(tmpCoveredConcept)] - 1
+    if(all(tmpCoverCounts >= K)) {
+      rules = rules[-i]
+      coverCounts = tmpCoverCounts
+    }
+  }
+  rm(tmpCoveredConcept, tmpCoverCounts)
+  
+  return(rules)  
+}
+

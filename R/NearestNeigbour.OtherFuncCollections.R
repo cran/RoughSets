@@ -126,7 +126,7 @@ calc.membershipClass <- function(nearest.dt, num.class, type = "gradual"){
 # @param control a list of other parameters which depends on two approaches we are going to choose, as follows:
 #        \itemize{
 #        \item implicator/t-norm based model: we should set \code{type.LU = "implicator.tnorm"} and following parameters.
-#                 \itemize{
+#                \itemize{
 #                  \item \code{k}: the number of neighbours. The default value is 5.
 #                  \item \code{type.aggregation}: the type of aggregation.
 #                  \item \code{type.relation}: the type of relation. The default value is \code{c("tolerance", "eq.1")}.
@@ -148,8 +148,6 @@ calc.membershipClass <- function(nearest.dt, num.class, type = "gradual"){
 # @references
 # Richard Jensen and Chris Cornelis, "Fuzzy-rough Nearest Neighbour Classificition and Prediction",
 # Theoretical Computer Science, vol. 412, p. 5871 - 5884 (2011). 
-#
-# @export
 FRNN.alg <- function(decision.table, newdata, type.method = "C.FRNN.FRST", control = list()){
 	## get the data
 	objects <- as.matrix(decision.table)

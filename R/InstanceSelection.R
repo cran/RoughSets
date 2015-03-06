@@ -38,7 +38,8 @@
 #' The other additional function called \code{\link{SF.applyDecTable}} is used to produce the new decision table based on 
 #' the output of this function.
 #'
-#' @title The fuzzy rough instance selection algorithm 
+#' @title The fuzzy rough instance selection algorithm
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param control a list of other parameters which are 
@@ -70,7 +71,7 @@
 #'
 #' ## evaluate index of objects
 #' res.1 <- IS.FRIS.FRST(decision.table = decision.table, control = 
-#'                         list(threshold.tau = 0.5, alpha = 1, 
+#'                         list(threshold.tau = 0.5, alpha = 0.8, 
 #'                         type.aggregation = c("t.tnorm", "lukasiewicz"), 
 #'                         t.implicator = "lukasiewicz"))
 #' 
@@ -82,7 +83,7 @@
 #' Proceedings of the 19th International Conference on Fuzzy Systems (FUZZ-IEEE 2010), 
 #' p. 1776 - 1782 (2010).
 #' @export
-IS.FRIS.FRST <- function(decision.table, control){
+IS.FRIS.FRST <- function(decision.table, control = list()){
 	## set default values of all parameters
 	control <- setDefaultParametersIfMissing(control, list(threshold.tau = 0.95, type.aggregation = c("t.tnorm", "lukasiewicz"),
                                      	t.implicator = "kleene_dienes", alpha = 1))
@@ -148,6 +149,7 @@ IS.FRIS.FRST <- function(decision.table, control){
 #' the output of this function.
 #'
 #' @title The fuzzy rough prototype selection method
+#' @author Lala Septem Riza
 #'
 #' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param type.alpha type of FRPS expressing the equations of \eqn{\alpha}. The default value is \code{"FRPS.1"}.
@@ -181,7 +183,7 @@ IS.FRIS.FRST <- function(decision.table, control){
 #'
 #' @export
 IS.FRPS.FRST <- function(decision.table, type.alpha = "FRPS.1"){
-	req.suc <- require("class", quietly=TRUE)
+	req.suc <- requireNamespace("class", quietly=TRUE)
 	if(!req.suc) stop("In order to use this function, you need to install the package class.")
 
 	## get parameters
@@ -262,7 +264,7 @@ IS.FRPS.FRST <- function(decision.table, type.alpha = "FRPS.1"){
 	rate <- 0
 	for (i in 1 : nrow(objects)){
 		## perform 1knn
-		res <- knn1(train= objects[-i, -ncol(objects), drop = FALSE], 
+		res <- class::knn1(train= objects[-i, -ncol(objects), drop = FALSE], 
 		                 test = objects[i, -ncol(objects), drop = FALSE], 
 						 cl= factor(objects[-i, ncol(objects)]))
 		## check accuracy
@@ -289,7 +291,7 @@ IS.FRPS.FRST <- function(decision.table, type.alpha = "FRPS.1"){
 		## check if the number of objects over than 1
 		if (nrow(new.objects) > 1){
 			## perform 1knn
-			res.knn <- knn1(train = new.objects[, -ncol(new.objects), drop = FALSE], 
+			res.knn <- class::knn1(train = new.objects[, -ncol(new.objects), drop = FALSE], 
 			                test = objects[, -ncol(objects), drop = FALSE], 
 							cl= factor(new.objects[, ncol(new.objects)]))
 			## calculate accuracy

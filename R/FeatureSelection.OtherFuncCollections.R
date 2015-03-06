@@ -32,8 +32,6 @@
 # @param control a list of other parameters 
 # @seealso \code{\link{FS.brute.force.RST}}, \code{\link{FS.heuristic.filter.RST}}
 # @return reduct. 
-# @export
-
 quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", type.QR = "fuzzy.QR", control = list()){
 	options(warn=-1)
 	## set default values of all parameters
@@ -101,7 +99,7 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 	## get indiscernibility relation for ALL attribute for stopping criteria
 	if (type.method == "quickreduct.RST"){
 		## make equivalence class
-		IND <- BC.IND.relation.RST(decision.table, attribute = c(P))
+		IND <- BC.IND.relation.RST(decision.table, feature.set = c(P))
 			
 		## get rough set
 		roughset <- BC.LU.approximation.RST(decision.table, IND)
@@ -171,7 +169,7 @@ quickreduct.alg <- function(decision.table, type.method = "fuzzy.dependency", ty
 		for (i in 1 : ncol(P)){		
 			if (type.method == "quickreduct.RST"){
 				## make equivalence class
-				IND <- BC.IND.relation.RST(decision.table, attribute = c(P[, i]))
+				IND <- BC.IND.relation.RST(decision.table, feature.set = c(P[, i]))
 
 				## get rough set
 				roughset <- BC.LU.approximation.RST(decision.table, IND)
@@ -608,12 +606,15 @@ func.conorm <- function(right.val, init.val, t.conorm){
 	}
 }
 
-#' It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
+#' An auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}}, \code{\link{FS.DAAR.heuristic.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
 #' It is based on the \emph{gini} index as a measure of information (Stoffel and Raileanu, 2000). 
 #'
-#' @title The gini-index gain measure function
-#' @param decisionDistrib a distribution of values on the decision attribute.
-#' @return \code{qualityF}. 
+#' @title The gini-index measure
+#' @author Andrzej Janusz
+#' 
+#' @param decisionDistrib an integer vector corresponding to a distribution of attribute values.
+#' 
+#' @return a numeric value indicating the gini index of an attribute. 
 #' @references
 #' K. Stoffel and L. E. Raileanu, "Selecting Optimal Split-Functions with Linear Threshold Unit Trees and Madaline-Style Networks",
 #' in: Research and Development in Intelligent Systems XVII, BCS Conference Series (2000).
@@ -623,12 +624,15 @@ X.gini <- function(decisionDistrib)  {
   return(1 - sum((decisionDistrib/sum(decisionDistrib))^2))
 }
 
-#' It is an auxiliary function for \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
+#' An auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}}, \code{\link{FS.DAAR.heuristic.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
 #' It is based on \emph{entropy} as a measure of information(Shannon, 1948).
 #'
-#' @title The information gain measure function
-#' @param decisionDistrib a distribution of values on the decision attribute.
-#' @return \code{qualityF}.
+#' @title The entropy measure
+#' @author Andrzej Janusz
+#' 
+#' @param decisionDistrib an integer vector corresponding to a distribution of attribute values
+#' 
+#' @return a numeric value indicating entropy of an attribute.
 #' @references
 #' C. E. Shannon, "A Mathematical Theory of Communication", Bell System Technical Journal, vol. 27, p. 379 - 423, 623 - 656 (1948).
 #'
@@ -640,37 +644,47 @@ X.entropy <- function(decisionDistrib)  {
 
 #' It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
 #'
-#' @title  The discernibility measure function
-#' @param decisionDistrib a distribution of values on the decision attribute.
-#' @return \code{qualityF}. 
+#' @title  The discernibility measure
+#' @author Andrzej Janusz
+#' 
+#' @param decisionDistrib an integer vector corresponding to a distribution of decision attribute values
+#' @return a numeric value indicating a number of conflicts in a decision attribute
+#' 
 #' @export
 X.nOfConflicts <- function(decisionDistrib)  {
   return(as.numeric(sum(as.numeric(sum(decisionDistrib) - decisionDistrib) * as.numeric(decisionDistrib))))
 }
 
-#' It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
-#'
-#' @title The discernibility measure function based on \code{log2}
-#' @param decisionDistrib a distribution of values on the decision attribute.
-#' @return \code{qualityF}. 
-#' @export
+# It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
+#
+# @title The discernibility measure function based on \code{log2}
+# @param decisionDistrib a distribution of values on the decision attribute.
+# @return \code{qualityF}. 
 X.nOfConflictsLog <- function(decisionDistrib)  {
   return(log2(1+as.numeric(sum(as.numeric(sum(decisionDistrib) - decisionDistrib) * decisionDistrib))))
 }
 
-#' It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
-#'
-#' @title The discernibility measure function based on \code{sqrt}
-#' @param decisionDistrib a distribution of values on the decision attribute.
-#' @return \code{qualityF}. 
-#' @export
+# It is an auxiliary function for the \code{qualityF} parameter in the \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.greedy.heuristic.superreduct.RST}} functions.
+#
+# @title The discernibility measure function based on \code{sqrt}
+# @param decisionDistrib a distribution of values on the decision attribute.
+# @return \code{qualityF}. 
 X.nOfConflictsSqrt <- function(decisionDistrib)  {
   return(sqrt(as.numeric(sum(as.numeric(sum(decisionDistrib) - decisionDistrib) * as.numeric(decisionDistrib)))))
 }
 
-qualityGain <- function(vec, decisionVec, discernVec, baseChaos, chaosFunction = X.gini)  {
-  contingencyTab = as.matrix(table(do.call(paste, list(discernVec, vec)), decisionVec))
-  return(as.numeric(baseChaos - sum(apply(contingencyTab,1,chaosFunction)*(rowSums(contingencyTab)/length(vec))))/(chaosFunction(table(vec))))
+# This is an auxiliary function for computing decision reducts
+qualityGain <- function(vec, uniqueValues, decisionVec, uniqueDecisions, 
+                        INDclasses, baseChaos, chaosFunction = X.gini)  {
+
+  INDclasses = compute_indiscernibility(INDclasses, as.character(vec), uniqueValues)
+  
+  if(length(INDclasses) > 0) {
+    remainingChaos = compute_chaos(INDclasses, as.character(decisionVec),
+                                   uniqueDecisions, chaosFunction)
+  } else remainingChaos = 0.0
+  
+  return(as.numeric(baseChaos - remainingChaos))
 }
 
 # It is used to randomize attributes
@@ -786,18 +800,20 @@ calc.all.reducts <- function(discernibilityMatrix) {
 # it is used to perform boolean function
 # @param disc.list a list of attributes resulted by build.discMatrix.FRST
 boolean.func <- function(disc.list){
-	req.suc <- require("sets", quietly=TRUE)
-	if(!req.suc) stop("In order to use this function, you need to install the package sets.")
+#	req.suc <- require("sets", quietly=TRUE)
+#	if(!req.suc) stop("In order to use this function, you need to install the package sets.")
 		
 	## check subset among objects
 	if (length(disc.list) > 1){	
 		## create a function to be vectorize
 		func.ch.duplicate <- function(i, j, disc.list){
 			if (j > i){
-				if (set_is_subset(as.set(disc.list[[i]]), as.set(disc.list[[j]]))) {
+#				if (set_is_subset(as.set(disc.list[[i]]), as.set(disc.list[[j]]))) {
+			  if (all(disc.list[[i]] %in% disc.list[[j]])) {
 					disc.list[[j]] <<- NA
 				}
-				else if (set_is_subset(as.set(disc.list[[j]]), as.set(disc.list[[i]]))) {
+#				else if (set_is_subset(as.set(disc.list[[j]]), as.set(disc.list[[i]]))) {
+        else if (all(disc.list[[j]] %in% disc.list[[i]])) {
 					disc.list[[i]] <<- NA
 				}
 			}
@@ -824,12 +840,16 @@ boolean.func <- function(disc.list){
 	return(list(dec.red = dec.red, core = core))
 }
 
-#a function for converting formulas in a CNF form to a DNF form
-convertCNFtoDNF = function(CNFclauses){
+# a function for converting formulas in a CNF form to a DNF form
+convertCNFtoDNF <- function(CNFclauses){
   
   if(length(CNFclauses) > 1) {
     ## sort the clauses by their length  
     CNFlengths = sapply(CNFclauses, length)
+    if(any(CNFlengths == 0)) {
+      CNFclauses = CNFclauses[CNFlengths > 0]
+      CNFlengths = CNFlengths[CNFlengths > 0]
+    }
     CNFclauses = CNFclauses[order(CNFlengths)]
     
     ## eliminate unnecessary clauses for efficiency
@@ -846,7 +866,8 @@ convertCNFtoDNF = function(CNFclauses){
     tmpDNF = CNFclauses[[1]]
     for(i in 2:length(CNFclauses))  {
       ## expand two clauses into possible DNFs
-      tmpDNF = expand.grid(tmpDNF, CNFclauses[[i]], KEEP.OUT.ATTRS = F, stringsAsFactors = F)
+      tmpDNF = expand.grid(tmpDNF, CNFclauses[[i]], 
+                           KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
       tmpDNF = split(tmpDNF, 1:nrow(tmpDNF))
       ## take only those which are unique
       tmpDNF = lapply(tmpDNF, function(x) unique(unlist(x)))
@@ -871,7 +892,7 @@ convertCNFtoDNF = function(CNFclauses){
   return(DNFclauses)
 }
 
-#a function for computing a core from a list of all reducts of a data set
+# a function for computing a core from a list of all reducts of a data set
 computeCore = function(reductList) {
   
   if(length(reductList) > 0) {
@@ -886,4 +907,30 @@ computeCore = function(reductList) {
   } else stop("empty reduct list")
   
   return(core)
+}
+
+# An auxiliary function for computing attribute relevance using random probes.
+# It is used by FS.DAAR.heuristic.RST function.
+computeRelevanceProb = function(INDclasses, attributeVec, uniqueValues, 
+                                attrScore, decisionVec, uniqueDecisions, baseChaos,
+                                qualityF = X.gini, nOfProbes = 100, withinINDclasses = FALSE)
+{
+  if(withinINDclasses) {
+    attributeList = lapply(INDclasses, function(x, y) y[x], attributeVec)
+    tmpAttribute = attributeVec
+    flattenINDclasses = unlist(INDclasses, use.names = FALSE)
+    probeScores = replicate(nOfProbes, 
+                            {tmpAttributePermutation = unlist(lapply(attributeList, sample), 
+                                                              use.names = FALSE);
+                             tmpAttribute[flattenINDclasses] = tmpAttributePermutation;
+                             qualityGain(tmpAttribute, uniqueValues, decisionVec, uniqueDecisions,
+                                         INDclasses, baseChaos, chaosFunction = qualityF)})
+  } else {
+    probeScores = replicate(nOfProbes, 
+                            {tmpAttribute = sample(attributeVec);
+                             qualityGain(tmpAttribute, uniqueValues, decisionVec, uniqueDecisions,
+                                         INDclasses, baseChaos, chaosFunction = qualityF)})
+  }
+
+return(mean(attrScore > probeScores))
 }

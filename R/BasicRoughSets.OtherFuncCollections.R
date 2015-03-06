@@ -181,12 +181,15 @@ calc.fsimilarity <- function(decision.table, attributes, t.similarity = "eq.1", 
 			init.IND <- list()
 			for (i in 1 : length(attributes)){
 				if (nom[i] == TRUE){
-				## overwrite type of similarity when crisp
-				t.similarity <- "boolean"
+					## overwrite type of similarity when crisp
+					t.similarity.new <- "boolean"
+				}
+				else {
+					t.similarity.new <- t.similarity
 				}
 				## calculate indiscernibility relation
 				init.IND[[i]] <- outer(c(obj[, i]), c(obj[, i]), 
-							 function(x, y) similarity.equation(x, y, t.similarity, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))	
+							 function(x, y) similarity.equation(x, y, t.similarity.new, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))	
 			}
 			
 			if (type.MVCompletion == TRUE){				
@@ -213,11 +216,14 @@ calc.fsimilarity <- function(decision.table, attributes, t.similarity = "eq.1", 
 		}
 		for (i in 1 : length(attributes)){
 			if (nom[i] == TRUE){
-				t.similarity <- "boolean"
+				t.similarity.new <- "boolean"
+			}
+			else {
+				t.similarity.new <- t.similarity
 			}
 			## construct indiscernibility relation
 			temp <- 1 - outer(c(obj[, i]), c(obj[, i]), 
-						 function(x, y) similarity.equation(x, y, t.similarity, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))			 
+						 function(x, y) similarity.equation(x, y, t.similarity.new, delta, t.range.data[i], t.variance.data[i], FUN, decision.table, alpha))			 
 			
 			if (is.null(temp.init)){
 				temp.init <- as.list(temp)
@@ -723,6 +729,7 @@ ch.typeAggregation <- function(type.aggregation){
 # @param IND.relation a list indiscernibility relation of considered attributes
 # @param t.tnorm a triangular norm operator
 Reduce.IND <- function(IND.relation, t.tnorm, t.aggregation = "t.tnorm", delta = 0.5, variance.data = 0.5){	
+	
 	if (length(IND.relation) == 1){
 		new.IND = IND.relation
 	}
@@ -836,8 +843,8 @@ build.discMatrix.FRST <- function(decision.table, type.discernibility = "fuzzy.d
 		return (list(IND.conditionAttr = IND.cond, IND.decisionAttr = IND.dec))
 	}	
 	else if (any(type.discernibility == c("standard.red", "gaussian.red", "consistence.degree", "alpha.red"))){
-		req.suc <- require("sets", quietly=TRUE)
-		if(!req.suc) stop("In order to use this function, you need to install the package sets.")
+#		req.suc <- require("sets", quietly=TRUE)
+#		if(!req.suc) stop("In order to use this function, you need to install the package sets.")
 
 		## Perform fuzzy indiscernibility relation for all conditional attributes ####
 		attributes <- c(seq(1, (num.att - 1)))
@@ -1003,8 +1010,8 @@ formula.discernibilityMatrix <- function(IND.cond, type.discernibility, fuzzy.lo
 # @param t.implicator a type of implicator operator
 # @param type.LU a type of lower/upper approximation
 min.disc.mat.FRST <- function(decision.table, t.tnorm = "lukasiewicz", type.relation = c("tolerance", "eq.1"), t.implicator = "lukasiewicz", type.LU = "implicator.tnorm"){
-	req.suc <- require("sets", quietly=TRUE)
-	if(!req.suc) stop("In order to use this function, you need to install the package sets.")	  
+#	req.suc <- require("sets", quietly=TRUE)
+#	if(!req.suc) stop("In order to use this function, you need to install the package sets.")	  
 		
 	## get data
 	objects <- decision.table
@@ -1063,9 +1070,11 @@ min.disc.mat.FRST <- function(decision.table, t.tnorm = "lukasiewicz", type.rela
 			## calculate the similarity between two objects based on type of similarity				
 			if (nominal.att[h] == TRUE){
 				## overwrite type of similarity when crisp
-				t.similarity <- "boolean"
-			}						
-			temp.miu.Ra <- unlist(similarity.equation(temp, obj[j], t.similarity, delta, range.data, variance.data))
+				t.similarity.new <- "boolean"
+			}	else {
+			  t.similarity.new <- t.similarity
+			}		
+			temp.miu.Ra <- unlist(similarity.equation(temp, obj[j], t.similarity.new, delta, range.data, variance.data))
 
 			## check discernibility among objects					
 			if ((1 - temp.miu.Ra) >= (fuzzy.lower[[which(names(fuzzy.lower) == obj.decisionAttr[i, 1])]][i])){	

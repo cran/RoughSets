@@ -8,11 +8,10 @@
  P <- c(2,3)
  
  ####### Perform indiscernibility relation #######
- IND <- BC.IND.relation.RST(decision.table, attribute = P)
+ IND <- BC.IND.relation.RST(decision.table, feature.set = P)
 
  ####### Perform lower and upper approximatino #####
- decision.attr <- c(5)
- roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+ roughset <- BC.LU.approximation.RST(decision.table, IND)
  
  ####### Determine the positive region ######
  region <- BC.positive.reg.RST(decision.table, roughset) 

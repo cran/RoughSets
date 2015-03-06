@@ -17,35 +17,40 @@
 #  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #############################################################################
-#' It is an additional function aimed as wrapper of approaches calculating a reduct. 
+#' This function is a wrapper for computing different types of decision reducts 
+#' and approximate decision reducts. 
 #' 
-#' There exist three methods considered in this function based on RST and FRST as follows: 
+#' The implemented methods include the following approaches:
 #' \itemize{
-#' \item \code{"greedy.heuristic"}: it is the greedy heuristic method based on RST. 
-#'
+#' \item \code{"greedy.heuristic"}: a greedy heuristic method for computation of decision reducts (or approximate decision reducts) based on RST. 
 #'                                  See \code{\link{FS.greedy.heuristic.reduct.RST}}.
-#' \item \code{"nearOpt.fvprs"}: it is the near-optimal reduction algorithm based on FRST. 
-#'
+#'                                  
+#' \item \code{"DAAR.heuristic"}: Dynamically Adapted Approximate Reduct heuristic, which is a modification of the greedy heuristic with a random probe test to avoid inclusion of irrelevant attributes to the reduct.
+#'                               See \code{\link{FS.DAAR.heuristic.RST}}.
+#'                               
+#' \item \code{"nearOpt.fvprs"}: the near-optimal reduction algorithm based on FRST.
 #'                               See \code{\link{FS.nearOpt.fvprs.FRST}}.
-#' \item \code{"permutation.heuristic"}: it is the permutation heuristic approach based on RST. 
-#'
+#'                               
+#' \item \code{"permutation.heuristic"}: a permutation-based elimination heuristic for computation of decision reducts based on RST. 
 #'                                       See \code{\link{FS.permutation.heuristic.reduct.RST}}.
 #' }
-#' Those methods can be selected by assigning the parameter \code{method}. 
-#' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate the new decision table. 
+#' Those methods can be selected by setting the parameter \code{method}. 
+#' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate a new decision table. 
 #' 
 #' @title The reduct computation methods based on RST and FRST
+#' @author Andrzej Janusz
 #'
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
-#' @param method a character representing the type of methods. See in Section \code{Details}.
-#' @param ... other parameters. See the parameters on \code{\link{FS.greedy.heuristic.reduct.RST}},
-#' 
+#' @param decision.table  an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
+#' @param method  a character representing the type of computation method to use. See in Section \code{Details}.
+#' @param ...  other parameters. See the parameters of \code{\link{FS.greedy.heuristic.reduct.RST}}, \code{\link{FS.DAAR.heuristic.RST}},
 #'        \code{\link{FS.nearOpt.fvprs.FRST}} and \code{\link{FS.permutation.heuristic.reduct.RST}}.
+#'        
+#' @return An object of a class \code{"FeatureSubset"}. See \code{\link{FS.greedy.heuristic.reduct.RST}},
+#' \code{\link{FS.DAAR.heuristic.RST}}, \code{\link{FS.permutation.heuristic.reduct.RST}} or 
+#' \code{\link{FS.nearOpt.fvprs.FRST}} for more details.
+#' 
 #' @seealso \code{\link{D.discretization.RST}}, \code{\link{BC.LU.approximation.RST}}
-#' @return A class \code{"FeatureSubset"}. See \code{\link{FS.greedy.heuristic.reduct.RST}} 
-#'
-#' or \code{\link{FS.nearOpt.fvprs.FRST}}.
-#'
+#' 
 #' @examples
 #' ##############################################################
 #' ## Example 1: generate reduct and new decision table 
@@ -54,39 +59,48 @@
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
 #'
-#' ## generate single reduct using RST
-#' reduct.1 <- FS.reduct.computation(decision.table, method = "permutation.heuristic")
+#' ## generate a single reduct using RST
+#' reduct.1 <- FS.reduct.computation(decision.table, method = "greedy.heuristic")
 #' 
-#' ## generate single reduct using FRST
+#' ## generate a single reduct using FRST
 #' reduct.2 <- FS.reduct.computation(decision.table, method = "nearOpt.fvprs")
 #' 
-#' ## generate new decision table according to the reduct.1
+#' ## generate a new decision table using reduct.1
 #' new.decTable.1 <- SF.applyDecTable(decision.table, reduct.1) 
 #'
-#' ## generate new decision table according to the reduct.2
+#' ## generate new decision table using reduct.2
 #' new.decTable.2 <- SF.applyDecTable(decision.table, reduct.2)
 #'
 #' @export
 FS.reduct.computation <- function(decision.table, method = "greedy.heuristic", ...){
   
-  if (!(method %in% c("greedy.heuristic", "permutation.heuristic", "nearOpt.fvprs"))) {
-    stop("Unrecognized attribute reduction method.")
-  }
+	if (!(method %in% c("greedy.heuristic", "DAAR.heuristic", "permutation.heuristic", "nearOpt.fvprs"))) {
+		stop("Unrecognized attribute reduction method.")
+	}
   
-  if(!inherits(decision.table, "DecisionTable")) {
-    stop("Provided data should inherit from the \'DecisionTable\' class.")
-  }
+	if (!inherits(decision.table, "DecisionTable")) {
+		stop("Provided data should inherit from the \'DecisionTable\' class.")
+	}
   
-  nominal.att <- attr(decision.table, "nominal.attrs")
-  if(!all(nominal.att) && !(method %in% "nearOpt.fvprs")) stop("Discretize attribures before computing RST reducts.")
+	nominal.att <- attr(decision.table, "nominal.attrs")
+	if (!all(nominal.att) && !(method %in% "nearOpt.fvprs")) stop("Discretize attribures before computing RST reducts.")
   
-  if(is.null(attr(decision.table, "decision.attr"))) stop("A decision attribute is not indicated.")
-  else decIdx = attr(decision.table, "decision.attr")
+	if (is.null(attr(decision.table, "decision.attr"))) stop("A decision attribute is not indicated.")
+	else decIdx = attr(decision.table, "decision.attr")
+  
+	if (is.null(attr(decision.table, "desc.attrs"))) stop("No description of attribute values.")
+	else desc.attrs = attr(decision.table, "desc.attrs")
 
-  ## call the chosen method
-  reduct = switch(method,  
-                  greedy.heuristic = FS.greedy.heuristic.reduct.RST(decision.table, decisionIdx = decIdx, ...),
-                  permutation.heuristic = FS.permutation.heuristic.reduct.RST(decision.table, decisionIdx = decIdx, ...),
+	## call the chosen method
+	reduct = switch(method,  
+                  greedy.heuristic = FS.greedy.heuristic.reduct.RST(decision.table, 
+                                                                    attrDescriptions = desc.attrs,
+                                                                    decisionIdx = decIdx, ...),
+                  DAAR.heuristic = FS.DAAR.heuristic.RST(decision.table, 
+                                                         attrDescriptions = desc.attrs,
+                                                         decisionIdx = decIdx, ...),
+                  permutation.heuristic = FS.permutation.heuristic.reduct.RST(decision.table, 
+                                                                              decisionIdx = decIdx, ...),
                   nearOpt.fvprs = FS.nearOpt.fvprs.FRST(decision.table, ...) )
   
 	return(reduct)  		
@@ -95,34 +109,43 @@ FS.reduct.computation <- function(decision.table, method = "greedy.heuristic", .
 
 #' It is a function implementing the permutation heuristic approach based on RST.
 #'
-#' Basically there are two processes in this algorithm which are 
+#' Basically there are two steps in this algorithm which are 
 #' \itemize{
-#' \item generating feature subset as superreduct: In this step, we choose a subset of attributes by 
-#'       evaluating the discernibility relation of pairs of objects. 
-#' \item eliminating feature subset to obtain a reduct: we iterate over the superreduct resulting from the previous process.
-#'       Then, an attribute that is \emph{dispensable} in the subset is eliminated along iteration.
+#' \item generating feature subset as a superreduct: In this step, we choose a subset of attributes that
+#'       discern all object from different decision classes. It is done by adding consecutive attributes
+#'       in an order defined by a permutation of attribute indices. The permutation can be random
+#'       or it can be explicitly given (by the parameter \code{permutation}).
+#' \item iterative elimination of attributes from the set obtained in the previous step. 
+#'       It is done in the reverse order to that, defined by the permutation.
 #' }
-#' The detail of the algorithm can be seen in (Janusz and Slezak, 2012).
+#' More details regarding this algorithm can be found in (Janusz and Slezak, 2012).
 #' 
 #' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate new decision table. 
 #' 
-#' @title The permutation heuristic algorithm for determining a reduct
+#' @title The permutation heuristic algorithm for computation of a decision reduct
+#' @author Andrzej Janusz
 #'
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
-#' @param permutation a value representing whether we will randomize the conditional attributes or not. 
-#'        The values of this parameter are \code{NULL} as default one and \code{FALSE}. 
-#' @param decisionIdx an index of decision attribute. The default value is the last column of decision table.
-#' @param ... other parameters.
-#' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.reduct.computation}}.
+#' @param decision.table  an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
+#' @param permutation  a logical value, an integer vector or\code{NULL} (the default). If an integer vector with a length
+#'        equal the cardinality of the conditional attribute set of the decision table is given (it must contain a permutation of
+#'        integers from 1:(ncol(decision.table) - 1) ), then it will define the elimination order. Otherwise, if \code{permutation}
+#'        is \code{NULL} or \code{TRUE} a random permutation will be generated. In the case when \code{permutation} is FALSE, the 
+#'        elimination will be performed in the order of attributes in the decision system.
+#' @param decisionIdx  an index of the decision attribute. The default value is the last column of a decision table.
+#'
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
 #' \item \code{reduct}: a list representing a single reduct. In this case, it could be a superreduct or just a subset of features.
 #' \item \code{type.method}: a string representing the type of method which is \code{"permutation.heuristic"}.
 #' \item \code{type.task}: a string showing the type of task which is \code{"feature selection"}.
 #' \item \code{model}: a string representing the type of model. In this case, it is \code{"RST"} which means rough set theory.
-#' }  
+#' \item \code{epsilon}: the approximation threshold.
+#' }
+#' 
+#' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.reduct.computation}}.
+#' 
 #' @references
-#' A. Janusz and D. Slezak, "Utilization of Attribute Clustering Methods for Scalable Computation of Reducts from High-Dimensional Data"
+#' A. Janusz and D. Ślęzak, "Utilization of Attribute Clustering Methods for Scalable Computation of Reducts from High-Dimensional Data"
 #'										Proceedings of Federated Conference on Computer Science and Information Systems - FedCSIS, p. 295 - 302 (2012).
 #' @examples
 #' ###################################################
@@ -132,24 +155,39 @@ FS.reduct.computation <- function(decision.table, method = "greedy.heuristic", .
 #' decision.table <- RoughSetData$hiring.dt 
 #'
 #' ## generate single reduct
-#' res.1 <- FS.permutation.heuristic.reduct.RST(decision.table,  permutation = NULL, 
-#'                         decisionIdx = 5)
+#' res.1 <- FS.permutation.heuristic.reduct.RST(decision.table,  
+#'                                              permutation = NULL, 
+#'                                              decisionIdx = 5)
+#' print(res.1)
+#' 
+#' res.2 <- FS.permutation.heuristic.reduct.RST(decision.table,  
+#'                                              permutation = 4:1,
+#'                                              decisionIdx = 5)
+#' print(res.2)
 #' 
 #' ## generate new decision table according to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, res.1) 
 #' @export
-FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NULL, decisionIdx = ncol(decision.table), ...){
+FS.permutation.heuristic.reduct.RST <- function(decision.table, 
+                                                permutation = NULL, 
+                                                decisionIdx = ncol(decision.table)){
 
 	## get the data 
 	names.attrs = colnames(decision.table)
 	
-	if (is.null(permutation)) {
+	if (is.null(permutation) || (length(permutation) == 1 && permutation == TRUE)) {
 		## shuffle the attributes
 		permutation = sample((1:ncol(decision.table))[-decisionIdx])
-	}	
-	else if (permutation == FALSE) {
+	}	else {
+    if (length(permutation) == 1 && permutation == FALSE) {
 		## without shuffling
-		permutation = (1:ncol(decision.table))[-decisionIdx]
+		  permutation = (1:ncol(decision.table))[-decisionIdx]
+    } else {
+      if (length(permutation) != ncol(decision.table) - 1 || 
+            !all((1:ncol(decision.table))[-decisionIdx] %in% permutation)) {
+        stop("The permutation does not match the data.")
+      }
+    }
 	}
   
 	## Initialization
@@ -160,21 +198,21 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NU
 	## iteration refers to the number of selected variables to be superreducts
 	while (!(sum(duplicated(decision.table[permutation[1:iteration]])) == sum(duplicated(decision.table[c(permutation[1:iteration],decisionIdx)])))) {
 		iteration = iteration + 1
-    if(iteration > length(permutation)) 
-      stop("Inconsistent decision table - this method is currently implemented only for consistent data.\n\t\tTry a different reduct computation algorithm.")
+		if (iteration > length(permutation)) 
+			stop("Inconsistent decision table - this method is currently implemented only for consistent data.\n\t\tTry a different reduct computation algorithm.")
 	}
 	
 	## elimating process to get reducts
 	redIdxs = permutation[1:iteration]
-  if(iteration == 1) endFlag = TRUE
+	if (iteration == 1) endFlag = TRUE
 	while (!endFlag) {
-		  if (sum(duplicated(decision.table[redIdxs[-iteration]])) == sum(duplicated(decision.table[c(redIdxs[-iteration],decisionIdx)]))) {
-				redIdxs = redIdxs[-iteration]
-		  }
-		  iteration = iteration - 1
-		  if (iteration == 0 | length(redIdxs) == 1) {
-				endFlag = TRUE
-    	  }
+		if (sum(duplicated(decision.table[redIdxs[-iteration]])) == sum(duplicated(decision.table[c(redIdxs[-iteration],decisionIdx)]))) {
+			redIdxs = redIdxs[-iteration]
+		}
+		iteration = iteration - 1
+		if (iteration == 0 | length(redIdxs) == 1) {
+		  endFlag = TRUE
+    }
 	}
 	
 	## get reduct
@@ -183,61 +221,80 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NU
 	
 	## construct class
 	mod <- list(reduct = reduct, type.method = "permutation.heuristic", 
+	            epsilon = 0,
 	            type.task = "feature selection", model = "RST")
 				
 	class.mod <- ObjectFactory(mod, classname = "FeatureSubset")	
 	return(class.mod)  	
 }
 
-#' This is a function used for implementing a greedy heuristic method for feature selection based on RST. 
+#' This function implements a greedy heuristic algorithm for computing decision reducts 
+#' (or approximate decision reducts) based on RST. 
 #' 
-#' In this function, we have provided some quality measures of subsets of attributes. The measure are important to
-#' determine the quality of a subset to be a reduct. For example, \code{X.entropy} is a measure of information gain. 
-#' We select one of the measures by assigning the \code{qualityF} parameter.
+#' In this implementation, we provided some attribute subset quality measures which can be 
+#' passed to the algorithm by the parameter \code{qualityF}. Those measures 
+#' guide the computations in the search for a decision/approximated reduct. They are used to
+#' assess amount of information gained after addition of an attribute. For example, 
+#' \code{X.entropy} corresponds to the information gain measure. 
 #'
-#' Additionally, this function has implemented \eqn{\epsilon}-approximate reducts. It means that 
-#' the method attempts to approximate the original decision model by producing an approximate reduct which is
-#' subset of attributes. The \eqn{\epsilon}-approximate can be defined as
+#' Additionally, this function can use the value of \code{epsilon} parameter in order to compute
+#' \eqn{\epsilon}-approximate reducts. The \eqn{\epsilon}-approximate can be defined as an 
+#' irreducable subset of attributes \code{B}, such that:
 #'
-#' \eqn{Disc_{\mathcal{A}}(B) \ge (1 - \epsilon)Disc_{\mathcal{A}}(A)}
+#' \eqn{Quality_{\mathcal{A}}(B) \ge (1 - \epsilon)Quality_{\mathcal{A}}(A)},
 #'
-#' where \eqn{Disc_{\mathcal{A}}(B)} is the discernibility measure of attributes \eqn{B} in decision table \eqn{\mathcal{A}}
-#' and \eqn{\epsilon} is numeric value between 0 and 1.
+#' where \eqn{Quality_{\mathcal{A}}(B)} is the value of a quality measure (see possible values 
+#' of the parameter \code{qualityF}) for an attribute subset \eqn{B} in decision table \eqn{\mathcal{A}}
+#' and \eqn{\epsilon} is a numeric value between 0 and 1 expressing the approximation threshold.
 #' A lot of monographs provide comprehensive explanations about this topics, for example 
 #' (Janusz and Stawicki, 2011; Slezak, 2002; Wroblewski, 2001) which are used as the references of this function.
 #' 
-#' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate new decision table. 
+#' Finally, this implementation allows to restrain the computational complexity of greedy
+#' searching for decision reducts by setting the value of the parameter \code{nAttrs}. If this
+#' parameter is set to a positive integer, the Monte Carlo method of selecting candidating 
+#' attributes will be used in each iteration of the algorithm.
 #'
-#' @title The greedy heuristic algorithm for determining a reduct
+#' @title The greedy heuristic algorithm for computing decision reducts and approximate decision reducts
+#' @author Andrzej Janusz
 #
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}.
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
+#' @param attrDescriptions a list containing possible values of attributes (columns) in \code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
 #' @param decisionIdx an integer value representing an index of the decision attribute. 
-#' @param qualityF a function representing the quality of subset of attributes. In this package, the following functions have been included:
+#' @param qualityF a function used for computation of the quality of attribute subsets. 
+#'        Currently, the following functions are included:
 #'        \itemize{
 #'        \item \code{X.entropy}: See \code{\link{X.entropy}}.
 #'        \item \code{X.gini}: See \code{\link{X.gini}}.
 #'        \item \code{X.nOfConflicts}: See \code{\link{X.nOfConflicts}}.
-#'        \item \code{X.nOfConflictsLog}: See \code{\link{X.nOfConflictsLog}}.
-#'        \item \code{X.nOfConflictsSqrt}: See \code{\link{X.nOfConflictsSqrt}}.
 #'        }
-#' @param nAttrs a vector representing indexes of conditional attributes.
-#' @param epsilon a numeric value between [0, 1] representing whether it is using approximate reducts or not.
-#' @param ... other parameters.
-#' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.reduct.computation}}.
+#' @param nAttrs an integer between 1 and the number of conditional attributes. It indicates 
+#'        the attribute sample size for the Monte Carlo selection of candidating attributes. 
+#'        If set to \code{NULL} (default) all attributes are used and the algorithm changes 
+#'        to a standard greedy method for computation of decision reducts.
+#' @param epsilon a numeric value between [0, 1) representing an approximate threshold. It 
+#'        indicates whether to compute approximate reducts or not. If it equals 0 (the default) 
+#'        a standard decision reduct is computed.
+#' @param inconsistentDecisionTable logical indicating whether the decision table is suspected 
+#'        to be inconsistent.
+#'        
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
 #' \item \code{reduct}: a list representing a single reduct. In this case, it could be a superreduct or just a subset of features.
 #' \item \code{type.method}: a string representing the type of method which is \code{"greedy.heuristic"}.
 #' \item \code{type.task}: a string showing the type of task which is \code{"feature selection"}.
 #' \item \code{model}: a string representing the type of model. In this case, it is \code{"RST"} which means rough set theory.
-#' }  
+#' \item \code{epsilon}: the approximation threshold.
+#' }
+#'   
+#' @seealso \code{\link{FS.DAAR.heuristic.RST}} and \code{\link{FS.reduct.computation}}.
+#'
 #' @references
 #' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem", 
 #' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
 #'
-#' D. Slezak, "Approximate Entropy Reducts", Fundamenta Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
+#' D. Ślęzak, "Approximate Entropy Reducts", Fundamenta Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
 #'
-#' J. Wroblewski, "Ensembles of Classifiers Based on Approximate Reducts", Fundamenta Informaticae, vol. 47, no. 3 - 4, p. 351 - 360 (2001).
+#' J. Wróblewski, "Ensembles of Classifiers Based on Approximate Reducts", Fundamenta Informaticae, vol. 47, no. 3 - 4, p. 351 - 360 (2001).
 #'
 #' @examples
 #' ###################################################
@@ -254,115 +311,372 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table, permutation = NU
 #' ## generate a new decision table corresponding to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, res.1)  
 #' @export
-FS.greedy.heuristic.reduct.RST <- function(decision.table, decisionIdx = ncol(decision.table), 
+FS.greedy.heuristic.reduct.RST <- function(decision.table, 
+                                           attrDescriptions = attr(decision.table, "desc.attrs"),
+                                           decisionIdx = ncol(decision.table), 
                                            qualityF = X.gini, nAttrs = NULL, 
-                                           epsilon = 0.0, ...)  {
-	## get the data 
-	toRmVec = decisionIdx
-	attrIdxVec = (1:ncol(decision.table))[-toRmVec]
-	
-	if (!is.null(nAttrs)) {
-		if (nAttrs == 0 || nAttrs > ncol(decision.table) - 1) {
-			stop("There is something wrong with data (too little attributes?) or the parameter nAttrs has a wrong value.")
-		}
-		tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
-	}	else tmpAttrSub = attrIdxVec
+                                           epsilon = 0.0, inconsistentDecisionTable = FALSE)  {
+  toRmVec = decisionIdx
+  attrIdxVec = (1:ncol(decision.table))[-toRmVec]
   
-	if (epsilon >= 1 || epsilon < 0) {
-		stop("Wrong value of the parameter epsilon. It must be within [0,1) interval.")
-	}
-	
-	dummyAttr = rep(1,nrow(decision.table))
-	clsContingencyTab = as.matrix(table(dummyAttr, decision.table[[decisionIdx]]))
-	decisionChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table)))
-	attrScoresVec = sapply(decision.table[tmpAttrSub], qualityGain, 
-                         decision.table[[decisionIdx]], dummyAttr, decisionChaos, chaosFunction = qualityF)
-	tmpBestIdx = which.max(attrScoresVec)
-	rm(dummyAttr, clsContingencyTab)
+  if (!is.null(nAttrs)) {
+    if (nAttrs == 0 || nAttrs > ncol(decision.table) - 1) {
+      stop("There is something wrong with data (too little attributes?) or the parameter nAttrs has a wrong value.")
+    }
+    tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+  }  else tmpAttrSub = attrIdxVec
   
-	selectedAttrIdxVec  = tmpAttrSub[tmpBestIdx]
-	attrVec = decision.table[[selectedAttrIdxVec]]
-	attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+  if (epsilon >= 1 || epsilon < 0) {
+    stop("Wrong value of the parameter epsilon. It must be within [0,1) interval.")
+  }
   
-	endFlag = F
-	iteration = 1
-	clsContingencyTab = as.matrix(table(do.call(paste, decision.table[-decisionIdx]), decision.table[[decisionIdx]]))
-	totalChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table))) 
-	totalDependencyInData = decisionChaos - totalChaos
-	approxThereshold = (1 - epsilon)*totalDependencyInData
-	rm(clsContingencyTab)
+  INDrelation = list(1:nrow(decision.table))
+  decisionChaos = compute_chaos(INDrelation, decision.table[[decisionIdx]], 
+                                attrDescriptions[[decisionIdx]], qualityF)
+  attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],
+                         MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                         uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                         INDclasses = INDrelation, 
+                                         baseChaos = decisionChaos, 
+                                         chaosFunction = qualityF),
+                         SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  tmpBestIdx = which.max(attrScoresVec)
   
-	while (!endFlag) {
-		clsContingencyTab = as.matrix(table(attrVec, decision.table[[decisionIdx]]))
-		tmpChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table)))
-		tmpDependencyInData = decisionChaos - tmpChaos
-		rm(clsContingencyTab)
-		if (approxThereshold <= tmpDependencyInData) {
-			endFlag = T
-		}	else {
-			if (!is.null(nAttrs)) {
-				tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
-			}	else tmpAttrSub = attrIdxVec
-			attrScoresVec = sapply(decision.table[tmpAttrSub], qualityGain, 
-                             decision.table[[decisionIdx]], attrVec, tmpChaos, chaosFunction = qualityF)
-			tmpBestIdx = which.max(attrScoresVec)
-			selectedAttrIdxVec[iteration + 1] = tmpAttrSub[tmpBestIdx]
-			attrVec = do.call(paste, list(decision.table[[tmpAttrSub[tmpBestIdx]]], attrVec))
-			attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
-			iteration = iteration + 1
-			rm(tmpAttrSub, attrScoresVec, tmpBestIdx)
-		}
-	}
+  selectedAttrIdxVec  = tmpAttrSub[tmpBestIdx]
+  INDrelation = compute_indiscernibility(INDrelation, 
+                                         as.character(decision.table[[selectedAttrIdxVec]]),
+                                         attrDescriptions[[selectedAttrIdxVec]])
+  attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
   
-	if (iteration > 1) {
-		endFlag = F
-		iteration = iteration - 1
-		while (!endFlag) {
-			clsContingencyTab = as.matrix(table(do.call(paste, decision.table[selectedAttrIdxVec[-iteration]]), decision.table[[decisionIdx]]))
-			tmpChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table))) 
-			tmpDependencyInData = decisionChaos - tmpChaos
-			if (approxThereshold <= tmpDependencyInData) {
-				selectedAttrIdxVec = selectedAttrIdxVec[-iteration]
-			}
-			iteration = iteration - 1
-			if (iteration == 0) endFlag = T
-		}
-	}
+  endFlag = FALSE
+  iteration = 1
+  if(inconsistentDecisionTable) totalChaos = compute_chaos(split(1:nrow(decision.table), 
+                                                                 do.call(paste, decision.table[-decisionIdx])),
+                                                           as.character(decision.table[[decisionIdx]]),
+                                                           attrDescriptions[[decisionIdx]], qualityF)
+  else totalChaos = 0
+  totalDependencyInData = decisionChaos - totalChaos - 10^(-15)
+  approxThereshold = (1 - epsilon)*totalDependencyInData
   
-	reduct <- selectedAttrIdxVec[order(selectedAttrIdxVec)]
-	names(reduct) <- colnames(decision.table)[reduct]
+  while (!endFlag) {
+    contingencyTabs = lapply(INDrelation, 
+                             function(x,y) table(y[x]), 
+                             decision.table[[decisionIdx]])
+    chaosVec = sapply(contingencyTabs, qualityF)
+    if(any(chaosVec == 0)) {
+      tmpIdx = which(chaosVec == 0)
+      INDrelation = INDrelation[-tmpIdx]
+      contingencyTabs = contingencyTabs[-tmpIdx]
+      chaosVec = chaosVec[-tmpIdx]
+      rm(tmpIdx)
+    }
+    sumsVec = sapply(contingencyTabs, sum)
+    if(length(INDrelation) > 0) tmpChaos = sum(chaosVec*(sumsVec/nrow(decision.table)))
+    else tmpChaos = 0
+    tmpDependencyInData = decisionChaos - tmpChaos
+    rm(contingencyTabs, sumsVec, chaosVec)
+    
+    if (approxThereshold <= tmpDependencyInData) {
+      endFlag = TRUE
+    }	else {
+      if (!is.null(nAttrs)) {
+        tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+      }	else tmpAttrSub = attrIdxVec
+      attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],  
+                             MoreArgs = list(decisionVec = decision.table[[decisionIdx]], 
+                                             uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                             INDclasses = INDrelation, 
+                                             baseChaos = tmpChaos, 
+                                             chaosFunction = qualityF),
+                             SIMPLIFY = TRUE, USE.NAMES = FALSE)
+      tmpBestIdx = which.max(attrScoresVec)
+      selectedAttrIdxVec[iteration + 1] = tmpAttrSub[tmpBestIdx]
+      INDrelation = compute_indiscernibility(INDrelation, 
+                                             as.character(decision.table[[tmpAttrSub[tmpBestIdx]]]),
+                                             attrDescriptions[[tmpAttrSub[tmpBestIdx]]])
+      if(length(INDrelation) == 0) endFlag = TRUE
+      
+      attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+      iteration = iteration + 1
+    }
+  }
   
-	## construct class
-	mod <- list(reduct = reduct, type.method = "greedy.heuristic", 
-	            type.task = "feature selection", model = "RST")
-				
-	class.mod <- ObjectFactory(mod, classname = "FeatureSubset")	
-	return(class.mod)  	
+  if (iteration > 1) {
+    endFlag = FALSE
+    iteration = iteration - 1
+    while (!endFlag) {
+      clsContingencyTab = as.matrix(table(do.call(paste, decision.table[selectedAttrIdxVec[-iteration]]), decision.table[[decisionIdx]]))
+      tmpChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table)))
+      tmpDependencyInData = decisionChaos - tmpChaos
+      if (approxThereshold <= tmpDependencyInData) {
+        selectedAttrIdxVec = selectedAttrIdxVec[-iteration]
+      }
+      iteration = iteration - 1
+      if (iteration == 0) endFlag = TRUE
+    }
+  }
+  
+  reduct <- selectedAttrIdxVec[order(selectedAttrIdxVec)]
+  names(reduct) <- colnames(decision.table)[reduct]
+  mod <- list(reduct = reduct, type.method = "greedy.heuristic", 
+              epsilon = epsilon,
+              type.task = "feature selection", model = "RST")
+  
+  class.mod <- ObjectFactory(mod, classname = "FeatureSubset")	
+  return(class.mod)  	
 }
 
-#' It is a wrapper function aimed to calculate a superreduct (i.e., a subset of features). 
+#' This function implements the Dynamically Adjusted Approximate Reducts heuristic (DAAR) 
+#' for feature selection based on RST. The algorithm modifies the greedy approach to selecting
+#' attributes by introducing an additional stop condition. The algorithm stops when a random 
+#' probe (permutation) test fails to reject a hypothesis that the selected attribute introduces 
+#' illusionary dependency in data (in a context of previously selected attributes).
 #' 
-#' There exist three methods considered in this function as follows: 
+#' As in the case of \code{\link{FS.greedy.heuristic.reduct.RST}} the implementation can use
+#' different attribute subset quality functions (parameter \code{qualityF}) and Monte Carlo 
+#' generation of candidating attributes (parameter \code{nAttrs}).
+#' 
+#' @title The DAAR heuristic for computation of decision reducts
+#' @author Andrzej Janusz
+#
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
+#' @param attrDescriptions a list containing possible values of attributes (columns) in \
+#'        code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
+#' @param decisionIdx an integer value representing an index of the decision attribute. 
+#' @param qualityF a function used for computation of the quality of attribute subsets. 
+#'        Currently, the following functions are included:
+#'        \itemize{
+#'        \item \code{X.entropy}: See \code{\link{X.entropy}}.
+#'        \item \code{X.gini}: See \code{\link{X.gini}}.
+#'        \item \code{X.nOfConflicts}: See \code{\link{X.nOfConflicts}}.
+#'        }
+#' @param nAttrs an integer between 1 and the number of conditional attributes. It indicates 
+#'        the attribute sample size for the Monte Carlo selection of candidating attributes. 
+#'        If set to \code{NULL} (default) all attributes are used and the algorithm changes 
+#'        to a standard greedy method for computation of decision reducts.
+#' @param allowedRandomness a threshold for attribute relevance. Computations will be terminated 
+#'        when the relevance of a selected attribute fall below this threshold.
+#' @param nOfProbes a number of random probes used for estimating the attribute relevance 
+#'        (see the references).
+#' @param permsWithinINDclasses a logical value indicating whether the permutation test 
+#'        should be conducted within indescernibility classes.
+#' @param inconsistentDecisionTable logical indicating whether the decision table is suspected 
+#'        to be inconsistent.
+#'        
+#' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
-#' \item \code{"greedy.heuristic.superreduct"}: it is a greedy heuristic method which employs several quality measurements based on RST. 
+#' \item \code{reduct}: a list representing a single reduct. In this case, it could be a superreduct or just a subset of features.
+#' \item \code{type.method}: a string representing the type of method which is \code{"greedy.heuristic"}.
+#' \item \code{type.task}: a string showing the type of task which is \code{"feature selection"}.
+#' \item \code{model}: a string representing the type of model. In this case, it is \code{"RST"} which means rough set theory.
+#' \item \code{relevanceProbabilities}: an intiger vector with estimated relevances of selected attributes.
+#' \item \code{epsilon}: a value between 0 and 1 representing the estimated approximation threshold.
+#' }
+#'   
+#' @seealso \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.reduct.computation}}.
+#'
+#' @references
+#' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem", 
+#' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
+#' 
+#' A. Janusz and D. Ślęzak, "Random Probes in Computation and Assessment of Approximate Reducts", 
+#' Proceedings of {RSEISP} 2014, Springer, LNCS vol. 8537: p. 53 - 64 (2014).
+#'
+#' @examples
+#' ###################################################
+#' ## Example 1: Evaluate reduct and generate 
+#' ##            new decision table
+#' ###################################################
+#' data(RoughSetData)
+#' decision.table <- RoughSetData$hiring.dt 
+#'
+#' ## evaluate a single reduct
+#' res.1 <- FS.DAAR.heuristic.RST(decision.table)
+#' 
+#' ## generate a new decision table corresponding to the reduct
+#' new.decTable <- SF.applyDecTable(decision.table, res.1)  
+#' @export
+FS.DAAR.heuristic.RST = function(decision.table, 
+                                 attrDescriptions = attr(decision.table, "desc.attrs"),
+                                 decisionIdx = ncol(decision.table), 
+                                 qualityF = X.gini, nAttrs = NULL,
+                                 allowedRandomness = 1/ncol(decision.table), 
+                                 nOfProbes = ncol(decision.table), 
+                                 permsWithinINDclasses = FALSE, 
+                                 inconsistentDecisionTable = FALSE) 
+{
+  toRmVec = decisionIdx
+  attrIdxVec = (1:ncol(decision.table))[-toRmVec]
+  relevanceProbVec = numeric()
+  if (!is.null(nAttrs)) {
+    if (nAttrs == 0 || nAttrs > ncol(decision.table) - 1) {
+      stop("There is something wrong with data (too little attributes?) or the parameter nAttrs has a wrong value.")
+    }
+    tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+  }
+  else tmpAttrSub = attrIdxVec
+  if (allowedRandomness >= 1 || allowedRandomness < 0) {
+    stop("Wrong value of the allowedRandomness parameter. It must be within [0,1) interval.")
+  }
+  
+  INDrelation = list(1:nrow(decision.table))
+  decisionChaos = compute_chaos(INDrelation, decision.table[[decisionIdx]], 
+                                attrDescriptions[[decisionIdx]], qualityF)
+  attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],
+                         MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                         uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                         INDclasses = INDrelation, 
+                                         baseChaos = decisionChaos, 
+                                         chaosFunction = qualityF),
+                         SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  tmpBestIdx = which.max(attrScoresVec)
+  relevanceProbVec = computeRelevanceProb(INDrelation, decision.table[[tmpAttrSub[tmpBestIdx]]], 
+                                          uniqueValues = attrDescriptions[[tmpAttrSub[tmpBestIdx]]],
+                                          attrScore = attrScoresVec[tmpBestIdx], 
+                                          decisionVec = decision.table[[decisionIdx]], 
+                                          uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                          baseChaos = decisionChaos, 
+                                          qualityF = qualityF, 
+                                          nOfProbes = nOfProbes, 
+                                          withinINDclasses = permsWithinINDclasses)
+  
+  selectedAttrIdxVec = tmpAttrSub[tmpBestIdx]
+  INDrelation = compute_indiscernibility(INDrelation, 
+                                         as.character(decision.table[[selectedAttrIdxVec]]),
+                                         attrDescriptions[[selectedAttrIdxVec]])
+  attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+  
+  endFlag = FALSE
+  iteration = 1
+  if(inconsistentDecisionTable) totalChaos = compute_chaos(split(1:nrow(decision.table), 
+                                                                 do.call(paste, decision.table[-decisionIdx])),
+                                                           decision.table[[decisionIdx]],
+                                                           attrDescriptions[[decisionIdx]], qualityF)
+  else totalChaos = 0
+  totalDependencyInData = decisionChaos - totalChaos - 10^(-16)
+  
+  while (!endFlag) {
+    contingencyTabs = lapply(INDrelation, 
+                             function(x,y) table(y[x]), 
+                             decision.table[[decisionIdx]])
+    chaosVec = sapply(contingencyTabs, qualityF)
+    if(any(chaosVec == 0)) {
+      tmpIdx = which(chaosVec == 0)
+      INDrelation = INDrelation[-tmpIdx]
+      contingencyTabs = contingencyTabs[-tmpIdx]
+      chaosVec = chaosVec[-tmpIdx]
+      rm(tmpIdx)
+    }
+    if(length(INDrelation) > 0) {
+      sumsVec = sapply(contingencyTabs, sum)
+      tmpChaos = sum(chaosVec*(sumsVec/nrow(decision.table)))
+      tmpDependencyInData = decisionChaos - tmpChaos
+      rm(contingencyTabs, sumsVec, chaosVec)
+      
+      if (!is.null(nAttrs)) {
+        tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+      }
+      else tmpAttrSub = attrIdxVec
+      
+      attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],  
+                             MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                             uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                             INDclasses = INDrelation, 
+                                             baseChaos = tmpChaos, 
+                                             chaosFunction = qualityF),
+                             SIMPLIFY = TRUE, USE.NAMES = FALSE)
+      tmpBestIdx = which.max(attrScoresVec)
+      tmpProbeP = computeRelevanceProb(INDrelation, decision.table[[tmpAttrSub[tmpBestIdx]]],
+                                       uniqueValues = attrDescriptions[[tmpAttrSub[tmpBestIdx]]],
+                                       attrScore = attrScoresVec[tmpBestIdx], 
+                                       decisionVec = decision.table[[decisionIdx]], 
+                                       uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                       baseChaos = tmpChaos, 
+                                       qualityF = qualityF, 
+                                       nOfProbes = nOfProbes,
+                                       withinINDclasses = permsWithinINDclasses)
+      if(tmpProbeP > (1 - allowedRandomness)) {
+        selectedAttrIdxVec[iteration + 1] = tmpAttrSub[tmpBestIdx]
+        INDrelation = compute_indiscernibility(INDrelation, 
+                                               as.character(decision.table[[tmpAttrSub[tmpBestIdx]]]),
+                                               attrDescriptions[[tmpAttrSub[tmpBestIdx]]])
+        if(length(INDrelation) == 0) {
+          endFlag = TRUE
+          approxThereshold = tmpDependencyInData
+        }
+        
+        attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+        iteration = iteration + 1
+        relevanceProbVec = c(relevanceProbVec, tmpProbeP)
+      } else {
+        endFlag = TRUE
+        approxThereshold = tmpDependencyInData
+      }
+      rm(tmpAttrSub, attrScoresVec, tmpBestIdx)
+    } else {
+      endFlag = TRUE
+      approxThereshold = decisionChaos
+    }
+  }
+  
+  if (iteration > 1) {
+    endFlag = FALSE
+    iteration = iteration - 1
+    while (!endFlag) {
+      clsContingencyTab = as.matrix(table(do.call(paste, 
+                                                  decision.table[selectedAttrIdxVec[-iteration]]), 
+                                          decision.table[[decisionIdx]]))
+      tmpChaos = sum(apply(clsContingencyTab, 1, qualityF) * 
+                       (rowSums(clsContingencyTab)/nrow(decision.table)))
+      tmpDependencyInData = decisionChaos - tmpChaos
+      if (approxThereshold <= tmpDependencyInData) {
+        selectedAttrIdxVec = selectedAttrIdxVec[-iteration]
+      }
+      iteration = iteration - 1
+      if (iteration == 0) 
+        endFlag = TRUE
+    }
+  }
+  
+  attrsOrder <- order(selectedAttrIdxVec)
+  reduct <- selectedAttrIdxVec[attrsOrder]
+  relevanceProbVec <- relevanceProbVec[attrsOrder] 
+  names(reduct) <- colnames(decision.table)[reduct]
+  mod <- list(reduct = reduct, type.method = "DAAR.heuristic",
+              relevanceProbabilities = relevanceProbVec, 
+              epsilon = 1 -approxThereshold/totalDependencyInData,
+              type.task = "feature selection", model = "RST")
+  class.mod <- ObjectFactory(mod, classname = "FeatureSubset")
+  return(class.mod)
+}
+
+#' This function is a wrapper for computing different types of decision superreducts 
+#' (i.e. attribute subsets which do not lose any information regarding the decisions
+#' but are not require to be irreducable).
+#' 
+#' Currently, there are implemented three methods that can be used with this function: 
+#' \itemize{
+#' \item \code{"greedy.heuristic.superreduct"}: it is a greedy heuristic method which employs several quality measures from RST. 
 #'            See \code{\link{FS.greedy.heuristic.superreduct.RST}}.
 #' \item \code{"quickreduct.frst"}: it is a feature selection function based on the fuzzy QuickReduct algorithm on FRST.
 #'            See \code{\link{FS.quickreduct.FRST}}.
 #' \item \code{"quickreduct.rst"}: it is a feature selection function based on the RST QuickReduct algorithm.
 #'            See \code{\link{FS.quickreduct.RST}}.
 #' }
-#' These methods can be selected by assigning the parameter \code{method}. 
-#' Additionally, \code{\link{SF.applyDecTable}} has been provided to generate the new decision table. 
+#' These methods can be selected by assigning an appropriate value of the parameter \code{method}. 
+#' Additionally, \code{\link{SF.applyDecTable}} is provided to generate the new decision table. 
 #'
 #' @title The superreduct computation based on RST and FRST
+#' @author Andrzej Janusz
 #'
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}.
-#' @param method a string representing the type of methods. See in Section \code{Details}.
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
+#' @param method a character representing the type of a method to use for computations. See in Section \code{Details}.
 #' @param ... other parameters corresponding to the chosen \code{method}.
-#' @seealso \code{\link{FS.quickreduct.RST}}.
+#' 
 #' @return A class \code{"FeatureSubset"}. 
+#' 
+#' @seealso \code{\link{FS.greedy.heuristic.superreduct.RST}}, \code{\link{FS.quickreduct.RST}}, \code{\link{FS.quickreduct.FRST}}.
 #'
-#'       See \code{\link{FS.quickreduct.RST}} or \code{\link{FS.quickreduct.FRST}}.
 #' @examples
 #' ###############################################################
 #' ## Example 1: generate reduct and new decision table using RST
@@ -372,7 +686,7 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table, decisionIdx = ncol(de
 #'
 #' ## generate single superreduct
 #' res.1 <- FS.feature.subset.computation(decision.table, 
-#'                   method = "quickreduct.rst")
+#'                                        method = "quickreduct.rst")
 #' 
 #' ## generate new decision table according to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, res.1) 
@@ -385,34 +699,39 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table, decisionIdx = ncol(de
 #'
 #' ## generate single superreduct
 #' res.2 <- FS.feature.subset.computation(decision.table, 
-#'                   method = "quickreduct.frst")
+#'                                        method = "quickreduct.frst")
 #' 
 #' ## generate new decision table according to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, res.2) 
 #' @export 
 FS.feature.subset.computation <- function(decision.table, method = "greedy.heuristic.superreduct", ...) {
   
-  if (!(method %in% c("greedy.heuristic.superreduct", "quickreduct.rst",
+	if (!(method %in% c("greedy.heuristic.superreduct", "quickreduct.rst",
                       "quickreduct.frst"))) {
-    stop("Unrecognized attribute reduction method.")
-  }
+		stop("Unrecognized attribute reduction method.")
+	}
   
-  if(!inherits(decision.table, "DecisionTable")) {
-    stop("Provided data should inherit from the \'DecisionTable\' class.")
-  }
+	if (!inherits(decision.table, "DecisionTable")) {
+		stop("Provided data should inherit from the \'DecisionTable\' class.")
+	}
   
-  nominal.att <- attr(decision.table, "nominal.attrs")
-  if(!all(nominal.att) && !(method %in% "quickreduct.frst")) stop("Discretize attribures before computing RST reducts.")
+	nominal.att <- attr(decision.table, "nominal.attrs")
+	if (!all(nominal.att) && !(method %in% "quickreduct.frst")) stop("Discretize attribures before computing RST reducts.")
   
-  if(is.null(attr(decision.table, "decision.attr"))) stop("A decision attribute is not indicated.")
-  else decIdx = attr(decision.table, "decision.attr")
+	if (is.null(attr(decision.table, "decision.attr"))) stop("A decision attribute is not indicated.")
+	else decIdx = attr(decision.table, "decision.attr")
   
-  superreduct = switch(method,  
-                       greedy.heuristic.superreduct = FS.greedy.heuristic.superreduct.RST(decision.table, decisionIdx = decIdx, ...),
-                       quickreduct.rst = FS.quickreduct.RST(decision.table, ...),
-                       quickreduct.frst = FS.quickreduct.FRST(decision.table, ...) )
+	if (is.null(attr(decision.table, "desc.attrs"))) stop("No description of attribute values.")
+	else desc.attrs = attr(decision.table, "desc.attrs")
   
-  return(superreduct)
+	superreduct = switch(method,  
+                       greedy.heuristic.superreduct = FS.greedy.heuristic.superreduct.RST(decision.table, 
+                                                                                          attrDescriptions = desc.attrs,
+                                                                                          decisionIdx = decIdx, ...),
+                       quickreduct.rst = FS.quickreduct.RST(decision.table),
+                       quickreduct.frst = FS.quickreduct.FRST(decision.table) )
+  
+	return(superreduct)
 }
 
 #' This is a function for implementing the QuickReduct algorithm for feature selection based
@@ -431,15 +750,15 @@ FS.feature.subset.computation <- function(decision.table, method = "greedy.heuri
 #' information about the reduct from this function.
 #'
 #' @title QuickReduct algorithm based on RST
+#' @author Lala Septem Riza
 #' 
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}. 
 #' @param control other parameters. It contains the following component:
 #'        \itemize{
 #'        \item \code{randomize}: it has a boolean value. For the detailed description, see in Section \code{Details}.
 #'              The default value is \code{FALSE}.
 #'        }
-#' @param ... other parameters.
-#' @seealso \code{\link{FS.quickreduct.FRST}}
+#' 
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
 #' \item \code{reduct}: a list representing single reduct. In this case, it could be super reduct or just subset of feature.
@@ -447,6 +766,9 @@ FS.feature.subset.computation <- function(decision.table, method = "greedy.heuri
 #' \item \code{type.task}: a string showing type of task which is \code{"feature selection"}.
 #' \item \code{model}: a string representing a type of model. In this case, it is \code{"RST"} which means rough set theory.
 #' } 
+#' 
+#' @seealso \code{\link{FS.quickreduct.FRST}}
+#' 
 #' @references
 #' Q. Shen and A. Chouchoulas, "A Modular Approach to Generating Fuzzy Rules with Reduced Attributes for the Monitoring of Complex Systems",
 #' Engineering Applications of Artificial Intelligence, vol. 13, p. 263 - 278 (2000).
@@ -466,7 +788,7 @@ FS.feature.subset.computation <- function(decision.table, method = "greedy.heuri
 #' new.decTable <- SF.applyDecTable(decision.table, res.1)
 #'
 #' @export
-FS.quickreduct.RST <- function(decision.table, control = list(), ...){
+FS.quickreduct.RST <- function(decision.table, control = list()){
 	
 	names.attrs <-  names(attr(decision.table, "desc.attrs"))	
 	super.reduct <- quickreduct.alg(decision.table, type.method = "quickreduct.RST", control = control)
@@ -478,18 +800,26 @@ FS.quickreduct.RST <- function(decision.table, control = list(), ...){
 	return(class.mod)  
 }
 
-#' It is used to get the feature subset (superreduct) based on the greedy heuristic algorithm 
+#' It is used to get a feature subset (superreduct) based on the greedy heuristic algorithm 
 #' employing some quality measurements. Regarding the quality measurements, the detailed description can be seen in \code{\link{FS.greedy.heuristic.reduct.RST}}.
 #' 
 #' @title The greedy heuristic method for determining superreduct based on RST
-#' @param decision.table a \code{"DecisionTable"} class representing decision table. See \code{\link{SF.asDecisionTable}}. 
+#' @author Andrzej Janusz
+#' 
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. 
+#'        See \code{\link{SF.asDecisionTable}}.
+#' @param attrDescriptions a list containing possible values of attributes (columns) 
+#'        in \code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}. 
 #' @param decisionIdx a integer value representing an index of decision attribute. 
-#' @param qualityF a function calculating quality on a set of attributes. 
-#'
+#' @param qualityF a function for calculating a quality of an attribute subset. 
 #'        See \code{\link{FS.greedy.heuristic.reduct.RST}}.
-#' @param nAttrs a vector representing indexes of conditional attributes.
-#' @param ... other parameters.
-#' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.feature.subset.computation}}.
+#' @param nAttrs an integer between 1 and the number of conditional attributes. It indicates 
+#'        the attribute sample size for the Monte Carlo selection of candidating attributes. 
+#'        If set to \code{NULL} (default) all attributes are used and the algorithm changes 
+#'        to a standard greedy method for computation of decision reducts.
+#' @param inconsistentDecisionTable logical indicating whether the decision table is suspected 
+#'        to be inconsistent.
+#' 
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
 #' \item \code{reduct}: a list representing a single reduct. In this case, it could be a superreduct or just a subset of features.
@@ -497,11 +827,14 @@ FS.quickreduct.RST <- function(decision.table, control = list(), ...){
 #' \item \code{type.task}: a string showing the type of task which is \code{"feature selection"}.
 #' \item \code{model}: a string representing the type of model. In this case, it is \code{"RST"} which means rough set theory.
 #' }  
+#' 
+#' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.feature.subset.computation}}.
+#' 
 #' @references
 #' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem", 
 #' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
 #'
-#' D. Slezak, "Approximate Entropy Reducts", Fundamenta Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
+#' D. Ślęzak, "Approximate Entropy Reducts", Fundamenta Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
 #'
 #' J. Wroblewski, "Ensembles of Classifiers Based on Approximate Reducts", Fundamenta Informaticae, vol. 47, no. 3 - 4, p. 351 - 360 (2001).
 #'
@@ -514,73 +847,102 @@ FS.quickreduct.RST <- function(decision.table, control = list(), ...){
 #' decision.table <- RoughSetData$hiring.dt 
 #'
 #' ## evaluate single reduct
-#' res.1 <- FS.greedy.heuristic.superreduct.RST(decision.table, qualityF = X.nOfConflictsSqrt)
+#' res.1 <- FS.greedy.heuristic.superreduct.RST(decision.table, qualityF = X.nOfConflicts)
+#' print(res.1)
 #' 
 #' ## generate new decision table according to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, res.1)
 #' @export
-FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = ncol(decision.table), 
-                                           qualityF = X.gini, nAttrs = NULL, ...)  {
-	toRmVec = decisionIdx
-	attrIdxVec = (1:ncol(decision.table))[-toRmVec]
-	
-	if (!is.null(nAttrs)) {
-		if(nAttrs == 0 || nAttrs > ncol(decision.table) - 1) {
-			stop("There is something wrong with data (too little attributes?) or the parameter nAttrs has a wrong value.")
-		}
-		tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
-	}  else tmpAttrSub = attrIdxVec
+FS.greedy.heuristic.superreduct.RST <- function(decision.table, 
+                                                attrDescriptions = attr(decision.table, "desc.attrs"), 
+                                                decisionIdx = ncol(decision.table), 
+                                                qualityF = X.gini, nAttrs = NULL, 
+                                                inconsistentDecisionTable = FALSE)  {
+  toRmVec = decisionIdx
+  attrIdxVec = (1:ncol(decision.table))[-toRmVec]
   
-	dummyAttr = rep(1,nrow(decision.table))
-	clsContingencyTab = as.matrix(table(dummyAttr, decision.table[[decisionIdx]]))
-	decisionChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table)))
-	attrScoresVec = sapply(decision.table[tmpAttrSub], qualityGain, 
-                         decision.table[[decisionIdx]], dummyAttr, decisionChaos, chaosFunction = qualityF)
-	tmpBestIdx = which.max(attrScoresVec)
-	rm(dummyAttr, clsContingencyTab)
+  if (!is.null(nAttrs)) {
+    if(nAttrs == 0 || nAttrs > ncol(decision.table) - 1) {
+      stop("There is something wrong with data (too little attributes?) or the parameter nAttrs has a wrong value.")
+    }
+    tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+  }  else tmpAttrSub = attrIdxVec
   
-	selectedAttrIdxVec  = tmpAttrSub[tmpBestIdx]
-	attrVec = decision.table[[selectedAttrIdxVec]]
-	attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+  INDrelation = list(1:nrow(decision.table))
+  decisionChaos = compute_chaos(INDrelation, decision.table[[decisionIdx]], 
+                                attrDescriptions[[decisionIdx]], qualityF)
+  attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],
+                         MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                         uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                         INDclasses = INDrelation, 
+                                         baseChaos = decisionChaos, 
+                                         chaosFunction = qualityF),
+                         SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  tmpBestIdx = which.max(attrScoresVec)
   
-	endFlag = F
-	iteration = 1
-	clsContingencyTab = as.matrix(table(do.call(paste, decision.table[-decisionIdx]), decision.table[[decisionIdx]]))
-	totalChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table))) 
-	totalDependencyInData = decisionChaos - totalChaos
-	rm(clsContingencyTab)
+  selectedAttrIdxVec  = tmpAttrSub[tmpBestIdx]
+  INDrelation = compute_indiscernibility(INDrelation, 
+                                         as.character(decision.table[[selectedAttrIdxVec]]),
+                                         attrDescriptions[[selectedAttrIdxVec]])
+  attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
   
-	while (!endFlag) {
-		clsContingencyTab = as.matrix(table(attrVec, decision.table[[decisionIdx]]))
-		tmpChaos = sum(apply(clsContingencyTab, 1, qualityF)*(rowSums(clsContingencyTab)/nrow(decision.table)))
-		tmpDependencyInData = decisionChaos - tmpChaos
-		rm(clsContingencyTab)
-		if (totalDependencyInData <= tmpDependencyInData) endFlag = T
-		else {
-			if (!is.null(nAttrs)) {
-				tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
-			}	else tmpAttrSub = attrIdxVec
-			attrScoresVec = sapply(decision.table[tmpAttrSub], qualityGain, 
-                             decision.table[[decisionIdx]], attrVec, tmpChaos, chaosFunction = qualityF)
-			tmpBestIdx = which.max(attrScoresVec)
-			selectedAttrIdxVec[iteration + 1] = tmpAttrSub[tmpBestIdx]
-			attrVec = do.call(paste, list(decision.table[[tmpAttrSub[tmpBestIdx]]], attrVec))
-			attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
-			iteration = iteration + 1
-			rm(tmpAttrSub, attrScoresVec, tmpBestIdx)
-		}
-	}
+  endFlag = F
+  iteration = 1
+  if(inconsistentDecisionTable) totalChaos = compute_chaos(split(1:nrow(decision.table), 
+                                                                 do.call(paste, decision.table[-decisionIdx])),
+                                                           decision.table[[decisionIdx]],
+                                                           attrDescriptions[[decisionIdx]], qualityF)
+  else totalChaos = 0
+  totalDependencyInData = decisionChaos - totalChaos - 10^(-16)
   
-	## get super reduct
-	super.reduct <- selectedAttrIdxVec[order(selectedAttrIdxVec)]
-	names(super.reduct) = colnames(decision.table)[super.reduct]
-	
-	## Construct class
-	mod <- list(reduct = super.reduct, type.method = "greedy.heuristic.superreduct", 
-	            type.task = "feature selection", model = "RST")
-				
-	class.mod <- ObjectFactory(mod, classname = "FeatureSubset")	
-	return(class.mod)  
+  while (!endFlag) {
+    contingencyTabs = lapply(INDrelation, 
+                             function(x,y) table(y[x]), 
+                             decision.table[[decisionIdx]])
+    chaosVec = sapply(contingencyTabs, qualityF)
+    if(any(chaosVec == 0)) {
+      tmpIdx = which(chaosVec == 0)
+      INDrelation = INDrelation[-tmpIdx]
+      contingencyTabs = contingencyTabs[-tmpIdx]
+      chaosVec = chaosVec[-tmpIdx]
+      rm(tmpIdx)
+    }
+    sumsVec = sapply(contingencyTabs, sum)
+    if(length(INDrelation) > 0) tmpChaos = sum(chaosVec*(sumsVec/nrow(decision.table)))
+    else tmpChaos = 0
+    tmpDependencyInData = decisionChaos - tmpChaos
+    rm(contingencyTabs, sumsVec, chaosVec)
+    if (totalDependencyInData <= tmpDependencyInData) endFlag = TRUE
+    else {
+      if (!is.null(nAttrs)) {
+        tmpAttrSub = sample(attrIdxVec, min(nAttrs, length(attrIdxVec)))
+      }  else tmpAttrSub = attrIdxVec
+      attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],  
+                             MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                             uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                             INDclasses = INDrelation, 
+                                             baseChaos = tmpChaos, 
+                                             chaosFunction = qualityF),
+                             SIMPLIFY = TRUE, USE.NAMES = FALSE)
+      tmpBestIdx = which.max(attrScoresVec)
+      selectedAttrIdxVec[iteration + 1] = tmpAttrSub[tmpBestIdx]
+      INDrelation = compute_indiscernibility(INDrelation, 
+                                             as.character(decision.table[[tmpAttrSub[tmpBestIdx]]]),
+                                             attrDescriptions[[tmpAttrSub[tmpBestIdx]]])
+      if(length(INDrelation) == 0) endFlag = TRUE
+      
+      attrIdxVec = (1:ncol(decision.table))[-c(selectedAttrIdxVec, toRmVec)]
+      iteration = iteration + 1
+    }
+  }
+  
+  super.reduct <- selectedAttrIdxVec[order(selectedAttrIdxVec)]
+  names(super.reduct) = colnames(decision.table)[super.reduct]
+  mod <- list(reduct = super.reduct, type.method = "greedy.heuristic.superreduct", 
+              type.task = "feature selection", model = "RST")
+  
+  class.mod <- ObjectFactory(mod, classname = "FeatureSubset")	
+  return(class.mod)  
 }
 
 
@@ -688,8 +1050,9 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #' information about the reduct from this function. See Section \code{Examples}.
 #'
 #' @title The fuzzy QuickReduct algorithm based on FRST
+#' @author Lala Septem Riza
 #' 
-#' @param decision.table a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}. 
+#' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
 #' @param type.method a string representing the type of methods. 
 #'         The complete description can be found in Section \code{Details}.
 #' @param type.QR a string expressing the type of QuickReduct algorithm which is one of the two following algorithms:
@@ -739,7 +1102,6 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #'         those parameters needed by the considered method. See in Section \code{Details}. 
 #'         Also, we provide some examples to illustrate how the parameters are used.
 #'  
-#' @param ... other parameters.
 #' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.feature.subset.computation}}.
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
@@ -875,7 +1237,7 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table, decisionIdx = nc
 #' new.decTable <- SF.applyDecTable(decision.table, reduct.1)
 #'					 
 #' @export
-FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency", type.QR = "fuzzy.QR", control = list(), ...) {	
+FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency", type.QR = "fuzzy.QR", control = list()) {	
 	
 	## execute quickreduct algorithm
 	super.reduct <- quickreduct.alg(decision.table, type.method, type.QR, control)
@@ -902,12 +1264,13 @@ FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency"
 #' information about the reduct from this function.
 #'
 #' @title The near-optimal reduction algorithm based on fuzzy rough set theory
-#' @param decision.table  a \code{"DecisionTable"} class representing the decision table. See \code{\link{SF.asDecisionTable}}.
+#' @author Lala Septem Riza
+#' 
+#' @param decision.table  an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
 #'                        In this case, the decision attribute must be nominal.
 #' @param alpha.precision a numeric value representing variable precision of FVPRS. 
 #'
 #'        See \code{\link{BC.LU.approximation.FRST}}.
-#' @param ... other parameters.
 #' @seealso \code{\link{BC.discernibility.mat.FRST}}
 #' @return A class \code{"FeatureSubset"} that contains the following components:
 #' \itemize{
@@ -924,14 +1287,14 @@ FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency"
 #' #########################################################
 #' ## Example 1: Hiring dataset containing 8 objects with 5 attributes
 #' #########################################################
-#' data(RoughSetData)
+#' \dontrun{data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
 #' 
 #' ## get reduct as FeatureSubset class
 #' reduct.1 <- FS.nearOpt.fvprs.FRST(decision.table)
 #'
 #' ## get new decision table according to the reduct
-#' new.decTable <- SF.applyDecTable(decision.table, reduct.1)
+#' new.decTable <- SF.applyDecTable(decision.table, reduct.1)}
 #'
 #' #########################################################
 #' ## Example 2: Pima dataset containing 7 objects with 9 attributes
@@ -945,7 +1308,7 @@ FS.quickreduct.FRST <- function(decision.table, type.method = "fuzzy.dependency"
 #' ## get new decision table according to the reduct
 #' new.decTable <- SF.applyDecTable(decision.table, reduct.2)
 #' @export
-FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
+FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05) {
 
 	if (is.null(attr(decision.table, "decision.attr"))){
 		stop("A decision attribute is not indicated.")
@@ -1044,15 +1407,22 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 	}
 }
 
-#' It is a wrapper function used for generating all reducts. The reducts are obtained from functions based on a discernibility matrix based on RST and FRST. Therefore, it should be noted that
-#' before calling the function, we need to execute \code{BC.discernibility.mat.RST} and \code{BC.discernibility.mat.FRST}.
+#' A wrapper function used for generating all decision reducts of a decision system. The reducts 
+#' are obtained from a discernibility matrix which can be computed using methods based on RST 
+#' and FRST. Therefore, it should be noted that before calling the function, we need to 
+#' compute a discernibility matrix using \code{\link{BC.discernibility.mat.RST}} or 
+#' \code{\link{BC.discernibility.mat.FRST}}.
 #' 
-#' @title The function for computing all reducts
+#' @title A function for computing all decision reducts of a decision system
+#' @author Andrzej Janusz
 #'
-#' @param discernibilityMatrix a \code{"DiscernibilityMatrix"} class representing the discernibility matrix of RST and FRST.
-#'
-#' See \code{\link{BC.discernibility.mat.RST}} and \code{\link{BC.discernibility.mat.FRST}}. 
-#' @return A class \code{"ReductSet"}. 
+#' @param discernibilityMatrix an \code{"DiscernibilityMatrix"} object representing 
+#' a discernibility matrix of a decision system.
+#' 
+#' @return An object of a class \code{"ReductSet"}.
+#' 
+#' @seealso \code{\link{BC.discernibility.mat.RST}}, \code{\link{BC.discernibility.mat.FRST}}. 
+#'  
 #' @examples
 #' ########################################################
 #' ## Example 1: Generate all reducts and 
@@ -1074,7 +1444,7 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 #' ## Example 2: Generate all reducts and 
 #' ##            a new decision table using FRST
 #' ##############################################################
-#' data(RoughSetData)
+#' \dontrun{data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt 
 #' 
 #' ## build the decision-relation discernibility matrix
@@ -1088,17 +1458,17 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05, ...) {
 #' reduct <- FS.all.reducts.computation(res.1)
 #'
 #' ## generate new decision table
-#' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
+#' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))}
 #' @export
 FS.all.reducts.computation <- function(discernibilityMatrix) {
   
-  if(!inherits(discernibilityMatrix, "DiscernibilityMatrix")) {
+  if (!inherits(discernibilityMatrix, "DiscernibilityMatrix")) {
     stop("The argument is not in the class of \'DiscernibilityMatrix\' objects.")
   }
   
-  reductSet = convertCNFtoDNF(discernibilityMatrix$disc.list)
+  reductSet <- convertCNFtoDNF(discernibilityMatrix$disc.list)
   
-  core = computeCore(reductSet)
+  core <- computeCore(reductSet)
   
   reductSet <- list(decision.reduct = reductSet, 
                     core = core, 
@@ -1110,16 +1480,20 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
   return(reductSet)
 }
 
-#' It is a function for computing one reduct from a discernibility matrix - it can be the greedy heuristic or a randomized search. 
+#' It is a function for computing one reduct from a discernibility matrix - it can use
+#' the greedy heuristic or a randomized (Monte Carlo) search. 
 #' 
-#' @title The function for computing one reducts
+#' @title Computing one reduct from a discernibility matrix
+#' @author Andrzej Janusz
 #'
 #' @param discernibilityMatrix a \code{"DiscernibilityMatrix"} class representing the discernibility matrix of RST and FRST.
-#' @param greedy a boolean value whether we are using the greedy heuristic or a randomized search.
-#' @param power a numeric representing a parameter of the greedy heuristic.
+#' @param greedy a boolean value indicating whether the greedy heuristic or a randomized search should be used in computations.
+#' @param power a numeric representing a parameter of the randomized search heuristic.
 #'
-#' See \code{\link{BC.discernibility.mat.RST}} and \code{\link{BC.discernibility.mat.FRST}}. 
 #' @return A class \code{"ReductSet"}. 
+#' 
+#' @seealso \code{\link{BC.discernibility.mat.RST}} and \code{\link{BC.discernibility.mat.FRST}}. 
+#' 
 #' @examples
 #' ########################################################
 #' ## Example 1: Generate one reducts and 
@@ -1157,16 +1531,17 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
 #' ## generate new decision table
 #' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
 #' @export
-FS.one.reduct.computation <- function(discernibilityMatrix, greedy = TRUE, power = 2) {
+FS.one.reduct.computation <- function(discernibilityMatrix, greedy = TRUE, power = 1) {
   
   if(!inherits(discernibilityMatrix, "DiscernibilityMatrix")) {
     stop("The argument is not in the class of \'DiscernibilityMatrix\' objects.")
   }
   
   CNFclauses = discernibilityMatrix$disc.list
+  clauseLengths = sapply(CNFclauses, length)
   
   reduct = character()
-  tmpIdx = rep(TRUE, length(CNFclauses))
+  tmpIdx = (clauseLengths > 0)
   attrInvertedIdx = list()
   
   while(any(tmpIdx)) {

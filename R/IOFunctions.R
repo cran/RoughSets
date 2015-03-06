@@ -17,25 +17,26 @@
 #  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #############################################################################
-#' It is a additional function used to import dataset from files and then construct them into the standard decision table. 
+#' This function can be used to import data sets from files and then construct a \code{DecisionTable} object. It uses 
+#' \code{\link{read.table}} function from \code{base} R.
 #'
-#' It is used to read a dataset from files with the following format: ".csv", ".txt", ".dat", and ".xls", into decision table format. 
-#' The data should be in table format containing rows and columns without header, where every row represents 
-#' every object/instance while columns represent attributes of the objects. 
+#' The data should be in a tabular format containing rows and columns, where every row represents 
+#' an object/instance, while columns represent attributes of the objects. 
 #' 
-#' The output of this function is a decision table which fulfills a standard format of RoughSets package 
-#' (See \code{\link{SF.asDecisionTable}}). 
+#' @title Reading tabular data from files.
+#' @author Andrzej Janusz
+#' 
+#' @param filename a path with a file name.
+#' @param decision.attr an integer indicating an index of the decision attribute. See \code{\link{SF.asDecisionTable}}.
+#' @param indx.nominal an integer vector with indices of attributes which should be considered as nominal. 
+#'        See \code{\link{SF.asDecisionTable}}.
+#' @param ... additional parameters which are passed to the \code{read.table} function. See \code{\link{read.table}}.
 #'
-#' @title The importing function
-#' @param filename a file name that contains objects/data. See also \code{\link{read.table}}.
-#' @param decision.attr a index position of decision attribute. See \code{\link{SF.asDecisionTable}}.
-#' @param indx.nominal a indexes of nominal values. See \code{\link{SF.asDecisionTable}}.
-#' @param ... other parameters which are involved in \code{read.table} function. See \code{\link{read.table}}.
-#'      An important parameter in \code{\link{read.table}} that should be taken into account is \code{col.names}. 
-#' @return A \code{"DecisionTable"} class which is the standard decision table. See \code{\link{SF.asDecisionTable}}.
+#' @return An object of the \code{"DecisionTable"} class. See \code{\link{SF.asDecisionTable}}.
+#' 
 #' @examples
 #' #############################################################
-#' ## Example 1: dataset saved in a file
+#' ## Example 1: data set saved in a file
 #' #############################################################
 #' ## Let us assume we have the following data which has been already saved to the file "tes.dat"
 #' data <- data.frame(c(0.12, 0.23, 0.24), c(1,3,2), c(10, 12, 18), c("a", "a", "b"), c(1, 1, 2))
@@ -55,55 +56,56 @@ SF.read.DecisionTable <- function(filename, decision.attr = NULL, indx.nominal =
     warning("A decision attribute is not indicated - the data will be treated as an information system.")
   }
   
-  dataset <- read.table(file = filename, ...)
+  dataset = read.table(file = filename, ...)
   decision.table = SF.asDecisionTable(dataset, decision.attr = decision.attr, indx.nominal = indx.nominal)
   return(decision.table)
 }
 
-#' It is a function used to construct a standard decision table in the \code{RoughSets} package. So, users are strongly recommended to 
-#' call this function first before any other functions in this package. 
+#' This function converts \code{data.frames} into \code{DecisionTable} objects. This is a standard data representation 
+#' in the \code{RoughSets} package. 
 #'
-#' The \code{RoughSets} package requires a standard decision table to calculate a particular task. 
-#' The standard decision table is a \code{"DecisionTable"} class which constitutes the set of all objects/instances (universe of discourse) and other
-#' attributes. The objects are built by a table or data frame where the number of rows and columns represent the number of objects/instances and attributes, respectively. 
-#' Three important attributes that describe the decision table are as follows.
+#' An object of the \code{"DecisionTable"} class adds a few attributes to a standard data.frame:
 #' \itemize{
-#'   \item \code{desc.attrs}: a list containing the names of attributes and range of the data. There are two kinds of representation 
-#'                            in this parameters which depend on whether the attributes are 
-#'                            in symbolic/nominal or real values, for example:
+#'   \item \code{desc.attrs}: a list containing the names of attributes and their range/possible symbolic values.
+#'                            There are two kinds of representation in this parameters which depend on whether the attributes are 
+#'                            nominal or numeric, for example:
 #'                            \itemize{
-#'                              \item symbolic/nominal attribute: \code{a = c(1,2,3)} means the attribute \code{a} has values 1, 2, and 3.
-#'                              \item real/continuous attribute: \code{a = c(10, 20)} means the attribute \code{a} has values between 10 and 20.
+#'                              \item nominal attribute: \code{a = c(1,2,3)} means that the attribute \code{a} has values 1, 2, and 3.
+#'                              \item numeric attribute: \code{a = c(10, 20)} means that the attribute \code{a} has values between 10 and 20.
 #'                            }
-#'   \item \code{nominal.attrs}: a vector containing boolean values that show whether 
-#'                            the related attributes is a nominal value or not. 
-#'                            For example: 
-#'
+#'   \item \code{nominal.attrs}: a logical vector whose length equals the number of columns in the data. In this vector \code{TRUE} values 
+#'                            indicate that the corresponding attribute is a nominal. For example: 
 #'                            \code{nominal.attrs = c(FALSE, TRUE, FALSE)} means that the first and third attributes
-#'                            are continuous attributes and otherwise for the second one.
-#'  \item \code{decision.attr}: a numeric value representing an index of the decision attribute. Users must define the index of the decision attribute
-#'                            when they want to construct a decision table or training dataset. But, it is a null value when constructing a testing dataset/newdata. 
-#'                            It is strongly recommended that the index of decision attribute is 
-#'         					  put on the last column of the dataset.                         
-#' }  
-#' It also has been provided the function \code{\link{SF.read.DecisionTable}} which is used to import from a file and then construct into the decision table. 
+#'                            are numeric and the second one is nominal.
+#'  \item \code{decision.attr}: a numeric value representing the index of the decision attribute. It is necessary to define 
+#'                            the index of the decision attribute in order to construct a proper decision system. If the value
+#'                            of \code{decision.attr} is NULL, the constructed object will correspond to an information system. 
+#'                            It is strongly recommended to place the decision attribute as the last data column.
+#' }
+#' \code{"DecisionTable"} objects allow to use all methods of standard data.frame objects.
+#' The function \code{\link{SF.read.DecisionTable}} can be used to import data from a file and then construct \code{DecisionTable} object. 
 #'
-#' @title The construction function 
-#' @param dataset a data frame representing the dataset that contains objects/instances and attributes/features in its rows and columns, respectively. 
+#' @title Converting a data.frame into a \code{DecisionTable} object
+#' @author Andrzej Janusz
+#' 
+#' @param dataset data.frame that contains objects/instances and attributes/features in its rows and columns, respectively. 
 #'        See in Section \code{Details}.
-#' @param decision.attr a numeric value representing the index position of the decision attribute. If we ignore this parameter, then 
-#'        the function will treat the data as an information system or newdata/testing data. In other words,
-#'        we must define the index of decision attribute if we want to construct a decision table (i.e., a training dataset). 
-#' @param indx.nominal a vector representing indexes of nominal values. It is used to define specific indexes as nominal attributes.
-#'         In a case, we do not define a value of this parameter, then the function will be using heuristic techniques to define the nominal attributes.
-#'         The following is a technique that will be used:
+#' @param decision.attr an integer value representing the index position of the decision attribute. If this parameter is ignored, then 
+#'        the function will treat the data as an information system or newdata/test data. In other words,
+#'        it is necessary to define the index of the decision attribute in order to construct a decision table (e.g. a training data set). 
+#' @param indx.nominal a logical vector indicating nominal attributes in the data.
+#'         If this parameter is not given, then the function will use a heuristic to guess which of the attributes are nominal.
+#'         The following rules will be applied used:
 #' 			\itemize{
-#' 			\item string values: they will be recognized as nominal/symbolic values. 
-#' 			\item integer values: they will be recognized as continuous/real values.
-#' 			\item decimal/real values: they will be recognized as continuous/real values. 
-#' 			\item indx.nominal: the attributes that are set in this parameter will be assigned as nominal values. 
+#' 			\item an attribute contains character values or factors: it will be recognized as a nominal attribute. 
+#' 			\item an attribute contains integer or numeric values: it will be recognized as a numeric attribute.
+#' 			\item indx.nominal: the indicated attributes will be considered as nominal. 
 #' 			}
-#' @return A \code{"DecisionTable"} class which is the standard decision table.
+#'   		
+#' @return An object of the \code{"DecisionTable"} class.
+#' 
+#' @seealso \code{\link{SF.read.DecisionTable}}, \code{\link{SF.applyDecTable}}.
+#' 
 #' @examples
 #' ################################################################
 #' ## Example : converting from datasets in data.frame 
@@ -124,7 +126,7 @@ SF.asDecisionTable <- function(dataset, decision.attr = NULL, indx.nominal = NUL
   class.vector = sapply(dataset, class)
   nominal.attrs[class.vector %in% c("factor", "character")] = TRUE
   
-  ## construct desc.attrs as describe of attributes
+  ## construct desc.attrs as a description of attributes
   desc.attrs = list()
   desc.attrs[1:ncol(dataset)] = numeric(1)
   indx.nominal = which(nominal.attrs)
@@ -135,7 +137,8 @@ SF.asDecisionTable <- function(dataset, decision.attr = NULL, indx.nominal = NUL
     if(sum(nominal.attrs) != ncol(dataset)) {
       desc.attrs[which(!nominal.attrs)] = lapply(dataset[which(!nominal.attrs)], range)
     }
-  } else {
+	} 
+	else {
     desc.attrs = lapply(dataset, range)
   }
   
@@ -153,6 +156,7 @@ SF.asDecisionTable <- function(dataset, decision.attr = NULL, indx.nominal = NUL
 #' This function enables the output of a summary of the rule induction methods. 
 #'
 #' @title The summary function of rules based on FRST
+#' @author Lala Septem Riza
 #' 
 #' @param object a \code{"RuleSetFRST"} object. See \code{\link{RI.hybridFS.FRST}} and \code{\link{RI.GFRS.FRST}}.
 #' @param ... the other parameters.
@@ -195,7 +199,6 @@ SF.asDecisionTable <- function(dataset, decision.attr = NULL, indx.nominal = NUL
 #' summary(res.2)
 #' @export  
 #' @method summary RuleSetFRST
-#' @S3method summary RuleSetFRST
 summary.RuleSetFRST <- function(object, ...){
   
  if(!inherits(object, "RuleSetFRST")) stop("not a legitimate object in this package")
@@ -229,6 +232,7 @@ summary.RuleSetFRST <- function(object, ...){
 #' This function enables the output of a summary of the rule induction methods. 
 #'
 #' @title The summary function of rules based on RST
+#' @author Lala Septem Riza and Andrzej Janusz
 #' 
 #' @param object a \code{"RuleSetRST"} object. See \code{\link{RI.indiscernibilityBasedRules.RST}}.
 #' @param ... the other parameters.
@@ -255,7 +259,6 @@ summary.RuleSetFRST <- function(object, ...){
 #' summary(rules)
 #' @export  
 #' @method summary RuleSetRST
-#' @S3method summary RuleSetRST
 summary.RuleSetRST <- function(object, ...){
   
  if(!inherits(object, "RuleSetRST")) stop("not a legitimate object in this package")
@@ -265,16 +268,76 @@ summary.RuleSetRST <- function(object, ...){
  print(attr(object, "method"))
  cat("The type of the considered task: ", "\n")
  print("Classification")
- rules <- toStr.rules(rules = object, type.model = "RST")
- print(rules)
-   
+ print(object) 
+ 
  invisible(object)	
+}
+
+
+#' A print method for RuleSetRST objects. 
+#'
+#' @title The print function for RST rule sets
+#' @author Andrzej Janusz
+#' 
+#' @param x a \code{"RuleSetRST"} object. See \code{\link{RI.LEM2Rules.RST}}.
+#' @param ... the other parameters.
+#' @return prints its argument and returns it invisibly
+#' @examples
+#' ###########################################################
+#' ## Example : Classification problem
+#' ###########################################################
+#' data(RoughSetData)
+#' hiring.data <- RoughSetData$hiring.dt   						 
+#'						 
+#' rules <- RI.LEM2Rules.RST(hiring.data)
+#'
+#' print(rules)
+#' @export  
+#' @method print RuleSetRST
+print.RuleSetRST <- function(x, ...){
+  
+  if(!inherits(x, "RuleSetRST")) stop("not a legitimate object in this package")
+  cat("A set of ", length(x), " rules:\n")
+  rules <- toStr.rules(rules = x, type.model = "RST")
+  rules <- mapply(function(x, n) paste(n, ". ", x, sep = ""), rules, 1:length(rules), SIMPLIFY = FALSE)
+  lapply(rules, function(x) cat(x, "\n"))
+  
+  invisible(x)	
+}
+
+#' This is a print method for FeatureSubset objects. 
+#'
+#' @title The print method of FeatureSubset objects
+#' @author Andrzej Janusz
+#' 
+#' @param x an object inheriting from \code{"FeatureSubset"} class. See \code{\link{FS.reduct.computation}}.
+#' @param ...  parameters passes to other functions (currently omitted).
+#' @return Prints its argument and returns it invisibly.
+#' @examples
+#' ###########################################################
+#' ## Example : Classification problem
+#' ###########################################################
+#' data(RoughSetData)
+#' decision.table <- RoughSetData$hiring.dt     					 
+#'						 
+#' res.1 <- FS.reduct.computation(decision.table)
+#' print(res.1)
+#' @export  
+#' @method print FeatureSubset
+print.FeatureSubset <- function(x, ...){
+  
+  if(!inherits(x, "FeatureSubset")) stop("not a legitimate FeatureSubset object")
+  cat("A feature subset consisting of", length(x$reduct), " attributes:\n")
+  cat(paste(names(x$reduct), collapse = ", "), "\n", sep = "")
+  
+  invisible(x)	
 }
 
 
 #' This function enables the output of a summary of the indiscernibility relation functions. 
 #'
 #' @title The summary function of indiscernibility relation based on RST and FRST
+#' @author Lala Septem Riza
 #' 
 #' @param object a \code{"IndiscernibilityRelation"} object. See \code{\link{BC.IND.relation.FRST}} 
 #'
@@ -298,12 +361,11 @@ summary.RuleSetRST <- function(object, ...){
 #' #### calculate fuzzy indiscernibility relation ####
 #' ## in this case, we are using "crisp" as a type of relation and type of aggregation
 #' control.ind <- list(type.relation = c("crisp"), type.aggregation = c("crisp"))
-#' IND <- BC.IND.relation.FRST(decision.table, attribute = attributes, control = control.ind)
+#' IND <- BC.IND.relation.FRST(decision.table, attributes = attributes, control = control.ind)
 #'
 #' summary(IND)
 #' @export  
 #' @method summary IndiscernibilityRelation
-#' @S3method summary IndiscernibilityRelation
 summary.IndiscernibilityRelation <- function(object, ...){
   
  if(!inherits(object, "IndiscernibilityRelation")) stop("not a legitimate object in this package")
@@ -324,6 +386,7 @@ summary.IndiscernibilityRelation <- function(object, ...){
 #' This function enables the output of a summary of the lower and upper approximations. 
 #'
 #' @title The summary function of lower and upper approximations based on RST and FRST
+#' @author Lala Septem Riza
 #' 
 #' @param object a \code{"LowerUpperApproximation"} object. See \code{\link{BC.LU.approximation.FRST}} and \code{\link{BC.LU.approximation.RST}}.
 #' @param ... the other parameters.
@@ -340,16 +403,14 @@ summary.IndiscernibilityRelation <- function(object, ...){
 #' P <- c(2,3)
 #' 
 #' ####### Compute indiscernibility relation #######
-#' IND <- BC.IND.relation.RST(decision.table, attribute = P)
+#' IND <- BC.IND.relation.RST(decision.table, feature.set = P)
 #'
 #' ####### Compute lower and upper approximation #####
-#' decision.attr <- c(5)
-#' roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+#' roughset <- BC.LU.approximation.RST(decision.table, IND)
 #'
 #' summary(roughset)
 #' @export  
 #' @method summary LowerUpperApproximation
-#' @S3method summary LowerUpperApproximation
 summary.LowerUpperApproximation <- function(object, ...){
   
  if(!inherits(object, "LowerUpperApproximation")) stop("not a legitimate object in this package")
@@ -382,6 +443,7 @@ summary.LowerUpperApproximation <- function(object, ...){
 #' This function enables the output of a summary of the positive region and degree of dependency. 
 #'
 #' @title The summary function of positive region based on RST and FRST
+#' @author Lala Septem Riza
 #' 
 #' @param object a \code{"PositiveRegion"} object. See \code{\link{BC.positive.reg.FRST}} and \code{\link{BC.positive.reg.RST}}.
 #' @param ... the other parameters.
@@ -396,11 +458,10 @@ summary.LowerUpperApproximation <- function(object, ...){
 #' P <- c(2,3)
 #' 
 #' ####### Perform indiscernibility relation #######
-#' IND <- BC.IND.relation.RST(decision.table, attribute = P)
+#' IND <- BC.IND.relation.RST(decision.table, feature.set = P)
 #'
 #' ####### Perform lower and upper approximations #####
-#' decision.attr <- c(5)
-#' roughset <- BC.LU.approximation.RST(decision.table, IND, decision.attr)
+#' roughset <- BC.LU.approximation.RST(decision.table, IND)
 #' 
 #' ####### Determine the positive region ######
 #' region <- BC.positive.reg.RST(decision.table, roughset)
@@ -408,9 +469,7 @@ summary.LowerUpperApproximation <- function(object, ...){
 #' summary(region)
 #' @export  
 #' @method summary PositiveRegion
-#' @S3method summary PositiveRegion
 summary.PositiveRegion <- function(object, ...){
-  
  if(!inherits(object, "PositiveRegion")) stop("not a legitimate object in this package")
  cat("The name of model: ", object$type.model, "\n")
  cat("The positive region: ", "\n")
@@ -442,10 +501,10 @@ ObjectFactory <- function(mod, classname){
 #' discretization, have been calculated previously .
 #'
 #' @title Apply for obtaining a new decision table
+#' @author Lala Septem Riza and Andrzej Janusz
 #' @param decision.table a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
 #' @param object a class resulting from feature selection (e.g., \code{\link{FS.reduct.computation}}), discretization (e.g., \code{\link{D.discretization.RST}}), 
 #'               instance selection functions 
-#'
 #'              (e.g., \code{\link{IS.FRIS.FRST}}), and missing value completion (e.g., \code{\link{MV.missingValueCompletion}}). 
 #' @param control a list of other parameters which are \code{indx.reduct} representing an index of the chosen decision reduct. It is only considered when 
 #'               we calculate all reducts using \code{\link{FS.all.reducts.computation}}. The default value is that the first reduct will be chosen.
@@ -598,9 +657,9 @@ SF.applyDecTable <- function(decision.table, object, control = list()){
       
 			decision.attr = as.character(objects[[attr(objects, "decision.attr")]])
 			decision.table = mapply(applyDiscretization, 
-  		                     objects[-attr(objects, "decision.attr")], cut.values, 
-                             attr(decision.table, "nominal.attrs")[-attr(objects, "decision.attr")],
-                             SIMPLIFY = FALSE)
+  		                        objects[-attr(objects, "decision.attr")], cut.values, 
+                              attr(decision.table, "nominal.attrs")[-attr(objects, "decision.attr")],
+                              SIMPLIFY = FALSE)
 			decision.table[[length(decision.table) + 1]] = decision.attr
 		} 
 		else {
@@ -645,7 +704,8 @@ setDefaultParametersIfMissing <- function(control, defaults) {
   for(i in names(defaults)) {
     if(is.null(control[[i]])) control[[i]] <- defaults[[i]]
   }
-  control
+  
+	return(control)
 }
 
 # It is used to convert rules into string
@@ -658,7 +718,7 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 	if (type.model == "FRST"){			
 		for (h in 1 : length(rules)){
 			rule <- rules[[h]]
-			if (ncol(rule) > 2){
+			if (ncol(rule) > 1){
 				ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))			
 				for (i in 2 : (ncol(rule) - 1)){
 					temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
@@ -681,16 +741,90 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 		}
 	}
 	else {
-		for (i in 1 : length(rules)){
-			ante <- paste(colnames(rules[[i]]$value[1]), rules[[i]]$value[[1]], sep = " is ")
-			for (j in 2 : length(rules[[i]]$value)){
-				temp <- paste(colnames(rules[[i]]$value[j]), rules[[i]]$value[[j]], sep = " is ")
-				ante <- paste(ante, temp, sep = " and ")
-			}
-			cons <- paste(attr(rules, "dec.attr"), paste(rules[[i]]$consequent, "; (support=", rules[[i]]$support, ";", "laplace=", rules[[i]]$laplace,")", sep=""), sep = c(" is "))	
+		colNames = attr(rules, "colnames")
+    for (i in 1 : length(rules)){
+			ante <- paste(colNames[rules[[i]]$idx[1]], rules[[i]]$values[1], sep = " is ")
+      if(length(rules[[i]]$values) > 1) {
+  			for (j in 2 : length(rules[[i]]$values)){
+  				temp <- paste(colNames[rules[[i]]$idx[j]], rules[[i]]$values[j], sep = " is ")
+  				ante <- paste(ante, temp, sep = " and ")
+  			}
+      }
+			cons <- paste(attr(rules, "dec.attr"), paste(rules[[i]]$consequent, ";\n\t\t(supportSize=", 
+                                                   length(rules[[i]]$support), "; ", "laplace=", 
+                                                   rules[[i]]$laplace,")", sep=""), sep = c(" is "))	
 			rule <- paste("IF", ante, "THEN", cons)
 			Str.rules <- append(Str.rules, rule)
 		}
 	}
 	return(Str.rules)
 }
+
+#' The function can be used to change a custom set of attribute names from 
+#' a decision table into an object of the FeatureSubset class. It can be useful 
+#' for converting results of discernibility matrix-based attribute selection 
+#' methods (i.e. functions FS.all.reducts.computation and FS.one.reduct.computation).
+#' @title Converting custom attribute name sets into a FeatureSubset object
+#' @author Andrzej Janusz
+#' 
+#' @param colNames a character vector containing names of attributes from a decision table
+#' @param decisionTable a decision table which contains attributes from colNames
+#' @param type.method an indicator of the method used for selecting the attributes
+#' @param model an indicator of the model used for selecting the attributes
+#' @return an object of a class FeatureSubset
+#' #############################################################
+#' ## Example 1: 
+#' #############################################################
+#' data(RoughSetData)
+#' wine.data <- RoughSetData$wine.dt
+#' 
+#' ## discretization and generation of a reduct
+#' cut.values <- D.discretization.RST(wine.data,
+#'                                    type.method = "unsupervised.quantiles",
+#'                                    nOfIntervals = 3)
+#' decision.table <- SF.applyDecTable(wine.data, cut.values)
+#' disc.matrix <- BC.discernibility.mat.RST(wine.data)
+#' reduct <- FS.one.reduct.computation(disc.matrix, greedy=TRUE) 
+#' class(reduct)
+#' is(reduct$decision.reduct[[1]])
+#' 
+#' ## convertion into a FeatureSubset object
+#' reduct <- SF.asFeatureSubset(reduct$decision.reduct[[1]], decision.table,
+#'                              type.method = "greedy reduct from a discernibility matrix",
+#'                              model = reduct$type.model)
+#' class(reduct)
+#' @export
+SF.asFeatureSubset = function(colNames, decisionTable, 
+                            type.method = "custom subset", 
+                            model = "custom") {
+  
+  if(length(colNames) == 0 | !("character" %in% is(colNames))) {
+    stop("No correct attribute names were provided.")
+  }
+  
+  if(!inherits(decisionTable, "DecisionTable")) {
+    stop("Provided data should inherit from the \'DecisionTable\' class.")
+  }
+  
+  fs = list()
+  fs$reduct = which(colnames(decisionTable) %in% colNames)
+  
+  if(length(fs$reduct) == 0) {
+    stop("No attribute name was recognized in the provided decision table.")
+	} 
+	else {
+    if(length(fs$reduct) < length(colNames)) {
+      warning("Some of the attribute names were not recognized in the provided decision table.")
+    }
+  }
+  
+  names(fs$reduct) = colnames(decisionTable)[fs$reduct]
+  
+  fs$type.method = type.method
+  fs$type.task = "feature selection"
+  fs$model = model
+  
+  class(fs) = unique(c("FeatureSubset", class(fs)))  
+	return(fs)
+}
+
