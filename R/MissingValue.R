@@ -98,11 +98,11 @@ MV.mostCommonValResConcept <- function(decision.table){
 	while(i <= nrow(indx.na)){
 		indx.consider <- which(decision.table[,  indx.dec] == decision.table[indx.na[i, 1], indx.dec]) 	
 		if (attr(decision.table, "nominal.attr")[indx.na[i, 2]] == FALSE){
-			temp <- summary(as.factor(na.omit(decision.table[indx.consider, indx.na[i, 2]])))
+			temp <- summary(as.factor(stats::na.omit(decision.table[indx.consider, indx.na[i, 2]])))
 			indx.na[i, 3] <- names(which.max(temp))[1]
 		}
 		else {
-			data <- na.omit(decision.table[indx.consider, indx.na[i, 2]])		
+			data <- stats::na.omit(decision.table[indx.consider, indx.na[i, 2]])		
 			temp <- summary(as.factor(data))
 			indx.na[i, 3] <- names(which.max(temp))[1]
 		}
@@ -155,11 +155,11 @@ MV.mostCommonVal <- function(decision.table){
 	i = 1
 	while(i <= nrow(indx.na)){	 
 		if (attr(decision.table, "nominal.attr")[indx.na[i, 2]] == FALSE){
-			data <- na.omit(decision.table[, indx.na[i, 2]])		
+			data <- stats::na.omit(decision.table[, indx.na[i, 2]])		
 			indx.na[i, 3] <- mean(data)
 		}
 		else {
-			data <- na.omit(decision.table[, indx.na[i, 2]])		
+			data <- stats::na.omit(decision.table[, indx.na[i, 2]])		
 			temp <- summary(as.factor(data))
 			indx.na[i, 3] <- names(which.max(temp))[1]
 		}
@@ -391,10 +391,20 @@ MV.conceptClosestFit <- function(decision.table){
 #' new.decTable <- SF.applyDecTable(decision.table, indx)
 #' @export
 MV.missingValueCompletion <- function(decision.table, type.method = "deletionCases"){
+  
+  if (!(type.method %in% c("deletionCases", "mostCommonValResConcept", "mostCommonVal",
+                           "globalClosestFit", "conceptClosestFit"))) {
+    stop("Unrecognized method.")
+  }
+  
+  if (!inherits(decision.table, "DecisionTable")) {
+    stop("Provided data should inherit from the \'DecisionTable\' class.")
+  }
+  
 	val.NA <- switch(type.method,  
     	             deletionCases = MV.deletionCases(decision.table),
     	             mostCommonValResConcept = MV.mostCommonValResConcept(decision.table),
-                     mostCommonVal = MV.mostCommonVal(decision.table),
+                   mostCommonVal = MV.mostCommonVal(decision.table),
     	             globalClosestFit = MV.globalClosestFit(decision.table),
     	             conceptClosestFit = MV.conceptClosestFit(decision.table) )
   	
