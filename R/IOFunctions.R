@@ -871,14 +871,14 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 	}
 	else {
 		colNames = attr(rules, "colnames")
-    for (i in 1 : length(rules)){
+		for (i in 1 : length(rules)){
 			ante <- paste(colNames[rules[[i]]$idx[1]], rules[[i]]$values[1], sep = " is ")
-      if(length(rules[[i]]$values) > 1) {
-  			for (j in 2 : length(rules[[i]]$values)){
-  				temp <- paste(colNames[rules[[i]]$idx[j]], rules[[i]]$values[j], sep = " is ")
-  				ante <- paste(ante, temp, sep = " and ")
-  			}
-      }
+			if(length(rules[[i]]$values) > 1) {
+				for (j in 2 : length(rules[[i]]$values)){
+  					temp <- paste(colNames[rules[[i]]$idx[j]], rules[[i]]$values[j], sep = " is ")
+					ante <- paste(ante, temp, sep = " and ")
+  				}
+			}
 			cons <- paste(attr(rules, "dec.attr"), paste(rules[[i]]$consequent, ";\n\t\t(supportSize=",
                                                    length(rules[[i]]$support), "; ", "laplace=",
                                                    rules[[i]]$laplace,")", sep=""), sep = c(" is "))
