@@ -17,7 +17,7 @@
 #  A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 #############################################################################
-#' This function can be used to import data sets from files and then construct a \code{DecisionTable} object. It uses
+#' This function can be used to import toStr.rulesdata sets from files and then construct a \code{DecisionTable} object. It uses
 #' \code{\link{read.table}} function from \code{base} R.
 #'
 #' The data should be in a tabular format containing rows and columns, where every row represents
@@ -849,9 +849,11 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 			rule <- rules[[h]]
 			if (ncol(rule) > 1){
 				ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))
-				for (i in 2 : (ncol(rule) - 1)){
-					temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
-					ante <- paste(ante, temp, sep = " and ")
+				if (ncol(rule) > 2) {
+					for (i in 2 : (ncol(rule) - 1)){
+						temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
+						ante <- paste(ante, temp, sep = " and ")
+					}
 				}
 			}
 			else {
