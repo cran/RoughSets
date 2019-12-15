@@ -145,8 +145,12 @@ FS.reduct.computation <- function(decision.table, method = "greedy.heuristic", .
 #' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.reduct.computation}}.
 #'
 #' @references
-#' A. Janusz and D. Ślęzak, "Utilization of Attribute Clustering Methods for Scalable Computation of Reducts from High-Dimensional Data"
-#'										Proceedings of Federated Conference on Computer Science and Information Systems - FedCSIS, p. 295 - 302 (2012).
+#' A. Janusz and D. Ślęzak, "Utilization of Attribute Clustering Methods for Scalable Computation of Reducts from High-Dimensional Data".
+#' Proceedings of Federated Conference on Computer Science and Information Systems - FedCSIS, p. 295 - 302 (2012).
+#'
+#' Andrzej Janusz and Dominik Slezak. "Rough Set Methods for Attribute
+#' Clustering and Selection". Applied Artificial Intelligence, 28(3):220–242, 2014.
+#'
 #' @examples
 #' ###################################################
 #' ## Example 1: Generate reduct and new decision table
@@ -290,6 +294,9 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table,
 #' @seealso \code{\link{FS.DAAR.heuristic.RST}} and \code{\link{FS.reduct.computation}}.
 #'
 #' @references
+#' Andrzej Janusz and Dominik Slezak. "Rough Set Methods for Attribute
+#' Clustering and Selection". Applied Artificial Intelligence, 28(3):220–242, 2014.
+#'
 #' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem",
 #' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
 #'
@@ -478,7 +485,9 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table,
 #'        (see the references).
 #' @param permsWithinINDclasses a logical value indicating whether the permutation test
 #'        should be conducted within indescernibility classes.
-#' @param inconsistentDecisionTable logical indicating whether the decision table is suspected
+#' @param semigreedy a logical indicating whether the semigreedy heuristic should be used for
+#'        selecting the best attribute in each iteration of the algorithm
+#' @param inconsistentDecisionTable a logical indicating whether the decision table is suspected
 #'        to be inconsistent or \code{NULL} (the default) which indicated that a test should
 #'        be made to determine the data consistency.
 #'
@@ -495,11 +504,15 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table,
 #' @seealso \code{\link{FS.greedy.heuristic.reduct.RST}} and \code{\link{FS.reduct.computation}}.
 #'
 #' @references
-#' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem",
-#' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
-#'
 #' A. Janusz and D. Ślęzak, "Random Probes in Computation and Assessment of Approximate Reducts",
 #' Proceedings of {RSEISP} 2014, Springer, LNCS vol. 8537: p. 53 - 64 (2014).
+#'
+#' Andrzej Janusz and Dominik Slezak. "Computation of approximate reducts with dynamically
+#' adjusted approximation threshold". In Proceedings of ISMIS 2015, LNCS
+#' volume 9384, pages 19–28. Springer, 2015.
+#'
+#' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem",
+#' Proceedings of International Conference on Rough Sets and Knowledge Technology (RSKT), vol. 6954, p. 45 - 50 (2011).
 #'
 #' @examples
 #' ###################################################
@@ -520,8 +533,9 @@ FS.DAAR.heuristic.RST = function(decision.table,
                                  decisionIdx = attr(decision.table, "decision.attr"),
                                  qualityF = X.gini, nAttrs = NULL,
                                  allowedRandomness = 1/ncol(decision.table),
-                                 nOfProbes = ncol(decision.table),
+                                 nOfProbes = max(ncol(decision.table), 100),
                                  permsWithinINDclasses = FALSE,
+                                 semigreedy = FALSE,
                                  inconsistentDecisionTable = NULL)
 {
   toRmVec = decisionIdx
@@ -543,15 +557,35 @@ FS.DAAR.heuristic.RST = function(decision.table,
   decisionChaos = compute_chaos(INDrelation, decision.table[[decisionIdx]],
                                 attrDescriptions[[decisionIdx]])
   decisionChaos = qualityF(decisionChaos[[1]])
-  attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],
-                         MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
-                                         uniqueDecisions = attrDescriptions[[decisionIdx]],
-                                         INDclasses = INDrelation,
-                                         INDclassesSizes = INDsizes,
-                                         baseChaos = decisionChaos,
-                                         chaosFunction = qualityF),
-                         SIMPLIFY = TRUE, USE.NAMES = FALSE)
+
+  if(semigreedy) {
+    uniAttrScoresVec = mapply(qualityGain, decision.table[-decisionIdx], attrDescriptions[-decisionIdx],
+                              MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                              uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                              INDclassesList = INDrelation,
+                                              INDclassesSizes = INDsizes,
+                                              baseChaos = decisionChaos,
+                                              chaosFunction = qualityF),
+                              SIMPLIFY = TRUE, USE.NAMES = FALSE)
+    tmpRange = range(uniAttrScoresVec)
+    if(tmpRange[2] > tmpRange[1]) {
+      heuristicMultiplier = tmpRange[2]/(tmpRange[2] - tmpRange[1])
+    } else {
+      heuristicMultiplier = 1
+    }
+    attrScoresVec = uniAttrScoresVec[tmpAttrSub]
+  } else {
+    attrScoresVec = mapply(qualityGain, decision.table[tmpAttrSub], attrDescriptions[tmpAttrSub],
+                           MoreArgs = list(decisionVec = decision.table[[decisionIdx]],
+                                           uniqueDecisions = attrDescriptions[[decisionIdx]],
+                                           INDclasses = INDrelation,
+                                           INDclassesSizes = INDsizes,
+                                           baseChaos = decisionChaos,
+                                           chaosFunction = qualityF),
+                           SIMPLIFY = TRUE, USE.NAMES = FALSE)
+  }
   tmpBestIdx = which.max(attrScoresVec)
+
   relevanceProbVec = computeRelevanceProb(INDrelation, INDsizes, decision.table[[tmpAttrSub[tmpBestIdx]]],
                                           uniqueValues = attrDescriptions[[tmpAttrSub[tmpBestIdx]]],
                                           attrScore = attrScoresVec[tmpBestIdx],
@@ -621,7 +655,19 @@ FS.DAAR.heuristic.RST = function(decision.table,
                                              baseChaos = tmpChaos,
                                              chaosFunction = qualityF),
                              SIMPLIFY = TRUE, USE.NAMES = FALSE)
-      tmpBestIdx = which.max(attrScoresVec)
+
+      if(semigreedy) {
+        tmpRange = range(attrScoresVec)
+        if(tmpRange[2] > tmpRange[1]) {
+          heuristicDenominator = tmpRange[2] - tmpRange[1]
+        } else {
+          heuristicDenominator = 1
+        }
+        tmpBestIdx = which.max(attrScoresVec*(heuristicMultiplier/heuristicDenominator) + uniAttrScoresVec[tmpAttrSub])
+      } else {
+        tmpBestIdx = which.max(attrScoresVec)
+      }
+
       tmpProbeP = computeRelevanceProb(INDrelation, INDsizes, decision.table[[tmpAttrSub[tmpBestIdx]]],
                                        uniqueValues = attrDescriptions[[tmpAttrSub[tmpBestIdx]]],
                                        attrScore = attrScoresVec[tmpBestIdx],
@@ -868,8 +914,11 @@ FS.quickreduct.RST <- function(decision.table, control = list()){
 #' @seealso \code{\link{FS.quickreduct.RST}} and \code{\link{FS.feature.subset.computation}}.
 #'
 #' @references
+#' Andrzej Janusz and Dominik Slezak. "Rough Set Methods for Attribute
+#' Clustering and Selection". Applied Artificial Intelligence, 28(3):220–242, 2014.
+#'
 #' A. Janusz and S. Stawicki, "Applications of Approximate Reducts to the Feature Selection Problem",
-#' Proceedings of International Conference on Rough Sets and Knowledge Technology ({RSKT}), vol. 6954, p. 45 - 50 (2011).
+#' Proceedings of International Conference on Rough Sets and Knowledge Technology (RSKT), vol. 6954, p. 45 - 50 (2011).
 #'
 #' D. Ślęzak, "Approximate Entropy Reducts", Fundamenta Informaticae, vol. 53, no. 3 - 4, p. 365 - 390 (2002).
 #'
@@ -1168,37 +1217,15 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table,
 #' C. Cornelis, G. Hurtado Martin, R. Jensen, and D. Slezak,
 #' "Feature Selection with Fuzzy Decision Reducts", Information Sciences, vol. 180, no. 2, p. 209 - 224 (2010).
 #'
-#' C. Cornelis, N. Verbiest, and R. Jensen, "Ordered Weighted Average Based Fuzzy Rough Sets",
-#' Proceedings of the 5th International Conference on Rough Sets and Knowledge Technology (RSKT 2010),
-#' p. 78 - 85 (2010).
-#'
 #' C. Cornelis and R. Jensen, "A Noise-tolerant Approach to Fuzzy-rough Feature Selection",
 #' Proceedings of the 2008 IEEE International Conference on Fuzzy Systems (FUZZ-IEEE 2008),
 #' p. 1598 - 1605 (2008).
-#'
-#' J. M. F. Salido and S. Murakami, "Rough Set Analysis of a General Type of Fuzzy Data
-#' Using Transitive Aggregations of Fuzzy Similarity Relations",
-#' Fuzzy Sets Syst., vol. 139, p. 635 - 660 (2003).
 #'
 # Q. Hu, S. An, and D. Yu, "Soft Fuzzy Rough Sets for Robust Feature Evaluation and Selection",
 # Information Sciences, vol. 180, p. 4384 - 4400 (2010).
 #
 #' Q. Hu, L. Zhang, S. An, D. Zhang, and D. Yu, "On Robust Fuzzy Rough Set Models",
 #' IEEE Trans. on Fuzzy Systems, vol. 20, no. 4, p. 636 - 651 (2012).
-#'
-#' R. B. Bhatt and M. Gopal, "On Fuzzy-rough Sets Approach to Feature Selection",
-#' Pattern Recognition Letters, vol. 26, no. 7, p. 965 - 975 (2005).
-#'
-#' R. Jensen and Q. Shen, "Fuzzy-rough Sets for Descriptive Dimensionality Reduction",
-#' In: Proceedings of IEEE International Conference on Fuzzy System, FUZZ-IEEE, p. 29 - 34 (2002).
-#'
-#' R. Jensen and Q. Shen, "New Approaches to Fuzzy-rough Feature Selection",
-#' IEEE Transactions on Fuzzy Systems, vol. 17, no. 4, p. 824 - 838 (2009).
-#'
-#' S. Y. Zhao, E. C. C. Tsang, and D. G. Chen,
-#' "The Model of Fuzzy Variable Precision Rough Sets",
-#' IEEE Trans. Fuzzy Systems, vol. 17, no. 2,
-#' p. 451 - 467 (2009).
 #'
 #' @examples
 #' ##########################################################
@@ -1401,7 +1428,7 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05) {
 	disc.list.temp <- c()
 	j <- 1
 	for (i in 1 : length(disc.list)){
-		if (!(is.character(disc.list[[i]]) & length(disc.list[[i]]) == 0) && !is.na(disc.list[[i]])){
+		if (!(is.character(disc.list[[i]]) & length(disc.list[[i]]) == 0) && !all(is.na(disc.list[[i]]))){
 			disc.list.temp[j] <- list(disc.list[[i]])
 			j <- j + 1
 		}
@@ -1410,15 +1437,15 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05) {
 
 	if (length(disc.list) > 1){
 		## get core
-		core.red <- disc.list[which(lapply(disc.list, length) == 1)]
+		core.red <- disc.list[which(sapply(disc.list, length) == 1)]
 
 		if (length(core.red) != 0){
 			## delete element == core (for each core)
-			disc.list <- disc.list[which(lapply(disc.list, length) > 1)]
+			disc.list <- disc.list[which(sapply(disc.list, length) > 1)]
 
 			## delete element containing core
 			for (i in 1 : length(core.red)){
-				disc.list <- disc.list[which(lapply(disc.list, function(x){core.red[i] %in% x}) == FALSE)]
+				disc.list <- disc.list[which(sapply(disc.list, function(x){core.red[i] %in% x}) == FALSE)]
 			}
 		}		else {
 			core.red <- c()
@@ -1433,7 +1460,7 @@ FS.nearOpt.fvprs.FRST <- function(decision.table, alpha.precision = 0.05) {
 			core.red <- c(core.red, new.red)
 
 			## delete element containing new.red
-			disc.list <- disc.list[which(lapply(disc.list, function(x){new.red %in% x}) == FALSE)]
+			disc.list <- disc.list[which(sapply(disc.list, function(x){new.red %in% x}) == FALSE)]
 
 			ii <- ii + 1
 		}
@@ -1524,7 +1551,9 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
 
   core <- computeCore(reductSet)
 
-  reductSet <- list(decision.reduct = reductSet,
+  reductSet <- list(decision.reduct = lapply(reductSet, 
+                                             SF.asFeatureSubset, 
+                                             attributeNames = discernibilityMatrix$names.attr),
                     core = core,
                     discernibility.type = discernibilityMatrix$type.discernibility,
                     type.task = "computation of all reducts",
@@ -1544,7 +1573,7 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
 #' @param greedy a boolean value indicating whether the greedy heuristic or a randomized search should be used in computations.
 #' @param power a numeric representing a parameter of the randomized search heuristic.
 #'
-#' @return A class \code{"ReductSet"}.
+#' @return An object of a class \code{"ReductSet"}.
 #'
 #' @seealso \code{\link{BC.discernibility.mat.RST}} and \code{\link{BC.discernibility.mat.FRST}}.
 #'
@@ -1556,14 +1585,14 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
 #'
 #' @examples
 #' ########################################################
-#' ## Example 1: Generate one reducts and
+#' ## Example 1: Generate one reduct and
 #' ##            a new decision table using RST
 #' ########################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt
 #'
 #' ## build the decision-relation discernibility matrix
-#' res.1 <- BC.discernibility.mat.RST(decision.table, range.object = NULL)
+#' res.1 <- BC.discernibility.mat.RST(decision.table)
 #'
 #' ## generate all reducts
 #' reduct <- FS.one.reduct.computation(res.1)
@@ -1572,20 +1601,20 @@ FS.all.reducts.computation <- function(discernibilityMatrix) {
 #' new.decTable <- SF.applyDecTable(decision.table, reduct, control = list(indx.reduct = 1))
 #'
 #' ##############################################################
-#' ## Example 2: Generate one reducts and
+#' ## Example 2: Generate one reduct and
 #' ##            a new decision table using FRST
 #' ##############################################################
 #' data(RoughSetData)
 #' decision.table <- RoughSetData$hiring.dt
 #'
-#' ## build the decision-relation discernibility matrix
+#' ## build the decision-relative discernibility matrix
 #' control <- list(type.relation = c("crisp"),
 #'                 type.aggregation = c("crisp"),
 #'                 t.implicator = "lukasiewicz", type.LU = "implicator.tnorm")
 #' res.2 <- BC.discernibility.mat.FRST(decision.table, type.discernibility = "standard.red",
 #'                                     control = control)
 #'
-#' ## generate single reduct
+#' ## generate a single reduct
 #' reduct <- FS.one.reduct.computation(res.2)
 #'
 #' ## generate new decision table
@@ -1629,7 +1658,9 @@ FS.one.reduct.computation <- function(discernibilityMatrix, greedy = TRUE, power
     }
   }
 
-  reduct <- list(decision.reduct = list(reduct),
+  reduct <- list(decision.reduct = lapply(list(reduct), 
+                                          SF.asFeatureSubset, 
+                                          attributeNames = discernibilityMatrix$names.attr),
                  core = NULL,
                  discernibility.type = discernibilityMatrix$type.discernibility,
                  type.task = "computation of one reduct from a discernibility matrix",

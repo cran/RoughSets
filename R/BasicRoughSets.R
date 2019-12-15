@@ -293,22 +293,27 @@ BC.positive.reg.RST <- function(decision.table, roughset) {
 #' @title Computation of a decision-relative discernibility matrix based on the rough set theory
 #' @author Lala Septem Riza and Andrzej Janusz
 #'
-#' @param decision.table an object inheriting from the \code{"DecisionTable"} class, which represents a decision system. 
+#' @param decision.table an object inheriting from the \code{DecisionTable} class, which represents a decision system. 
 #'        See \code{\link{SF.asDecisionTable}}.
 #' @param range.object an integer vector indicating objects for construction of the \eqn{k}-relative discernibility matrix. 
 #'                The default value is \code{NULL} which means that all objects in the decision table are used.
 #' @param return.matrix a logical value determining whether the discernibility matrix should be retunred in the output. 
 #'        If it is set to FALSE (the default) only a list containing unique clauses from the CNF representation 
-#'        of the discernibility function is returned. 
+#'        of the discernibility function is returned.
+#' @param attach.data a logical indicating whether the original decision table should be attached as 
+#'        an additional element of the resulting list named as \code{dec.table}.
 #' 
-#' @return An object of a class \code{"DiscernibilityMatrix"} which has the following components: 
+#' @return An object of a class \code{DiscernibilityMatrix} which has the following components: 
 #' \itemize{
 #' \item \code{disc.mat}: the decision-relative discernibility matrix which for pairs of objects from different 
 #'       decision classes stores names of attributes which can be used to discern between them. Only pairs of 
 #'       objects from different decision classes are considered. For other pairs the \code{disc.mat} contains
 #'       \code{NA} values. Moreover, since the classical discernibility matrix is symmetric only the pairs 
 #'       from the lower triangular part are considered.
-#' \item \code{disc.list}: a list containing unique clauses from the CNF representation of the discernibility function,
+#' \item \code{disc.list}: a list containing unique clauses from the CNF representation of the discernibility 
+#'       function,
+#' \item \code{dec.table}: an object of a class \code{DecisionTable}, which was used to compute the
+#'       discernibility matrix,
 #' \item \code{discernibility.type}: a type of discernibility relation used in the computations,
 #' \item \code{type.model}: a character vector identifying the type of model which was used. 
 #'                In this case, it is \code{"RST"} which means the rough set theory.
@@ -335,7 +340,8 @@ BC.positive.reg.RST <- function(decision.table, roughset) {
 #' Advances of Rough Sets Theory, Kluwer Academic Publishers, Dordrecht, Netherland,  
 #' p. 331 - 362 (1992).
 #' @export
-BC.discernibility.mat.RST <- function(decision.table, range.object = NULL, return.matrix = FALSE){
+BC.discernibility.mat.RST <- function(decision.table, range.object = NULL, 
+                                      return.matrix = FALSE, attach.data = FALSE){
 
   if(!inherits(decision.table, "DecisionTable")) {
     stop("Provided data should inherit from the \'DecisionTable\' class.")
@@ -396,7 +402,159 @@ BC.discernibility.mat.RST <- function(decision.table, range.object = NULL, retur
 		discernibilityMatrix = list(disc.list = disc.list, 
                               names.attr = colnames(decision.table), type.discernibility = "RST", type.model = "RST")
 	}
+	if(attach.data) {
+	  discernibilityMatrix = c(list(dec.table = decision.table), discernibilityMatrix)
+	}
+	
 	discernibilityMatrix = ObjectFactory(discernibilityMatrix, classname = "DiscernibilityMatrix")
 	return(discernibilityMatrix)
 }
 
+
+#' This function implements a fundamental part of RST: computation of a boundary region and the
+#' degree of dependency. This function can be used as a basic building block for development 
+#' of other RST-based methods. A more detailed explanation of this notion can be found 
+#' in \code{\link{A.Introduction-RoughSets}}.
+#' 
+#' @title Computation of a boundary region
+#' @author Dariusz Jankowski, Andrzej Janusz
+#'
+#' @param decision.table an object inheriting from the \code{"DecisionTable"} class, which represents a decision system. 
+#'        See \code{\link{SF.asDecisionTable}}.
+#' @param roughset an object inheriting from the \code{"LowerUpperApproximation"} class, which represents
+#'        lower and upper approximations of decision classes in the data. Such objects are typically produced by calling 
+#'        the \code{\link{BC.LU.approximation.RST}} function.
+
+#' @return An object of a class \code{"BoundaryRegion"} which is a list with the following components:
+#'         \itemize{
+#'           \item \code{boundary.reg}: an integer vector containing indices of data instances belonging 
+#'                 to the boundary region,
+#'           \item \code{degree.dependency}: a numeric value giving the degree of dependency,
+#'           \item \code{type.model}: a varacter vector identifying the utilized model. In this case, 
+#'                 it is \code{"RST"} which means the rough set theory.       
+#'         } 
+#'         
+#' @seealso \code{\link{BC.IND.relation.RST}}, \code{\link{BC.LU.approximation.RST}}, \code{\link{BC.LU.approximation.FRST}}
+#' 
+#' @references
+#' Z. Pawlak, "Rough Sets", International Journal of Computer and Information Sciences, 
+#' vol. 11, no. 5, p. 341 - 356 (1982).
+#'
+#' @examples
+#' ########################################################
+#' data(RoughSetData)
+#' hiring.data <- RoughSetData$hiring.dt
+#'
+#' ## We select a single attribute for computation of indiscernibility classes:
+#' A <- c(2)
+#' 
+#' ## compute the indiscernibility classes:
+#' IND.A <- BC.IND.relation.RST(hiring.data, feature.set = A)
+#'
+#' ## compute the lower and upper approximation:
+#' roughset <- BC.LU.approximation.RST(hiring.data, IND.A)
+#'
+#' ## get the boundary region:
+#' pos.boundary = BC.boundary.reg.RST(hiring.data, roughset)
+#' pos.boundary
+#' 
+#' @export
+BC.boundary.reg.RST <- function(decision.table, roughset) {
+  
+  ## get all objects from the lower and upper approximations of decision classes
+  positive.reg = unlist(roughset$lower.approximation)
+  roughset.reg = unique(unlist(roughset$upper.approximation))
+  
+  names(positive.reg) = NULL
+  names(roughset.reg) = NULL
+  
+  positive.reg = sort(positive.reg)
+  roughset.reg = sort(roughset.reg)
+  
+  boundary.reg = roughset.reg[!(roughset.reg %in% positive.reg)]
+  boundary.reg = sort(boundary.reg)
+  
+  ## get degree of dependecy 
+  degree.depend <- length(boundary.reg)/nrow(decision.table)
+  
+  res <- list(boundary.reg = boundary.reg[order(boundary.reg)],
+              degree.dependency = degree.depend, type.model = "RST")
+  
+  ## build class
+  class.mod <- ObjectFactory(res, classname = "BoundaryRegion")
+  
+  return(class.mod)
+}
+
+
+#' This function implements a fundamental part of RST: computation of a negative region and the
+#' degree of dependency. This function can be used as a basic building block for development 
+#' of other RST-based methods. A more detailed explanation of this notion can be found 
+#' in \code{\link{A.Introduction-RoughSets}}.
+#' 
+#' @title Computation of a negative region
+#' @author Dariusz Jankowski, Andrzej Janusz
+#'
+#' @param decision.table an object inheriting from the \code{"DecisionTable"} class, which represents a decision system. 
+#'        See \code{\link{SF.asDecisionTable}}.
+#' @param roughset an object inheriting from the \code{"LowerUpperApproximation"} class, which represents
+#'        lower and upper approximations of decision classes in the data. Such objects are typically produced by calling 
+#'        the \code{\link{BC.LU.approximation.RST}} function.
+
+#' @return An object of a class \code{"NegativeRegion"} which is a list with the following components:
+#'         \itemize{
+#'           \item \code{negative.reg}: an integer vector containing indices of data instances belonging 
+#'                 to the boundary region,
+#'           \item \code{degree.dependency}: a numeric value giving the degree of dependency,
+#'           \item \code{type.model}: a varacter vector identifying the utilized model. In this case, 
+#'                 it is \code{"RST"} which means the rough set theory.       
+#'         } 
+#'         
+#' @seealso \code{\link{BC.IND.relation.RST}}, \code{\link{BC.LU.approximation.RST}}, \code{\link{BC.LU.approximation.FRST}}
+#' 
+#' @references
+#' Z. Pawlak, "Rough Sets", International Journal of Computer and Information Sciences, 
+#' vol. 11, no. 5, p. 341 - 356 (1982).
+#'
+#' @examples
+#' ########################################################
+#' data(RoughSetData)
+#' hiring.data <- RoughSetData$hiring.dt
+#'
+#' ## We select a single attribute for computation of indiscernibility classes:
+#' A <- c(2)
+#' 
+#' ## compute the indiscernibility classes:
+#' IND.A <- BC.IND.relation.RST(hiring.data, feature.set = A)
+#'
+#' ## compute the lower and upper approximation:
+#' roughset <- BC.LU.approximation.RST(hiring.data, IND.A)
+#'
+#' ## get the boundary region:
+#' pos.negative = BC.negative.reg.RST(hiring.data, roughset)
+#' pos.negative
+#' 
+#' @export
+BC.negative.reg.RST <- function(decision.table, roughset) {
+  
+  ## get all objects from the upper approximations of decision classes
+  roughset.reg = unique(unlist(roughset$upper.approximation))
+  names(roughset.reg) = NULL
+  
+  roughset.reg = sort(roughset.reg)
+  
+  negative.reg = seq(1:nrow(decision.table))
+  #negative.reg = seq(1:(nrow(decision.table)+10))
+  negative.reg = negative.reg[!(negative.reg %in% roughset.reg)]
+
+  ## get degree of dependecy 
+  degree.depend <- length(negative.reg)/nrow(decision.table)
+  
+  res <- list(negative.reg = negative.reg[order(negative.reg)],
+              degree.dependency = degree.depend, type.model = "RST")
+  
+  ## build class
+  class.mod <- ObjectFactory(res, classname = "NegativeRegion")
+  
+  return(class.mod)
+}

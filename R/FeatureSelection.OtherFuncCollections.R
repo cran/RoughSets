@@ -700,7 +700,7 @@ qualityGain <- function(vec, uniqueValues, decisionVec, uniqueDecisions,
                    NOfAttrValues = as.integer(length(uniqueValues)),
                    decValues = as.integer(decisionVec),
                    NOfDecs = as.integer(length(uniqueDecisions)),
-                   output = as.integer(rep(0,length(INDclassesList)*length(uniqueValues)*length(uniqueDecisions))))
+                   output = as.integer(rep(0,length(INDclassesList)*length(uniqueValues)*length(uniqueDecisions))), PACKAGE="RoughSets")
 
   classCounts = matrix(classCounts$output,
                        nrow = length(INDclassesList)*length(uniqueValues),
@@ -928,7 +928,8 @@ computeCore = function(reductList) {
     stopFlag = FALSE
     i = 2
     core = reductList[[1]]
-    while(!stopFlag && i < length(reductList)) {
+    # BUG FIXED: 27.05.2018 (Dariusz Jankowski) - missing equal sign, and missing closing bracket
+    while( (!stopFlag) && (i <= length(reductList)) ) {
       core = core[core %in% reductList[[i]]]
       i = i + 1
       if(length(core) < 1) stopFlag = TRUE
@@ -998,5 +999,6 @@ computeRelevanceProb = function(INDclasses, INDclassesSizes, attributeVec, uniqu
                                         INDclasses, INDclassesSizes, baseChaos, chaosFunction = qualityF)})
   }
 
-  return(mean(attrScore > probeScores))
+  score = sum(attrScore > probeScores)
+  return((score + 1)/(length(probeScores) + 2))
 }

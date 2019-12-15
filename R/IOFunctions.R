@@ -311,7 +311,7 @@ print.RuleSetRST <- function(x, howMany = min(10, length(x)), ...){
     } else stop("Empty rule set")
   }
   xTmp <- x[1:min(howMany,length(x))]
-  rules <- sapply(xTmp, convertRuleIntoCharacter, attr(x, 'colnames'))
+  rules <- sapply(xTmp, convertRuleIntoCharacter, attr(x, 'colnames'), decName = attr(x, "dec.attr"))
   rules <- mapply(function(x, n) paste(n, ". ", x, sep = ""), rules, 1:length(rules), SIMPLIFY = FALSE)
   lapply(rules, function(x) cat(x, "\n"))
   if(length(x) > howMany) {
@@ -346,14 +346,14 @@ as.character.RuleSetRST = function(x, ...) {
 
   if(!inherits(x, "RuleSetRST")) stop("not a legitimate object in this package")
   colNames <- attr(x, "colnames")
-  rules <- sapply(x, convertRuleIntoCharacter, colNames)
+  rules <- sapply(x, convertRuleIntoCharacter, colNames, decName = attr(x, "dec.attr"))
   rules <- sub('\n\t\t', ' ', rules)
   rules
 }
 
 
 # auxiliary function used in print and as.character methods of RuleSetRST objects
-convertRuleIntoCharacter = function(x, colNames) {
+convertRuleIntoCharacter = function(x, colNames, decName) {
   desc <- paste(colNames[x$idx[1]], x$values[1], sep = " is ")
   if(length(x$values) > 1) {
     for (j in 2 : length(x$values)){
@@ -361,9 +361,9 @@ convertRuleIntoCharacter = function(x, colNames) {
       desc <- paste(desc, temp, sep = " and ")
     }
   }
-  cons <- paste(attr(x, "dec.attr"), paste(x$consequent, ";\n\t\t(supportSize=",
-                                           length(x$support), "; ", "laplace=",
-                                           x$laplace,")", sep=""), sep = c(" is "))
+  cons <- paste(decName, paste(x$consequent, ";\n\t\t(supportSize=",
+                               length(x$support), "; ", "laplace=",
+                               round(x$laplace,4),")", sep=""), sep = c(" is "))
   rule <- paste("IF", desc, "THEN", cons)
   rule
 }
@@ -733,7 +733,15 @@ SF.applyDecTable <- function(decision.table, object, control = list()) {
 	control <- setDefaultParametersIfMissing(control, list(indx.reduct = 1))
 
   if (inherits(object, "FeatureSubset")) {
-    tmpIdx = c(object$reduct, attr(decision.table, "decision.attr"))
+    tmpIdx = which(colnames(decision.table) %in% names(object$reduct))
+    if(length(tmpIdx) < length(object$reduct)) {
+      warning("Something might be wrong - the data table does not contain all columns included in the feature subset.")
+    } else {
+      if(any(tmpIdx != object$reduct)) {
+        warning("Ordering of columns in the resulting data is different than in the data used for computation of the reduct.")
+      }
+    }
+    tmpIdx = c(tmpIdx, attr(decision.table, "decision.attr"))
     new.data <- decision.table[, tmpIdx, drop = FALSE]
     attr(new.data, "nominal.attrs") = attr(decision.table, "nominal.attrs")[tmpIdx]
     attr(new.data, "desc.attrs") = attr(decision.table, "desc.attrs")[tmpIdx]
@@ -753,7 +761,7 @@ SF.applyDecTable <- function(decision.table, object, control = list()) {
       stop("there is no reducts at the given indx.reduct")
     }
 
-    tmpIdx = c(reducts[[indx.reduct]], names(attr(decision.table, "desc.attrs"))[attr(decision.table, "decision.attr")])
+    tmpIdx = c(names(reducts[[indx.reduct]]$reduct), names(attr(decision.table, "desc.attrs"))[attr(decision.table, "decision.attr")])
     new.data <- decision.table[, tmpIdx, drop = FALSE]
     attr(new.data, "nominal.attrs") = attr(decision.table, "nominal.attrs")[tmpIdx]
     attr(new.data, "desc.attrs") = attr(decision.table, "desc.attrs")[tmpIdx]
@@ -849,9 +857,11 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 			rule <- rules[[h]]
 			if (ncol(rule) > 1){
 				ante <- paste(colnames(rule[1]), rule[1], sep = ifelse(nominal.att[1] == TRUE, c(" is "), c(" is around ")))
-				for (i in 2 : (ncol(rule) - 1)){
-					temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
-					ante <- paste(ante, temp, sep = " and ")
+				if (ncol(rule) > 2){
+					for (i in 2 : (ncol(rule) - 1)){
+						temp <- paste(colnames(rule[i]), rule[i], sep = ifelse(nominal.att[i] == TRUE, c(" is "), c(" is around ")))
+						ante <- paste(ante, temp, sep = " and ")
+					}
 				}
 			}
 			else {
@@ -897,46 +907,59 @@ toStr.rules <- function(rules, type.task = "classification", nominal.att = NULL,
 #' @author Andrzej Janusz
 #'
 #' @param colNames a character vector containing names of attributes from a decision table
-#' @param decisionTable a decision table which contains attributes from colNames
+#' @param decisionTable a decision table which contains attributes from colNames, 
+#'        can be \code{NULL} and in that case a non-NULL value of \code{attributeNames}
+#'        must be given
+#' @param attributeNames a character vector of names of decision table's attributes,
+#'        can be \code{NULL} and in that case a non-NULL value of \code{decisionTable}
+#'        must be given
 #' @param type.method an indicator of the method used for selecting the attributes
 #' @param model an indicator of the model used for selecting the attributes
 #' @return an object of a class FeatureSubset
+#' 
+#' @examples
 #' #############################################################
 #' ## Example 1:
 #' #############################################################
 #' data(RoughSetData)
 #' wine.data <- RoughSetData$wine.dt
+#' dim(wine.data)
 #'
-#' ## discretization and generation of a reduct
-#' cut.values <- D.discretization.RST(wine.data,
-#'                                    type.method = "unsupervised.quantiles",
-#'                                    nOfIntervals = 3)
-#' decision.table <- SF.applyDecTable(wine.data, cut.values)
-#' disc.matrix <- BC.discernibility.mat.RST(wine.data)
-#' reduct <- FS.one.reduct.computation(disc.matrix, greedy=TRUE)
-#' class(reduct)
-#' is(reduct$decision.reduct[[1]])
+#' ## selection of an arbitrary attribute subset
+#' attrNames = colnames(wine.data)[1:3]
+#' attrNames
+#' class(attrNames)
 #'
 #' ## convertion into a FeatureSubset object
-#' reduct <- SF.asFeatureSubset(reduct$decision.reduct[[1]], decision.table,
-#'                              type.method = "greedy reduct from a discernibility matrix",
-#'                              model = reduct$type.model)
+#' reduct <- SF.asFeatureSubset(attrNames, wine.data,
+#'                              type.method = "greedy reduct from a discernibility matrix")
+#'
 #' class(reduct)
+#' reduct
+#' 
 #' @export
-SF.asFeatureSubset = function(colNames, decisionTable,
+SF.asFeatureSubset = function(colNames, decisionTable = NULL, attributeNames = NULL,
                             type.method = "custom subset",
                             model = "custom") {
 
-  if(length(colNames) == 0 | !inherits(colNames, "character")) {
+  if(length(colNames) == 0 | (!inherits(colNames, "character"))) {
     stop("No correct attribute names were provided.")
   }
+  
+  if(is.null(decisionTable) && is.null(attributeNames)) {
+    stop("Both \'decisionTable\' and \'attributeNames\' arguments are NULLs. Provide a non-NULL value.")
+  }
 
-  if(!inherits(decisionTable, "DecisionTable")) {
-    stop("Provided data should inherit from the \'DecisionTable\' class.")
+  if(!is.null(decisionTable) && !inherits(decisionTable, "DecisionTable")) {
+    stop("Provided data table should inherit from the \'DecisionTable\' class.")
+  }
+  
+  if(!is.null(decisionTable)) {
+    attributeNames = colnames(decisionTable)
   }
 
   fs = list()
-  fs$reduct = which(colnames(decisionTable) %in% colNames)
+  fs$reduct = which(attributeNames %in% colNames)
 
   if(length(fs$reduct) == 0) {
     stop("No attribute name was recognized in the provided decision table.")
@@ -947,7 +970,7 @@ SF.asFeatureSubset = function(colNames, decisionTable,
     }
   }
 
-  names(fs$reduct) = colnames(decisionTable)[fs$reduct]
+  names(fs$reduct) = attributeNames[fs$reduct]
 
   fs$type.method = type.method
   fs$type.task = "feature selection"

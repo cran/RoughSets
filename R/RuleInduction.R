@@ -158,7 +158,7 @@ RI.GFRS.FRST <- function(decision.table, control = list()){
 	}
 
 	## set default values of all parameters
-	control <- setDefaultParametersIfMissing(control, list(alpha.precision = 0,05, type.aggregation = c("t.tnorm", "lukasiewicz"), type.relation = c("tolerance", "eq.1"),
+	control <- setDefaultParametersIfMissing(control, list(alpha.precision = 0.05, type.aggregation = c("t.tnorm", "lukasiewicz"), type.relation = c("tolerance", "eq.1"),
 														t.implicator = "lukasiewicz"))
 
 	## get the data
@@ -194,19 +194,19 @@ RI.GFRS.FRST <- function(decision.table, control = list()){
 		## delete redundant of discernibility matrix
 		disc.list <- unique(disc.list)
 		disc.list <- disc.list[which(!is.na(disc.list))]
-		att.val.core <- disc.list[which(lapply(disc.list, length) == 1)]
+		att.val.core <- disc.list[which(sapply(disc.list, length) == 1)]
 
 		if (length(att.val.core) != 0){
 			## delete element containing core (for each core)
-			disc.list <- disc.list[which(lapply(disc.list, length) > 1)]
+			disc.list <- disc.list[which(sapply(disc.list, length) > 1)]
 
 			for (ii in 1 : length(att.val.core)){
-				disc.list <- disc.list[which(lapply(disc.list, function(x){att.val.core[ii] %in% x}) == FALSE)]
+				disc.list <- disc.list[which(sapply(disc.list, function(x){att.val.core[ii] %in% x}) == FALSE)]
 			}
 		}
 		else {
-			att.val.core <- disc.list[which.min(lapply(disc.list, length))]
-			disc.list <- disc.list[which(lapply(disc.list, function(x){att.val.core %in% x}) == FALSE)]
+			att.val.core <- disc.list[which.min(sapply(disc.list, length))]
+			disc.list <- disc.list[which(sapply(disc.list, function(x){att.val.core %in% x}) == FALSE)]
 		}
 
 		## initialization
@@ -220,7 +220,7 @@ RI.GFRS.FRST <- function(decision.table, control = list()){
 			temp.red <- c(temp.red, new.red)
 
 			## delete element containing new.red
-			disc.list <- disc.list[which(lapply(disc.list, function(x){new.red %in% x}) == FALSE)]
+			disc.list <- disc.list[which(sapply(disc.list, function(x){new.red %in% x}) == FALSE)]
 		}
 
 		temp.red <- c(temp.red, unlist(att.val.core))
@@ -263,7 +263,7 @@ RI.GFRS.FRST <- function(decision.table, control = list()){
 		cover.rule <- c()
 		num.rl <- matrix()
 		indx.seq <- seq(1, length(all.rules))
-		indx.logical.0 <- which(lapply(all.rules, length) == 0)
+		indx.logical.0 <- which(sapply(all.rules, length) == 0)
 		if (length(indx.logical.0) != 0){
 			indx.seq <- indx.seq[-indx.logical.0]
 		}
@@ -340,7 +340,7 @@ RI.GFRS.FRST <- function(decision.table, control = list()){
 		}
 
 	}
-	indx.logical.0 <- which(lapply(min.rules, length) == 0)
+	indx.logical.0 <- which(sapply(min.rules, length) == 0)
 	if (length(indx.logical.0) != 0){
 		min.rules <- min.rules[-indx.logical.0]
 		object.rules <- object.rules[-indx.logical.0]
@@ -440,11 +440,15 @@ RI.indiscernibilityBasedRules.RST <- function(decision.table, feature.set) {
 
 	clsFreqs <- table(decision.table[[decisionIdx]])
 	uniqueCls <- names(clsFreqs)
-	ruleSet <- lapply(INDrelation,
-                   function(idxs, rule, dataS, clsVec, uniqueCls) laplaceEstimate(list(idx = reduct, values = as.vector(dataS[idxs[1],reduct])),
+	ruleSet <- sapply(INDrelation,
+                   function(idxs, rule, dataS, clsVec, uniqueCls) laplaceEstimate(list(idx = as.integer(reduct),
+                                                                                       values = as.character(unlist(dataS[idxs[1],reduct],
+                                                                                                                    use.names = FALSE))),
                                                                                   dataS, clsVec, uniqueCls, suppIdx = idxs),
-                   reduct, decision.table, decision.table[[decisionIdx]], uniqueCls)
+                   reduct, decision.table, decision.table[[decisionIdx]], uniqueCls,
+                   simplify = FALSE, USE.NAMES = FALSE)
 
+	names(ruleSet) = NULL
 	attr(ruleSet, "uniqueCls") <- as.character(uniqueCls)
 	attr(ruleSet, "supportDenominator") <- nrow(decision.table)
 	attr(ruleSet, "clsProbs") <- clsFreqs/sum(clsFreqs)

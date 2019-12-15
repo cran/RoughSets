@@ -23,7 +23,7 @@
 # @param cuts a vector of cut values
 applyDiscretization <- function(vec, cuts, isNominal) {
    if(!isNominal) vec = cut(vec, c(-Inf,cuts,Inf),
-                            right=TRUE, include.lowest = TRUE,
+                            right=FALSE, include.lowest = TRUE,
                             ordered_result = TRUE)
    return(vec)
 }
@@ -62,7 +62,7 @@ discretize.equal.intervals <- function(vec, n) {
 
 # a function for computing cuts using the maximum discernibility heuristic (the global approach)
 global.discernibility <- function(vecList, cutCandidatesVecList, decVec, nOfCuts,
-                                 nAttrs = length(vecList), minIntSupport = 0, ...) {
+                                 nAttrs = length(vecList), minIntSupport = 1, ...) {
   attrCount = length(vecList)
   cutVecList = list()
   rmVecList = list()
@@ -70,9 +70,7 @@ global.discernibility <- function(vecList, cutCandidatesVecList, decVec, nOfCuts
   cutVecList[1:attrCount] = list(numeric())
 
   INDclasses = list(1:length(decVec))
-  minIntervalSize = ceiling(length(decVec)*minIntSupport)
   scrHistVec = rep(0, attrCount)
-#  maxDiscernPairs = conflictsCouner(decVec)
   i = 0
   numOfChosenCuts = 0
   nDecisions = length(unique(decVec))
@@ -95,7 +93,7 @@ global.discernibility <- function(vecList, cutCandidatesVecList, decVec, nOfCuts
                                           nOfDec = nDecisions,
                                           INDclassesVec = tmpINDclassesVec,
                                           INDclassesSizes = tmpObjIdxLengths,
-                                          minIntervalSize = minIntervalSize),
+                                          minIntervalSize = minIntSupport),
                           SIMPLIFY = F)
 
     maxCutScoreVec = sapply(bestCutsList, function(x) x$maxTPtoFP)
@@ -142,7 +140,7 @@ global.discernibility <- function(vecList, cutCandidatesVecList, decVec, nOfCuts
         }
       }
 
-      if(maxDiscernPairs == 0 || max(sapply(INDclasses,length)) < 2*minIntervalSize)  endFlag = TRUE
+      if(maxDiscernPairs == 0 || max(sapply(INDclasses,length)) < 2*minIntSupport)  endFlag = TRUE
     }
   }
 
@@ -152,12 +150,11 @@ global.discernibility <- function(vecList, cutCandidatesVecList, decVec, nOfCuts
 
 # a function for computing cuts using the local discernibility heuristic (the local approach)
 local.discernibility <- function(vec, cutCandidatesVec, decVec,
-                                 nDecisions, nOfCuts = 2, minIntSupport = 0) {
+                                 nDecisions, nOfCuts = 2, minIntSupport = 1) {
 
   cutVec = numeric()
 
   INDclasses = list(1:length(decVec))
-  minIntervalSize = ceiling(length(decVec)*minIntSupport)
   numOfChosenCuts = 0
   endFlag = FALSE
 
@@ -170,7 +167,7 @@ local.discernibility <- function(vec, cutCandidatesVec, decVec,
                            nOfDec = nDecisions,
                            INDclassesVec = tmpINDclassesVec,
                            INDclassesSizes = tmpObjIdxLengths,
-                           minIntervalSize = minIntervalSize)
+                           minIntervalSize = minIntSupport)
 
     maxScr = bestCut$maxTPtoFP
     chosenCutIdx = bestCut$maxIdx
@@ -178,9 +175,9 @@ local.discernibility <- function(vec, cutCandidatesVec, decVec,
 
     numOfChosenCuts = numOfChosenCuts + 1
 
-    if(maxScr == 0 || numOfChosenCuts >= nOfCuts) {
+    if(maxScr == 0 || numOfChosenCuts >= nOfCuts || numOfChosenCuts >= length(cutCandidatesVec)) {
       endFlag = TRUE
-      if(numOfChosenCuts >= nOfCuts)
+      if(numOfChosenCuts >= nOfCuts || numOfChosenCuts >= length(cutCandidatesVec))
         cutVec = c(cutVec, cutCandidatesVec[chosenCutIdx])
     } else  {
       cutVec = c(cutVec, cutCandidatesVec[chosenCutIdx])
@@ -201,7 +198,7 @@ local.discernibility <- function(vec, cutCandidatesVec, decVec,
 
       cutCandidatesVec = cutCandidatesVec[-rmCutIdx]
 
-      if(maxDiscernPairs == 0 || max(sapply(INDclasses,length)) < 2*minIntervalSize)  endFlag = TRUE
+      if(maxDiscernPairs == 0 || max(sapply(INDclasses,length)) < 2*minIntSupport)  endFlag = TRUE
     }
   }
 

@@ -27,7 +27,7 @@ void  chooseBestCutC(int *k, double *cutCandidates, int *N, double *vec, int *ob
   for(int j = 0; j <= k[0] - 1;  ++j) {
     if(attrType[0] > 0) {
       tmpObjIdx = 0;
-      flag = 0;
+      flag = false;
       curScore = 0;
       for(int m = 0; m <= numOfInt[0] - 1; ++m)  {
         posAttr = 0;
@@ -98,6 +98,7 @@ void  chooseCutCandidatesC(double *vec, int *decVec, int *N, int *candidatesIdx,
 }
 
 extern "C" {
+
 void  computeIndiscernibilityAndChaos(int *INDclasses, int *INDsizes, int *NOfINDClasses,
                                       int *attrValues, int *NOfAttrValues,
                                       int *decValues, int *NOfDecs,
@@ -116,3 +117,4 @@ void  computeIndiscernibilityAndChaos(int *INDclasses, int *INDsizes, int *NOfIN
   return;
 }
 }
+

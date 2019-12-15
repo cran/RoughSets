@@ -322,6 +322,7 @@ D.global.discernibility.heuristic.RST <- function(decision.table, maxNOfCuts = 2
 	if (!is.null(attr(decision.table, "decision.attr"))) {
 		infoSystem = decision.table[-attr(decision.table, "decision.attr")]
 		decisionAttr = factor(decision.table[[attr(decision.table, "decision.attr")]])
+		if(length(levels(decisionAttr)) < 2) stop("All data belong to a single decision class.")
 	} else {
     stop("A decision attribute is not indicated.")
 	}
@@ -423,6 +424,7 @@ D.local.discernibility.heuristic.RST <- function(decision.table, maxNOfCuts = 2,
     decisionIdx = attr(decision.table, "decision.attr")
     infoSystem = decision.table[-decisionIdx]
     decisionAttr = factor(decision.table[[decisionIdx]])
+    if(length(levels(decisionAttr)) < 2) stop("All data belong to a single decision class.")
   } else {
     stop("A decision attribute is not indicated.")
   }
@@ -449,18 +451,24 @@ D.local.discernibility.heuristic.RST <- function(decision.table, maxNOfCuts = 2,
   }
 
   candidatesCounterVec = sapply(cutCandidatesList, length)
-  nonNullIdx = which(sapply(cutCandidatesList, function(x) return(length(x) > 0)))
+  toComputeIdx = which(candidatesCounterVec > maxNOfCuts)
+  toSetIdx = which(candidatesCounterVec <= maxNOfCuts & candidatesCounterVec > 0)
 
   cutsList = list()
   cutsList[1:ncol(infoSystem)] = list(numeric())
 
-  tmpCutsList = mapply(discFunction,
-                       as.list(infoSystem)[nonNullIdx], cutCandidatesList[nonNullIdx],
-                       MoreArgs = list(decVec = decisionAttr, nOfCuts = maxNOfCuts,
-                                       nDecisions = length(levels(decisionAttr))),
-                       SIMPLIFY = FALSE)
-  cutsList[nonNullIdx] = tmpCutsList
+  if(length(toComputeIdx) > 0) {
+    tmpCutsList = mapply(discFunction,
+                         as.list(infoSystem)[toComputeIdx], cutCandidatesList[toComputeIdx],
+                         MoreArgs = list(decVec = decisionAttr, nOfCuts = maxNOfCuts,
+                                         nDecisions = length(levels(decisionAttr))),
+                         SIMPLIFY = FALSE)
+    cutsList[toComputeIdx] = tmpCutsList
+  }
 
+  if(length(toSetIdx) > 0) {
+    cutsList[toSetIdx] = cutCandidatesList[toSetIdx]
+  }
 
   names(cutsList) = colnames(infoSystem)
   cutsList = list(cut.values = cutsList, type.method = "local.discernibility",
