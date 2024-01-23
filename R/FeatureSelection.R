@@ -262,7 +262,8 @@ FS.permutation.heuristic.reduct.RST <- function(decision.table,
 #' @author Andrzej Janusz
 #
 #' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
-#' @param attrDescriptions a list containing possible values of attributes (columns) in \code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
+#' @param attrDescriptions a list containing possible values of attributes (columns) in \code{decision.table}. 
+#' It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
 #' @param decisionIdx an integer value representing an index of the decision attribute.
 #' @param qualityF a function used for computation of the quality of attribute subsets.
 #'        Currently, the following functions are included:
@@ -465,8 +466,8 @@ FS.greedy.heuristic.reduct.RST <- function(decision.table,
 #' @author Andrzej Janusz
 #
 #' @param decision.table an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.
-#' @param attrDescriptions a list containing possible values of attributes (columns) in \
-#'        code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
+#' @param attrDescriptions a list containing possible values of attributes (columns) in \code{decision.table}. 
+#' It usually corresponds to \code{attr(decision.table, "desc.attrs")}.
 #' @param decisionIdx an integer value representing an index of the decision attribute.
 #' @param qualityF a function used for computation of the quality of attribute subsets.
 #'        Currently, the following functions are included:
@@ -819,7 +820,7 @@ FS.feature.subset.computation <- function(decision.table, method = "greedy.heuri
 #' This is a function for implementing the QuickReduct algorithm for feature selection based
 #' on RST proposed by (Shen and Chouchoulas, 2000). The algorithm produces only one feature subset that could be a superreduct.
 #'
-#' This algorithm considers the dependency degree (see \code{\link{A.Introduction-RoughSets}})
+#' This algorithm considers the dependency degree (see \code{\link{Introduction-RoughSets}})
 #' of the addition of each attribute to the current reduct candidate. Then the best candidate will be chosen.
 #' This process continues until the dependency of the subset equals to the dependency of the full dataset.
 #'
@@ -1067,7 +1068,7 @@ FS.greedy.heuristic.superreduct.RST <- function(decision.table,
 #' assigning the following value to the parameter \code{type.method}.
 #' \itemize{
 #'    \item \code{"fuzzy.dependency"}: It is based on the degree of dependency using the implication/t-norm model approximation (Jensen and Shen, 2009).
-#'                The detailed concepts about this approximation have been explained in \code{\link{B.Introduction-FuzzyRoughSets}}
+#'                The detailed concepts about this approximation have been explained in \code{\link{Introduction-FuzzyRoughSets}}
 #'                and
 #'
 #'                \code{\link{BC.LU.approximation.FRST}}.

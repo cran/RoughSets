@@ -4,8 +4,12 @@
 \alias{BC.discernibility.mat.RST}
 \title{Computation of a decision-relative discernibility matrix based on the rough set theory}
 \usage{
-BC.discernibility.mat.RST(decision.table, range.object = NULL,
-  return.matrix = FALSE, attach.data = FALSE)
+BC.discernibility.mat.RST(
+  decision.table,
+  range.object = NULL,
+  return.matrix = FALSE,
+  attach.data = FALSE
+)
 }
 \arguments{
 \item{decision.table}{an object inheriting from the \code{DecisionTable} class, which represents a decision system. 
@@ -42,7 +46,7 @@ An object of a class \code{DiscernibilityMatrix} which has the following compone
 This function implements a fundamental part of RST: a decision-relative discernibility matrix. This notion
 was proposed by (Skowron and Rauszer, 1992) as a middle-step in many RST algorithms for computaion of reducts, 
 discretization and rule induction. A more detailed explanation of this notion can be found 
-in \code{\link{A.Introduction-RoughSets}}.
+in \code{\link{Introduction-RoughSets}}.
 }
 \examples{
 #######################################################################

@@ -27,11 +27,11 @@
 #' It consists of eight objects with four conditional attributes and one decision attribute. 
 #' The detailed description of each attribute is as follows:
 #' \itemize{
-#' \item Diploma: it has the following values: {"MBA", "MSc", "MCE"}.
-#' \item Exprience: it has the following values: {"High", "Low", "Medium"}.
-#' \item French: it has the following values: {"Yes", "No"}.
-#' \item Reference: it has the following values: {"Excellent", "Good", "Neutral"}.
-#' \item Decision: it is a decision attribute that contains the following values: {"Accept", "Reject"}.
+#' \item Diploma: it has the following values: \{"MBA", "MSc", "MCE"\}.
+#' \item Exprience: it has the following values: \{"High", "Low", "Medium"\}.
+#' \item French: it has the following values: \{"Yes", "No"\}.
+#' \item Reference: it has the following values: \{"Excellent", "Good", "Neutral"\}.
+#' \item Decision: it is a decision attribute that contains the following values: \{"Accept", "Reject"\}.
 #' }
 #'
 #' \bold{The housing dataset}
@@ -95,7 +95,7 @@
 #' \item hue: it has a range in: [0.4 1.8].
 #' \item od: it has a range in: [1.2 4.0].
 #' \item proline: it has a range in: [278 1680].
-#' \item class: it is nominal decision attribute that has values: {1, 2, 3}.
+#' \item class: it is nominal decision attribute that has values: \{1, 2, 3\}.
 #' }
 #'
 #' \bold{The pima dataset}

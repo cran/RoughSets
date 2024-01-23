@@ -28,7 +28,7 @@ to a particular decision class on the basis of available knowledge.
 }
 \details{
 This function can be used as a basic building block for development of other RST-based methods.
-A more detailed explanation of this notion can be found in \code{\link{A.Introduction-RoughSets}}.
+A more detailed explanation of this notion can be found in \code{\link{Introduction-RoughSets}}.
 }
 \examples{
 #######################################

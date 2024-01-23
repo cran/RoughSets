@@ -22,7 +22,7 @@ A class \code{"PositiveRegion"} containing the following components:
 \description{
 This is a function that implements a fundamental concept of fuzzy rough set theory which is
 the positive region and the corresponding degree of dependency. The explanation about this concept can be seen 
-in \code{\link{B.Introduction-FuzzyRoughSets}}.
+in \code{\link{Introduction-FuzzyRoughSets}}.
 }
 \details{
 In order to compute the function, we need to calculate the indiscernibility relation by executing \code{\link{BC.IND.relation.FRST}} 

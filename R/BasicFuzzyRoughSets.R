@@ -20,7 +20,7 @@
 #' This is a function used to implement a fundamental concept of FRST which is fuzzy indiscernibility relations. 
 #' It is used for any fuzzy relations that determine the degree to which two objects are indiscernibility. 
 #' The detailed description about basic concepts of FRST 
-#' can be found in \code{\link{B.Introduction-FuzzyRoughSets}}.
+#' can be found in \code{\link{Introduction-FuzzyRoughSets}}.
 #' 
 #' Briefly, the indiscernibility relation is a relation that shows a degree of similarity among the objects.
 #' For example, \eqn{R(x_i, x_j) = 0} means the object \eqn{x_i} is completely different from \eqn{x_j}, 
@@ -42,7 +42,7 @@
 #' 		\code{type.relation = c("tolerance", <chosen equation>)} 
 #' 
 #'      where the chosen equation called as \code{t.similarity} is one of the
-#' 		\code{"eq.1"}, \code{"eq.2"}, and \code{"eq.3"} equations which have been explained in \code{\link{B.Introduction-FuzzyRoughSets}}.
+#' 		\code{"eq.1"}, \code{"eq.2"}, and \code{"eq.3"} equations which have been explained in \code{\link{Introduction-FuzzyRoughSets}}.
 #'      
 #' \item \code{"transitive.kernel"}: It refers to the relations employing kernel functions (Genton, 2001).
 #' 		In order to represent the relation, we must set the \code{type.relation} parameter as follows.
@@ -437,19 +437,19 @@ BC.IND.relation.FRST <- function(decision.table, attributes = NULL, control = li
 #' such as techniques based on implicator and t-norm functions proposed by 
 #' (Radzikowska and Kerre, 2002).
 #' 
-#' Fuzzy lower and upper approximations as explained in \code{\link{B.Introduction-FuzzyRoughSets}} are used
+#' Fuzzy lower and upper approximations as explained in \code{\link{Introduction-FuzzyRoughSets}} are used
 #' to define to what extent the set of elements can be classified into a certain class strongly or weakly. We can perform various methods by choosing the parameter \code{type.LU}. 
 #' The following is a list of all \code{type.LU} values: 
 #'    \itemize{
 #'    \item \code{"implicator.tnorm"}: It means implicator/t-norm based model proposed by (Radzikowska and Kerre, 2002). 
-#'          The explanation has been given in \code{\link{B.Introduction-FuzzyRoughSets}}.
+#'          The explanation has been given in \code{\link{Introduction-FuzzyRoughSets}}.
 #'          Other parameters in \code{control} related with this approach are \code{t.tnorm} and \code{t.implicator}.
 #'          In other words, when we are using \code{"implicator.tnorm"} as \code{type.LU}, 
 #'          we should consider parameters \code{t.tnorm} and \code{t.implicator}.
 #'          The possible values of these parameters can be seen in the description of parameters. 
 #'    \item \code{"vqrs"}: It means vaguely quantified rough sets proposed by 
 #'          (Cornelis et al, 2007). Basically, this concept proposed to replace fuzzy lower and upper approximations 
-#'          based on Radzikowska and Kerre's technique (see \code{\link{B.Introduction-FuzzyRoughSets}})
+#'          based on Radzikowska and Kerre's technique (see \code{\link{Introduction-FuzzyRoughSets}})
 #'          with the following equations, respectively. 
 #' 
 #'          \eqn{(R_{Q_u} \downarrow A)(y) = Q_u(\frac{|R_y \cap A|}{|R_y|})} 
@@ -1291,7 +1291,7 @@ BC.LU.approximation.FRST <- function(decision.table, IND.condAttr, IND.decAttr, 
 
 #' This is a function that implements a fundamental concept of fuzzy rough set theory which is
 #' the positive region and the corresponding degree of dependency. The explanation about this concept can be seen 
-#' in \code{\link{B.Introduction-FuzzyRoughSets}}.
+#' in \code{\link{Introduction-FuzzyRoughSets}}.
 #' 
 #' In order to compute the function, we need to calculate the indiscernibility relation by executing \code{\link{BC.IND.relation.FRST}} 
 #' and the lower and upper approximations by calling \code{\link{BC.LU.approximation.FRST}}.
@@ -1410,7 +1410,7 @@ BC.positive.reg.FRST <- function(decision.table, fuzzyroughset){
 #' values of the parameter \code{type.discernibility} corresponding approaches considered in this function.
 #' \itemize{
 #' \item \code{"standard.red"}: It is adopted from (Tsang et al, 2008)'s approach. 
-#' The concept has been explained briefly in \code{\link{B.Introduction-FuzzyRoughSets}}. 
+#' The concept has been explained briefly in \code{\link{Introduction-FuzzyRoughSets}}. 
 #' In order to use this algorithm, we assign the \code{control} parameter
 #'        with the following components:
 #' 
@@ -1655,7 +1655,7 @@ BC.discernibility.mat.FRST <- function(decision.table, type.discernibility = "st
 	}
 	
 	if (type.discernibility == "min.element"){
-		return(min.disc.mat.FRST(decision.table, t.tnorm = type.aggregation[2], type.relation, t.implicator, type.LU))
+		return(min_disc_mat_FRST(decision.table, t.tnorm = type.aggregation[2], type.relation, t.implicator, type.LU))
 	}
 	else{
 		## build decision-relative discernibility matrix

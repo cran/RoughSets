@@ -29,7 +29,7 @@ This is a function for implementing the QuickReduct algorithm for feature select
 on RST proposed by (Shen and Chouchoulas, 2000). The algorithm produces only one feature subset that could be a superreduct.
 }
 \details{
-This algorithm considers the dependency degree (see \code{\link{A.Introduction-RoughSets}})
+This algorithm considers the dependency degree (see \code{\link{Introduction-RoughSets}})
 of the addition of each attribute to the current reduct candidate. Then the best candidate will be chosen.
 This process continues until the dependency of the subset equals to the dependency of the full dataset.
 

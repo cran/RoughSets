@@ -4,6 +4,8 @@
 \name{RoughSets-package}
 \alias{RoughSets-package}
 \alias{RoughSets}
+\alias{Introduction-RoughSets}
+\alias{Introduction-FuzzyRoughSets}
 \title{Getting started with the RoughSets package}
 \description{
 This part contains global explanations about the implementation and use of the \code{RoughSets} package.
@@ -19,11 +21,11 @@ There are two main parts considered in this package which are RST and FRST.
 RST was introduced by (Pawlak, 1982; Pawlak, 1991) which provides sophisticated mathematical tools to model
 and analyze information systems that involve uncertainty and imprecision. By employing indiscernibility relation among objects, RST does not require
 additional parameters to extract information.
-The detailed explanation about fundamental concepts of RST can be read in Section \code{\link{A.Introduction-RoughSets}}. Secondly, FRST, an extension of
+The detailed explanation about fundamental concepts of RST can be read in Section \code{\link{Introduction-RoughSets}}. Secondly, FRST, an extension of
 RST, was introduced by (Dubois and Prade, 1990) as a combination between
 fuzzy sets proposed by (Zadeh, 1965) and RST. This concept allows to analyze continuous attributes without
 performing discretization on data first. Basic concepts of FRST
-can be seen in \code{\link{B.Introduction-FuzzyRoughSets}}.
+can be seen in \code{\link{Introduction-FuzzyRoughSets}}.
 
 Based on the above concepts, many methods have been proposed and applied for dealing with several different domains.
 In order to solve the problems, methods employ the indiscernibility relation and lower and upper approximation concepts.
@@ -32,16 +34,16 @@ a list of domains considered in this package:
 \itemize{
 \item Basic concepts: This part, we can divide into four different tasks which are
       indiscernibility relation, lower and upper approximations, positive region and discernibility matrix.
-      All of those tasks have been explained briefly in Section \code{\link{A.Introduction-RoughSets}} and
+      All of those tasks have been explained briefly in Section \code{\link{Introduction-RoughSets}} and
 
-\code{\link{B.Introduction-FuzzyRoughSets}}.
+     \code{\link{Introduction-FuzzyRoughSets}}.
 \item Discretization: It is used to convert real-valued attributes into nominal/symbolic ones in an information system.
       In RST point of view, this task attempts to maintain the discernibility between objects.
 \item Feature selection: It is a process for finding a subset of features which have the same quality as the complete feature set.
      In other words, its purpose is to select the significant features and eliminate the dispensible ones.
      It is a useful and necessary process when we are facing datasets containing large numbers of features. From RST and FRST perspective,
      feature selection refers to searching superreducts and reducts. The detailed information about reducts can be read in
-     \code{\link{A.Introduction-RoughSets}} and \code{\link{B.Introduction-FuzzyRoughSets}}.
+     \code{\link{Introduction-RoughSets}} and \code{\link{Introduction-FuzzyRoughSets}}.
 \item Instance selection: This process is aimed to remove noisy, superfluous, or inconsistent instances from training datasets but retain consistent ones.
      In other words, good accuracy of classification is achieved by removing instances which do not give positive contributions.
 \item Prediction/classification: This task is used to predict decision values of a new dataset (test data).
@@ -109,7 +111,7 @@ The following description explains domains and their algorithms implemented in t
                                  \item Superreduct generation: It is based on some criteria:
                                                    entropy, gini index, discernibility measure, size of positive region.
 
-It is implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.
+                                                   It is implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.
                             }
                             Furthermore, we provide a wrapper function \code{\link{FS.feature.subset.computation}} in order to give a user interface for many methods of RST and FRST that are included in this group.
                       \item Reduct: The following are methods that produce a single decision reduct:
@@ -151,7 +153,7 @@ It is implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.
 	   	 \item Lower and upper approximations: These approximations show to what extent objects can be classified with certainty or not.
           This task has been implemented in
 
-\code{\link{BC.LU.approximation.FRST}}. There are many approaches available in this package that can be selected by assigning the parameter \code{type.LU}.
+          \code{\link{BC.LU.approximation.FRST}}. There are many approaches available in this package that can be selected by assigning the parameter \code{type.LU}.
           The considered methods are
           implication/t-norm, \eqn{\beta}-precision fuzzy rough sets (\eqn{\beta}-PFRS), vaguely quantified rough sets (VQRS), fuzzy variable precision rough sets (FVPRS), ordered weighted average (OWA),
           soft fuzzy rough sets (SFRS), and robust fuzzy rough sets (RFRS). Furthermore, we provide a facility, which is \code{"custom"}, where users can create their own approximations by
@@ -187,7 +189,7 @@ It is implemented in \code{\link{FS.greedy.heuristic.superreduct.RST}}.
     The output of the above methods is a class containing a decision reduct/feature subset and other descriptions.
     For generating a new decision table according to the decision reduct, we provide the function \code{\link{SF.applyDecTable}}.
 
-\item Rule induction: It is a task used to generate
+    \item Rule induction: It is a task used to generate
           rules representing knowledge of a decision table. Commonly, this process is called learning phase in machine learning.
           The following methods are considered to generate rules:
           \itemize{
@@ -310,11 +312,181 @@ Currently, there are the following demos available:
 
 Some decision tables have been embedded in this package which can be seen in
 \code{\link{RoughSetData}}.
-
-Finally, you may visit the package webpage \url{http://sci2s.ugr.es/dicits/software/RoughSets},
-where we provide a more extensive introduction as well as additional explanations of
-the procedures.
 }
+\section{Introduction to Rough Set Theory}{
+
+
+This part attempts to introduce rough set theory (RST) and its application to data analysis. 
+While the classical RST proposed by Pawlak in 1982 is explained in detail in this section, 
+some recent advancements will be treated in the documentation of the related functions.  
+
+In RST, a data set is represented as a table called an information system \eqn{\mathcal{A} = (U, A)}, where
+\eqn{U} is a non-empty set of finite objects known as the universe of discourse (note: it refers to all instances/rows 
+in datasets) and \eqn{A} is a non-empty finite set of attributes, such that \eqn{a : U \to V_{a}} for every \eqn{a \in A}. 
+The set \eqn{V_{a}} is the set of values that attribute \eqn{a} may take. Information systems that involve a decision attribute, 
+containing classes for each object, are called decision systems or decision tables. More formally, it is a pair \eqn{\mathcal{A} = (U, A \cup \{d\})},
+where \eqn{d \notin A} is the decision attribute. The elements of \eqn{A} are called conditional attributes. The information system
+representing all data in a particular system may contain redundant parts. It could happen because there are the same 
+or indiscernible objects or some superfluous attributes. The indiscernibility relation is a binary relation showing the relation between two objects.
+This relation is an equivalence relation.  
+Let \eqn{\mathcal{A} = (U, A)} be an information system, then for any \eqn{B \subseteq A} there is an equivalence 
+relation \eqn{R_B(x,y)}:
+
+\eqn{R_B(x,y)= \{(x,y) \in U^2 | \forall a \in B, a(x) = a(y)\}}
+
+If \eqn{(x,y) \in R_B(x,y)}, then \eqn{x} and \eqn{y} are indiscernible by attributes from \eqn{B}. The equivalence
+classes of the \eqn{B}-indiscernibility relation are denoted \eqn{[x]_{B}}. The indiscernibility relation will be further used to define basic concepts of rough
+set theory which are lower and upper approximations.
+
+Let \eqn{B \subseteq A} and \eqn{X \subseteq U},
+\eqn{X} can be approximated using the information contained within \eqn{B} by constructing 
+the \eqn{B}-lower and \eqn{B}-upper approximations of \eqn{X}:
+
+\eqn{R_B \downarrow X = \{ x \in U | [x]_{B} \subseteq X \}}
+
+\eqn{R_B \uparrow X = \{ x \in U | [x]_{B} \cap X \not= \emptyset \}}
+
+The tuple \eqn{\langle R_B \downarrow X, R_B \uparrow X \rangle} is called a rough set.
+The objects in \eqn{R_B \downarrow X} mean that they can be with certainty classified as members of \eqn{X} on the basis of knowledge in \eqn{B}, while
+the objects in \eqn{R_B \uparrow X} can be only classified as possible members of \eqn{X} on the basis of knowledge in \eqn{B}. 
+
+In a decision system, for \eqn{X} we use decision concepts (equivalence classes of decision attribute) \eqn{[x]_d}. 
+We can define \eqn{B}-lower and \eqn{B}-upper approximations as follows.
+
+\eqn{R_B \downarrow [x]_d = \{ x \in U | [x]_{B} \subseteq [x]_d \}}
+
+\eqn{R_B \uparrow [x]_d = \{ x \in U | [x]_{B} \cap [x]_d \not= \emptyset \}}
+
+The positive, negative and boundary of \eqn{B} regions can be defined as:
+
+\eqn{POS_{B} = \bigcup_{x \in U } R_B \downarrow [x]_d}
+
+The boundary region, \eqn{BND_{B}}, is the set of objects that can possibly, but not certainly, be classified.
+
+\eqn{BND_{B} = \bigcup_{x \in U} R_B \uparrow [x]_d - \bigcup_{x \in U} R_B \downarrow [x]_d}
+
+Furthermore, we can calculate the degree of dependency of the decision on a set of attributes. The decision attribute \eqn{d}
+depends totally on a set of attributes \eqn{B}, denoted \eqn{B \Rightarrow d},
+if all  attribute values from \eqn{d} are uniquely determined by values of attributes from \eqn{B}. It can be defined as follows.
+For \eqn{B \subseteq A}, it is said that \eqn{d} depends on \eqn{B} in a degree of dependency \eqn{\gamma_{B} = \frac{|POS_{B}|}{|U|}}. 
+
+A decision reduct is a set \eqn{B \subseteq A} such that \eqn{\gamma_{B} = \gamma_{A}} and \eqn{\gamma_{B'} < \gamma_{B}} for every \eqn{B' \subset B}.
+One algorithm to determine all reducts is by constructing the decision-relative discernibility matrix. 
+The discernibility matrix \eqn{M(\mathcal{A})} is an \eqn{n \times n} matrix \eqn{(c_{ij})} where
+
+\eqn{c_{ij} = \{a \in A: a(x_i) \neq a(x_j) \}} if \eqn{d(x_i) \neq d(x_j)} and
+
+\eqn{c_{ij} = \oslash} otherwise
+
+The discernibility function \eqn{f_{\mathcal{A}}} for a decision system \eqn{\mathcal{A}} is a boolean function of \eqn{m} boolean variables \eqn{\bar{a}_1, \ldots, \bar{a}_m}
+corresponding to the attributes \eqn{a_1, \ldots, a_m} respectively, and defined by
+
+\eqn{f_{\mathcal{A}}(\bar{a_1}, \ldots, \bar{a_m}) = \wedge \{\vee \bar{c}_{ij}: 1 \le j < i \le n, c_{ij} \neq \oslash \}}
+
+where \eqn{\bar{c}_{ij}= \{ \bar{a}: a \in c_{ij}\}}. The decision reducts of \eqn{A} are then the prime implicants of the function \eqn{f_{\mathcal{A}}}. 
+The complete explanation of the algorithm can be seen in (Skowron and Rauszer, 1992).
+
+The implementations of the RST concepts can be seen in \code{\link{BC.IND.relation.RST}}, 
+
+\code{\link{BC.LU.approximation.RST}}, \code{\link{BC.positive.reg.RST}}, and 
+
+\code{\link{BC.discernibility.mat.RST}}.
+}
+
+\section{Introduction to Fuzzy Rough Set Theory}{
+
+
+This part introduces briefly fuzzy rough set theory (FRST) and its application to data analysis. 
+Since recently there are a lot of FRST variants that have been
+proposed by researchers, in this introduction, we only provide some basic concepts of FRST based on (Radzikowska and Kerre, 2002). 
+
+Just like in RST (see \code{\link{Introduction-RoughSets}}),
+a data set is represented as a table called an information system \eqn{\mathcal{A} = (U, A)}, where
+\eqn{U} is a non-empty set of finite objects as the universe of discourse (note: it refers to all instances/experiments/rows 
+in datasets) and \eqn{A} is a non-empty finite set of attributes, such that \eqn{a : U \to V_{a}} for every \eqn{a \in A}. 
+The set \eqn{V_{a}} is the set of values that attribute \eqn{a} may take. Information systems that involve a decision attribute, 
+containing classes or decision values of each objects, are called decision systems (or said as decision tables). More formally, it is a pair \eqn{\mathcal{A} = (U, A \cup \{d\})},
+where \eqn{d \notin A} is the decision attribute. The elements of \eqn{A} are called conditional attributes. However, different from RST, FRST has several ways
+to express indiscernibility. 
+
+Fuzzy indiscernibility relation (FIR) is used for any fuzzy relation that determines the degree to which two objects are indiscernible. 
+We consider some special cases of FIR.
+\itemize{
+\item fuzzy tolerance relation: this relation has properties which are reflexive and symmetric where
+
+      reflexive: \eqn{R(x,x) = 1}
+
+      symmetric: \eqn{R(x,y) = R(y,x)}
+
+\item similarity relation (also called fuzzy equivalence relation): this relation has properties not only reflexive and symmetric but also
+      transitive defined as
+
+      \eqn{min(R(x,y), R(y,z)) \le R(x,z)}
+
+\item \eqn{\mathcal{T}}-similarity relation (also called fuzzy \eqn{\mathcal{T}}-equivalence relation): this relation is a fuzzy tolerance relation that is also \eqn{\mathcal{T}}-transitive.
+
+      \eqn{\mathcal{T}(R(x,y), R(y,z)) \le R(x,z)}, for a given triangular norm \eqn{\mathcal{T}}. 
+}
+
+The following equations are the tolerance relations on a quantitative attribute \eqn{a}, \eqn{R_a}, proposed by (Jensen and Shen, 2009).
+\itemize{
+\item \code{eq.1}: \eqn{R_a(x,y) = 1 - \frac{|a(x) - a(y)|}{|a_{max} - a_{min}|}}
+\item \code{eq.2}: \eqn{R_a(x,y) = exp(-\frac{(a(x) - a(y))^2}{2 \sigma_a^2})}
+\item \code{eq.3}: \eqn{R_a(x,y) = max(min(\frac{a(y) - a(x) + \sigma_a}{\sigma_a}, \frac{a(x) - a(y) + \sigma_a}{\sigma_a}), 0)}
+}
+where \eqn{\sigma_{a}^2} is the variance of feature \eqn{a} and \eqn{a_{min}} and \eqn{a_{max}} are the minimal and maximal values of data supplied by user. 
+Additionally, other relations have been implemented in \code{\link{BC.IND.relation.FRST}}
+
+For a qualitative (i.e., nominal) attribute \eqn{a}, the classical manner of discerning objects is used, i.e., \eqn{R_a(x,y) = 1}
+if \eqn{a(x) = a(y)} and \eqn{R_a(x,y) = 0}, otherwise. We can then define, for any subset \eqn{B} of \eqn{A}, the fuzzy \eqn{B}-indiscernibility relation by
+
+\eqn{R_B(x,y) = \mathcal{T}(R_a(x,y))},
+
+where \eqn{\mathcal{T}} is a t-norm operator, for instance minimum, product and Lukasiewicz t-norm. 
+In general, \eqn{\mathcal{T}} can be replaced by any aggregation operator, like e.g., the average.
+
+In the context of FRST, according to (Radzikowska and Kerre, 2002) lower and upper approximation 
+are generalized by means of an implicator \eqn{\mathcal{I}} and a t-norm \eqn{\mathcal{T}}. 
+The following are the fuzzy \eqn{B}-lower and \eqn{B}-upper approximations of a fuzzy set \eqn{A} in \eqn{U}
+
+\eqn{(R_B \downarrow A)(y) = inf_{x \in U} \mathcal{I}(R_B(x,y), A(x))}
+
+\eqn{(R_B \uparrow A)(y) = sup_{x \in U} \mathcal{T}(R_B(x,y), A(x))}
+
+The underlying meaning is that \eqn{R_B \downarrow A} is the set of elements \emph{necessarily} satisfying
+the concept (strong membership), while \eqn{R_B \uparrow A} is the set of elements \emph{possibly} belonging
+to the concept (weak membership). Many other ways to define the approximations can be found in \code{\link{BC.LU.approximation.FRST}}.
+Mainly, these were designed to deal with noise in the data and to make the approximations more robust.
+
+Based on fuzzy \eqn{B}-indiscernibility relations, we define the fuzzy \eqn{B}-positive region by, for \eqn{y \in X},
+
+\eqn{POS_B(y) = (\cup_{x \in U} R_B \downarrow R_dx)(y)}
+
+We can define the degree of dependency of \eqn{d} on \eqn{B}, \eqn{\gamma_{B}} by
+
+\eqn{\gamma_{B} = \frac{|POS_{B}|}{|U|} = \frac{\sum_{x \in U} POS_{B}(x)}{|U|}}
+
+A decision reduct is a set \eqn{B \subseteq A} such that \eqn{\gamma_{B} = \gamma_{A}} and \eqn{\gamma_{B'} = \gamma_{B}} for every \eqn{B' \subset B}. 
+
+As we know from rough set concepts (See \code{\link{Introduction-RoughSets}}), we are able to calculate the 
+decision reducts by constructing the decision-relative discernibility matrix. Based on (Tsang et al, 2008), the discernibility matrix
+can be defined as follows. 
+The discernibility matrix is an \eqn{n \times n} matrix \eqn{(c_{ij})} where 
+for \eqn{i,j = 1, \ldots, n}
+       
+1) \eqn{c_{ij}= \{a \in A : 1 - R_{a}(x_i, x_j) \ge	\lambda_i\}} if \eqn{\lambda_j < \lambda_i}.
+
+2) \eqn{c_{ij}={\oslash}}, otherwise. 
+
+with \eqn{\lambda_i = (R_A \downarrow R_{d}x_{i})(x_i)} and \eqn{\lambda_j = (R_A \downarrow R_{d}x_{j})(x_{j})}
+
+Other approaches of discernibility matrix can be read at \code{\link{BC.discernibility.mat.FRST}}.
+
+The other implementations of the FRST concepts can be seen at \code{\link{BC.IND.relation.FRST}}, 
+
+\code{\link{BC.LU.approximation.FRST}}, and \code{\link{BC.positive.reg.FRST}}.
+}
+
 \examples{
 ##############################################################
 ## A.1 Example: Basic concepts of rough set theory
@@ -482,14 +654,16 @@ err.3 <- 100*sum(predValues.frnn.o!=real.val)/
 err.4 <- 100*sum(predValues.frnn!=real.val)/
   nrow(predValues.frnn)
 
-cat("The percentage error = ", err.1, "\\n")
-cat("The percentage error = ", err.2, "\\n")
-cat("The percentage error = ", err.3, "\\n")
-cat("The percentage error = ", err.4, "\\n")}
+cat("The percentage error = ", err.1, "\n")
+cat("The percentage error = ", err.2, "\n")
+cat("The percentage error = ", err.3, "\n")
+cat("The percentage error = ", err.4, "\n")}
 }
 \references{
 D. Dubois and H. Prade, "Rough Fuzzy Sets and Fuzzy Rough Sets",
 International Journal of General Systems, vol. 17, p. 91 - 209 (1990).
+
+\emph{General references}
 
 L.A. Zadeh, "Fuzzy Sets",
 Information and Control, vol. 8, p. 338 - 353 (1965).
@@ -500,6 +674,44 @@ vol. 11, no. 5, p. 341 - 356 (1982).
 
 Z. Pawlak, "Rough Sets: Theoretical Aspects of Reasoning About Data, System Theory, Knowledge Engineering and Problem Solving",
 vol. 9, Kluwer Academic Publishers, Dordrecht, Netherlands (1991).
+
+\emph{Introduction to Rough Set Theory  references}
+
+A. Skowron and C. Rauszer,  
+"The Discernibility Matrices and Functions in Information Systems", 
+in: R. Slowinski (Ed.), Intelligent Decision Support: Handbook of Applications and
+Advances of Rough Sets Theory, Kluwer Academic Publishers, Dordrecht, Netherland,  
+p. 331 - 362 (1992).
+
+Z. Pawlak, "Rough Sets", 
+International Journal of Computer and Information System, 
+vol. 11, no.5, p. 341 - 356 (1982).
+
+Z. Pawlak, "Rough Sets: Theoretical Aspects of Reasoning about Data, System Theory, Knowledge Engineering and Problem Solving",
+vol. 9, Kluwer Academic Publishers, Dordrecht, Netherlands (1991). 
+
+\emph{Introduction to Fuzzy Rough Set Theory references}
+
+A. M. Radzikowska and E. E. Kerre, "A Comparative Study of Fuzzy Rough Sets", 
+Fuzzy Sets and Systems, vol. 126, p. 137 - 156 (2002). 
+
+D. Dubois and H. Prade, "Rough Fuzzy Sets and Fuzzy Rough Sets",
+International Journal of General Systems, vol. 17, p. 91 - 209 (1990).
+
+E. C. C. Tsang, D. G. Chen, D. S. Yeung, X. Z. Wang, and J. W. T. Lee, 
+"Attributes Reduction Using Fuzzy Rough Sets", IEEE Trans. Fuzzy Syst., 
+vol. 16, no. 5, p. 1130 - 1141 (2008).
+
+L. A. Zadeh, "Fuzzy Sets",
+Information and Control, vol. 8, p. 338 - 353 (1965).
+
+R. Jensen and Q. Shen,  
+"New Approaches to Fuzzy-Rough Feature Selection", 
+IEEE Trans. on Fuzzy Systems, vol. 19, no. 4,
+p. 824 - 838 (2009).
+
+Z. Pawlak, "Rough Sets", International Journal of Computer and Information Sciences, 
+vol. 11, no. 5, p. 341 - 356 (1982).
 }
 \author{
 Lala Septem Riza \email{lala.s.riza@decsai.ugr.es},
@@ -516,7 +728,7 @@ and Jose Manuel Benitez \email{j.m.benitez@decsai.ugr.es}
 
 DiCITS Lab, SCI2S group, CITIC-UGR, DECSAI, University of Granada,
 
-\url{http://dicits.ugr.es}, \url{http://sci2s.ugr.es}
+\url{https://sci2s.ugr.es}
 
 Institute of Mathematics, University of Warsaw.
 }

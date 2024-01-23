@@ -4,8 +4,7 @@
 \alias{FS.one.reduct.computation}
 \title{Computing one reduct from a discernibility matrix}
 \usage{
-FS.one.reduct.computation(discernibilityMatrix, greedy = TRUE,
-  power = 1)
+FS.one.reduct.computation(discernibilityMatrix, greedy = TRUE, power = 1)
 }
 \arguments{
 \item{discernibilityMatrix}{a \code{"DiscernibilityMatrix"} class representing the discernibility matrix of RST and FRST.}

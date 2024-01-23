@@ -4,16 +4,21 @@
 \alias{FS.greedy.heuristic.reduct.RST}
 \title{The greedy heuristic algorithm for computing decision reducts and approximate decision reducts}
 \usage{
-FS.greedy.heuristic.reduct.RST(decision.table,
+FS.greedy.heuristic.reduct.RST(
+  decision.table,
   attrDescriptions = attr(decision.table, "desc.attrs"),
   decisionIdx = attr(decision.table, "decision.attr"),
-  qualityF = X.gini, nAttrs = NULL, epsilon = 0,
-  inconsistentDecisionTable = NULL)
+  qualityF = X.gini,
+  nAttrs = NULL,
+  epsilon = 0,
+  inconsistentDecisionTable = NULL
+)
 }
 \arguments{
 \item{decision.table}{an object of a \code{"DecisionTable"} class representing a decision table. See \code{\link{SF.asDecisionTable}}.}
 
-\item{attrDescriptions}{a list containing possible values of attributes (columns) in \code{decision.table}. It usually corresponds to \code{attr(decision.table, "desc.attrs")}.}
+\item{attrDescriptions}{a list containing possible values of attributes (columns) in \code{decision.table}. 
+It usually corresponds to \code{attr(decision.table, "desc.attrs")}.}
 
 \item{decisionIdx}{an integer value representing an index of the decision attribute.}
 

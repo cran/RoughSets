@@ -34,7 +34,7 @@ This is a function that implements the fuzzy-rough instance selection (FRIS) pro
 }
 \details{
 FRIS is used to remove training instances that cause conflicts with other instances as 
-determined by the fuzzy positive region.
+determined by the fuzzy positive region. 
 
 This algorithm evaluates the degree of membership of each instance to the fuzzy positive region.
 If there is a instance less than the threshold, then the instance can be removed. 
@@ -45,7 +45,7 @@ objects \eqn{x} and \eqn{y} on attribute \eqn{a} in the training set:
 
 where parameter \eqn{\alpha} (\eqn{\alpha \ge 0}) determines the granularity of \eqn{R_{a}^{\alpha}}.
 Then, the fuzzy \eqn{B}-indiscernibility relation, fuzzy lower approximation, positive region and degree of dependency are calculated based on 
-the concept in \code{\link{B.Introduction-FuzzyRoughSets}}. 
+the concept in \code{\link{Introduction-FuzzyRoughSets}}. 
  
 It should be noted that this function does not give the new decision table directly. 
 The other additional function called \code{\link{SF.applyDecTable}} is used to produce the new decision table based on 

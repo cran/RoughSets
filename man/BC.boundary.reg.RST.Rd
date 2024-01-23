@@ -28,7 +28,7 @@ An object of a class \code{"BoundaryRegion"} which is a list with the following 
 This function implements a fundamental part of RST: computation of a boundary region and the
 degree of dependency. This function can be used as a basic building block for development 
 of other RST-based methods. A more detailed explanation of this notion can be found 
-in \code{\link{A.Introduction-RoughSets}}.
+in \code{\link{Introduction-RoughSets}}.
 }
 \examples{
 ########################################################

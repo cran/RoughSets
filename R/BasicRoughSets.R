@@ -21,7 +21,7 @@
 #' This binary relation indicates whether it is possible to discriminate any given pair of objects from an information system. 
 #'  
 #' This function can be used as a basic building block for development of other RST-based methods.
-#' A more detailed explanation of the notion of indiscernibility relation can be found in \code{\link{A.Introduction-RoughSets}}.
+#' A more detailed explanation of the notion of indiscernibility relation can be found in \code{\link{Introduction-RoughSets}}.
 #'
 #' @title Computation of indiscernibility classes based on the rough set theory
 #' @author Andrzej Janusz
@@ -112,7 +112,7 @@ BC.IND.relation.RST <- function(decision.table, feature.set = NULL){
 #' to a particular decision class on the basis of available knowledge.
 #' 
 #' This function can be used as a basic building block for development of other RST-based methods.
-#' A more detailed explanation of this notion can be found in \code{\link{A.Introduction-RoughSets}}.
+#' A more detailed explanation of this notion can be found in \code{\link{Introduction-RoughSets}}.
 #' 
 #' @title Computation of lower and upper approximations of decision classes
 #' @author Andrzej Janusz
@@ -222,7 +222,7 @@ BC.LU.approximation.RST <- function(decision.table, IND){
 #' This function implements a fundamental part of RST: computation of a positive region and the
 #' degree of dependency. This function can be used as a basic building block for development 
 #' of other RST-based methods. A more detailed explanation of this notion can be found 
-#' in \code{\link{A.Introduction-RoughSets}}.
+#' in \code{\link{Introduction-RoughSets}}.
 #' 
 #' @title Computation of a positive region
 #' @author Andrzej Janusz
@@ -288,7 +288,7 @@ BC.positive.reg.RST <- function(decision.table, roughset) {
 #' This function implements a fundamental part of RST: a decision-relative discernibility matrix. This notion
 #' was proposed by (Skowron and Rauszer, 1992) as a middle-step in many RST algorithms for computaion of reducts, 
 #' discretization and rule induction. A more detailed explanation of this notion can be found 
-#' in \code{\link{A.Introduction-RoughSets}}.
+#' in \code{\link{Introduction-RoughSets}}.
 #'
 #' @title Computation of a decision-relative discernibility matrix based on the rough set theory
 #' @author Lala Septem Riza and Andrzej Janusz
@@ -414,7 +414,7 @@ BC.discernibility.mat.RST <- function(decision.table, range.object = NULL,
 #' This function implements a fundamental part of RST: computation of a boundary region and the
 #' degree of dependency. This function can be used as a basic building block for development 
 #' of other RST-based methods. A more detailed explanation of this notion can be found 
-#' in \code{\link{A.Introduction-RoughSets}}.
+#' in \code{\link{Introduction-RoughSets}}.
 #' 
 #' @title Computation of a boundary region
 #' @author Dariusz Jankowski, Andrzej Janusz
@@ -490,7 +490,7 @@ BC.boundary.reg.RST <- function(decision.table, roughset) {
 #' This function implements a fundamental part of RST: computation of a negative region and the
 #' degree of dependency. This function can be used as a basic building block for development 
 #' of other RST-based methods. A more detailed explanation of this notion can be found 
-#' in \code{\link{A.Introduction-RoughSets}}.
+#' in \code{\link{Introduction-RoughSets}}.
 #' 
 #' @title Computation of a negative region
 #' @author Dariusz Jankowski, Andrzej Janusz

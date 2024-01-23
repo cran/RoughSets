@@ -33,7 +33,7 @@ This function implements a fundamental part of RST: the indiscernibility relatio
 This binary relation indicates whether it is possible to discriminate any given pair of objects from an information system. 
  
 This function can be used as a basic building block for development of other RST-based methods.
-A more detailed explanation of the notion of indiscernibility relation can be found in \code{\link{A.Introduction-RoughSets}}.
+A more detailed explanation of the notion of indiscernibility relation can be found in \code{\link{Introduction-RoughSets}}.
 }
 \examples{
 #############################################

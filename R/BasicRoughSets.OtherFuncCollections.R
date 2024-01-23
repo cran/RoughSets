@@ -1009,7 +1009,7 @@ formula.discernibilityMatrix <- function(IND.cond, type.discernibility, fuzzy.lo
 # @param type.relation a type of relation
 # @param t.implicator a type of implicator operator
 # @param type.LU a type of lower/upper approximation
-min.disc.mat.FRST <- function(decision.table, t.tnorm = "lukasiewicz", type.relation = c("tolerance", "eq.1"), t.implicator = "lukasiewicz", type.LU = "implicator.tnorm"){
+min_disc_mat_FRST <- function(decision.table, t.tnorm = "lukasiewicz", type.relation = c("tolerance", "eq.1"), t.implicator = "lukasiewicz", type.LU = "implicator.tnorm"){
 #	req.suc <- require("sets", quietly=TRUE)
 #	if(!req.suc) stop("In order to use this function, you need to install the package sets.")	  
 		
